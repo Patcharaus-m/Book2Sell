@@ -10,6 +10,12 @@ async function create(req: Request, res: Response) {
   return res.status(data.code).json(data);
 }
 
+const getAll = async (req: Request, res: Response) => {
+    const result = await controllers.getAll(); // เรียก logic จาก controller
+    res.status(result.code).json(result);
+};
+
 export default {
   create,
+  getAll,
 };

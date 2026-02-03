@@ -6,4 +6,7 @@ const routers = express.Router();
 // กำหนดว่าถ้า Client ส่ง POST มาที่ "/" (ซึ่งคือ /api/book) ให้ทำงานที่ resFunc.create 
 routers.post("/", resFunc.create);
 
+// กำหนดว่าถ้า Client ส่ง GET มาที่ "/" (ซึ่งคือ /api/book) ให้ทำงานที่ resFunc.getAll
+routers.get("/", resFunc.getAll);
+
 export default routers;
