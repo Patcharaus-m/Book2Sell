@@ -2,7 +2,7 @@ import { Search, ShoppingCart, LogOut, ShoppingBag, Plus, X, ChevronDown, Packag
 import { useAuth } from "../../context/AuthContext";
 import { useBook } from "../../context/BookContext";
 import { useCart } from "../../context/CartContext";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import LoginModal from "../auth/LoginModal";
 import RegisterModal from "../auth/RegisterModal";
@@ -14,6 +14,10 @@ export default function Navbar() {
     const { filters, setSearchKeyword, addBook } = useBook();
     const { cart, setIsDrawerOpen } = useCart();
     const navigate = useNavigate();
+    const location = useLocation();
+
+    // Check if we are on the About Us page (Immersion Mode)
+    const isAboutUsPage = location.pathname === '/about-us';
 
     // State
     const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -44,14 +48,21 @@ export default function Navbar() {
         if (window.location.pathname !== '/') navigate('/');
     };
 
-    const handleAddBook = (bookData) => {
-        addBook(bookData, user);
-        setIsSellModalOpen(false);
-        navigate('/');
+    const handleAddBook = async (bookData) => {
+        const result = await addBook(bookData, user);
+        if (result.success) {
+            setIsSellModalOpen(false);
+            navigate('/');
+        } else {
+            alert(`ไม่สามารถลงขายได้: ${result.message || "กรุณาลองใหม่อีกครั้ง"}`);
+        }
     };
 
     return (
-        <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
+        <nav className={`sticky top-0 z-50 border-b transition-all duration-700 ease-in-out ${isAboutUsPage
+            ? "bg-[#13092D]/80 backdrop-blur-md border-purple-900/30 shadow-[0_4px_30px_rgba(0,0,0,0.5)]"
+            : "bg-white/90 backdrop-blur-md border-gray-100 shadow-sm"
+            }`}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-20">
 
@@ -69,11 +80,14 @@ export default function Navbar() {
                     <div className="hidden md:flex flex-1 max-w-xl mx-8">
                         <div className="relative group w-full">
                             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                <Search className="h-5 w-5 text-gray-400 group-focus-within:text-purple-600 transition-colors" />
+                                <Search className={`h-5 w-5 transition-colors ${isAboutUsPage ? "text-gray-400 group-focus-within:text-purple-400" : "text-gray-400 group-focus-within:text-purple-600"}`} />
                             </div>
                             <input
                                 type="text"
-                                className="block w-full pl-12 pr-10 py-3 border border-gray-200 rounded-full bg-gray-50 text-sm font-medium placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-100 focus:border-purple-500 focus:bg-white transition-all"
+                                className={`block w-full pl-12 pr-10 py-3 border rounded-full text-sm font-medium focus:outline-none focus:ring-2 transition-all ${isAboutUsPage
+                                        ? "bg-white/5 border-white/10 text-white placeholder-gray-500 focus:ring-purple-500/50 focus:bg-white/10 focus:border-purple-500/50"
+                                        : "bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:ring-purple-100 focus:border-purple-500 focus:bg-white"
+                                    }`}
                                 placeholder="ค้นหาหนังสือ..."
                                 value={filters.keyword}
                                 onChange={handleSearch}
@@ -94,7 +108,8 @@ export default function Navbar() {
 
                         {/* Mobile Search Toggle */}
                         <button
-                            className="md:hidden p-3 text-gray-500 hover:bg-gray-100 rounded-full transition-colors"
+                            className={`md:hidden p-3 rounded-full transition-colors ${isAboutUsPage ? "text-white/80 hover:bg-white/10" : "text-gray-500 hover:bg-gray-100"
+                                }`}
                             onClick={() => setShowMobileSearch(!showMobileSearch)}
                         >
                             {showMobileSearch ? <X className="h-6 w-6" /> : <Search className="h-6 w-6" />}
@@ -102,7 +117,8 @@ export default function Navbar() {
 
                         {/* Cart Button */}
                         <button
-                            className="relative p-3 text-gray-500 hover:text-purple-600 hover:bg-purple-50 rounded-2xl transition-all hover:scale-105 active:scale-95"
+                            className={`relative p-3 rounded-2xl transition-all hover:scale-105 active:scale-95 ${isAboutUsPage ? "text-white/80 hover:text-purple-400 hover:bg-white/5" : "text-gray-500 hover:text-purple-600 hover:bg-purple-50"
+                                }`}
                             onClick={() => setIsDrawerOpen(true)}
                         >
                             <ShoppingCart className="h-6 w-6" />
@@ -113,17 +129,20 @@ export default function Navbar() {
                             )}
                         </button>
 
-                        <div className="h-8 w-px bg-gray-200 mx-1 hidden sm:block" />
+                        <div className={`h-8 w-px mx-1 hidden sm:block ${isAboutUsPage ? "bg-white/10" : "bg-gray-200"}`} />
 
                         {user ? (
                             <div className="flex items-center gap-3">
                                 {/* Sell Button */}
                                 <button
                                     onClick={() => setIsSellModalOpen(true)}
-                                    className="relative group hidden sm:flex items-center gap-2 px-6 py-2.5 bg-gray-900 text-white rounded-xl font-bold text-sm hover:shadow-xl hover:shadow-purple-500/20 hover:-translate-y-0.5 transition-all duration-250 active:scale-95 overflow-hidden"
+                                    className={`relative group hidden sm:flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm hover:shadow-xl transition-all duration-250 active:scale-95 overflow-hidden ${isAboutUsPage
+                                            ? "bg-white/10 text-white hover:bg-white/20 border border-white/10 hover:shadow-purple-500/10"
+                                            : "bg-gray-900 text-white hover:shadow-purple-500/20"
+                                        }`}
                                 >
-                                    {/* เลเยอร์สี Gradient  */}
-                                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-250" />
+                                    {/* เลเยอร์สี Gradient - Only for default mode or modified for dark mode */}
+                                    <div className={`absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 transition-opacity duration-250 ${isAboutUsPage ? "opacity-0" : "opacity-0 group-hover:opacity-100"}`} />
 
                                     {/* เนื้อหาปุ่มที่อยู่ด้านบน */}
                                     <div className="relative z-10 flex items-center gap-2">
@@ -136,16 +155,19 @@ export default function Navbar() {
                                 <div className="relative" ref={menuRef}>
                                     <button
                                         onClick={() => setShowUserMenu(!showUserMenu)}
-                                        className="flex items-center gap-2 p-1 pl-3 pr-2 border border-gray-100 rounded-full hover:bg-gray-50 transition-all hover:shadow-md"
+                                        className={`flex items-center gap-2 p-1 pl-3 pr-2 border rounded-full transition-all hover:shadow-md ${isAboutUsPage
+                                                ? "border-white/10 hover:bg-white/5"
+                                                : "border-gray-100 hover:bg-gray-50"
+                                            }`}
                                     >
                                         <div className="text-right hidden lg:block">
-                                            <p className="text-xs font-bold text-gray-900">{user.name}</p>
-                                            <p className="text-[10px] text-purple-600 font-bold">฿{user.storeCredits?.toLocaleString() || 0}</p>
+                                            <p className={`text-xs font-bold ${isAboutUsPage ? "text-white" : "text-gray-900"}`}>{user.name}</p>
+                                            <p className={`text-[10px] font-bold ${isAboutUsPage ? "text-purple-300" : "text-purple-600"}`}>฿{user.storeCredits?.toLocaleString() || 0}</p>
                                         </div>
                                         <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold shadow-sm">
                                             {user.name.charAt(0).toUpperCase()}
                                         </div>
-                                        <ChevronDown size={14} className={`text-gray-400 transition-transform duration-200 ${showUserMenu ? 'rotate-180' : ''}`} />
+                                        <ChevronDown size={14} className={`transition-transform duration-200 ${showUserMenu ? 'rotate-180' : ''} ${isAboutUsPage ? "text-white/50" : "text-gray-400"}`} />
                                     </button>
 
                                     {/* Dropdown Content with Animation */}
@@ -162,7 +184,7 @@ export default function Navbar() {
                                             <Link to="/settings" className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors">
                                                 <Settings size={16} className="text-purple-500" /> ตั้งค่าบัญชี
                                             </Link>
-                                            <Link to="/about-us" className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors">
+                                            <Link to="/myAccount" className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors">
                                                 <User size={16} className="text-purple-500" /> บัญชีของฉัน
                                             </Link>
                                             <button

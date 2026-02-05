@@ -6,7 +6,7 @@ const BookContext = createContext();
  * BookProvider - จัดการข้อมูลสินค้า (Inventory) เริ่มต้นด้วยค่าว่าง และระบบจัดการผู้ขาย (Seller System)
  */
 export const BookProvider = ({ children }) => {
-    // 🧹 เคลียร์ข้อมูลจำลองออกทั้งหมด เริ่มต้นด้วยอาเรย์ว่างตามโจทย์
+
     const [books, setBooks] = useState([]);
     const [filters, setFilters] = useState({
         keyword: '',
@@ -28,58 +28,80 @@ export const BookProvider = ({ children }) => {
 
     const fetchBooks = async () => {
         try {
-            const response = await fetch("http://localhost:3000/book");
+            const response = await fetch("http://localhost:3000/api/book");
             const data = await response.json();
             console.log('Fetch books response:', data); // Debug log
-            
-            // Backend ใช้รูปแบบ { code, status, error, payload }
+
+            let booksData = [];
             if (data.payload) {
-                setBooks(data.payload);
+                booksData = data.payload;
             } else if (Array.isArray(data)) {
-                // Fallback สำหรับกรณีที่ response เป็น array โดยตรง
-                setBooks(data);
+                booksData = data;
             }
+
+            // Normalize: Ensure all fields follow the strict IBook schema for the UI
+            const normalizedBooks = booksData.map(book => ({
+                ...book,
+                id: book.id || book._id,
+                category: book.category || (book.categories?.[0] || 'อื่นๆ'),
+                coverPrice: book.coverPrice || book.originalPrice || 0,
+                sellingPrice: book.sellingPrice || book.price || 0,
+                // Ensure categories exists for any legacy components that still expect an array
+                categories: book.categories || (book.category ? [book.category] : ['อื่นๆ'])
+            }));
+
+            setBooks(normalizedBooks);
         } catch (error) {
             console.error("Failed to fetch books:", error);
         }
     };
 
-    /**
-     * ฟังก์ชัน Add Book - ระบบลงขายผ่าน Backend
-     */
     const addBook = async (newBook, currentUser) => {
         try {
+            // Strict payload matching IBook interface exactly as requested
             const bookPayload = {
-                ...newBook,
-                sellingPrice: Number(newBook.sellingPrice || newBook.price) || 0,
-                originalPrice: Number(newBook.originalPrice || newBook.sellingPrice || newBook.price) || 0,
-                price: Number(newBook.sellingPrice || newBook.price) || 0, // Sync for safety
+                title: newBook.title,
+                author: newBook.author,
+                category: newBook.category,
+                isbn: newBook.isbn || '',
+                coverPrice: Number(newBook.coverPrice) || 0,
+                sellingPrice: Number(newBook.sellingPrice) || 0,
+                condition: newBook.condition,
+                description: newBook.description || '',
+                stock: Number(newBook.stock) || 1,
+                status: newBook.status || 'available',
+                images: newBook.images || [],
+                isDeleted: false,
+                // Metadata for backend identification
                 sellerId: currentUser?.id || 'anonymous',
                 sellerName: currentUser?.name || 'Unknown Seller'
             };
 
-            const response = await fetch("http://localhost:3000/book", {
+            const response = await fetch("http://localhost:3000/api/book", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(bookPayload)
             });
             const data = await response.json();
-            console.log('Add book response:', data); // Debug log
-            
-            // Backend ใช้รูปแบบ { code, status, error, payload }
+            console.log('Add book response:', data);
+
             if (data.code === 201 && data.payload) {
-                setBooks(prev => [data.payload, ...prev]);
-                return { success: true };
-            } else if (data.success && data.book) {
-                // Fallback สำหรับ format เดิม
-                setBooks(prev => [data.book, ...prev]);
+                const addedBook = {
+                    ...data.payload,
+                    id: data.payload.id || data.payload._id,
+                    category: data.payload.category,
+                    categories: [data.payload.category], // legacy compatibility
+                    coverPrice: data.payload.coverPrice || 0,
+                    sellingPrice: data.payload.sellingPrice || 0
+                };
+                setBooks(prev => [addedBook, ...prev]);
                 return { success: true };
             }
-            
+
             return { success: false, message: data.error?.message || 'Failed to add book' };
         } catch (error) {
             console.error("Failed to add book:", error);
-            return { success: false };
+            return { success: false, message: "เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์" };
         }
     };
 

@@ -9,9 +9,10 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
     const [formData, setFormData] = useState({
         title: '',
         author: '',
-        categories: [],
+        category: '',
+        isbn: '',
         sellingPrice: '',
-        originalPrice: '',
+        coverPrice: '',
         images: [],
         condition: 'สภาพ 95%',
         status: 'available',
@@ -35,7 +36,9 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
         if (initialData) {
             setFormData({
                 ...initialData,
-                categories: initialData.categories || (initialData.category ? [initialData.category] : []),
+                category: initialData.category || (initialData.categories?.[0] || ''),
+                isbn: initialData.isbn || '',
+                coverPrice: initialData.coverPrice || initialData.originalPrice || '',
                 images: initialData.images || (initialData.imageUrl ? [initialData.imageUrl] : []),
                 sellingPrice: initialData.sellingPrice || initialData.price || ''
             });
@@ -43,9 +46,10 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
             setFormData({
                 title: '',
                 author: '',
-                categories: [],
+                category: '',
+                isbn: '',
                 sellingPrice: '',
-                originalPrice: '',
+                coverPrice: '',
                 images: [],
                 condition: 'สภาพ 95%',
                 status: 'available',
@@ -87,21 +91,14 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
         setFormData(prev => ({ ...prev, images: prev.images.filter((_, i) => i !== index) }));
     };
 
-    const toggleCategory = (cat) => {
-        const currentCats = [...formData.categories];
-        const index = currentCats.indexOf(cat);
-        if (index > -1) {
-            currentCats.splice(index, 1);
-        } else {
-            currentCats.push(cat);
-        }
-        setFormData({ ...formData, categories: currentCats });
+    const selectCategory = (cat) => {
+        setFormData({ ...formData, category: cat });
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (formData.categories.length === 0) {
-            alert("กรุณาเลือกอย่างน้อย 1 หมวดหมู่");
+        if (!formData.category) {
+            alert("กรุณาเลือกหมวดหมู่");
             return;
         }
         onSubmit(formData);
@@ -198,8 +195,8 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
                     </div>
 
                     {/* Basic Info: Grid และลดความสูง Input */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-1.5">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="space-y-1.5 md:col-span-1">
                             <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider ml-1">ชื่อหนังสือ *</label>
                             <input
                                 required
@@ -210,7 +207,7 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
                                 onChange={e => setFormData({ ...formData, title: e.target.value })}
                             />
                         </div>
-                        <div className="space-y-1.5">
+                        <div className="space-y-1.5 md:col-span-1">
                             <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider ml-1">ผู้แต่ง *</label>
                             <input
                                 required
@@ -219,6 +216,16 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
                                 placeholder="ระบุผู้แต่ง..."
                                 value={formData.author}
                                 onChange={e => setFormData({ ...formData, author: e.target.value })}
+                            />
+                        </div>
+                        <div className="space-y-1.5 md:col-span-1">
+                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider ml-1">ISBN</label>
+                            <input
+                                type="text"
+                                className="w-full px-4 py-2.5 bg-white border border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-700/15 focus:border-purple-700 outline-none transition-all text-sm font-semibold text-gray-700"
+                                placeholder="เลข ISBN..."
+                                value={formData.isbn}
+                                onChange={e => setFormData({ ...formData, isbn: e.target.value })}
                             />
                         </div>
                     </div>
@@ -231,13 +238,13 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
                                 <button
                                     key={cat}
                                     type="button"
-                                    onClick={() => toggleCategory(cat)}
-                                    className={`px-3 py-1.5 text-[11px] font-bold rounded-lg border transition-all flex items-center gap-1.5 ${formData.categories.includes(cat)
+                                    onClick={() => selectCategory(cat)}
+                                    className={`px-3 py-1.5 text-[11px] font-bold rounded-lg border transition-all flex items-center gap-1.5 ${formData.category === cat
                                         ? 'bg-purple-600 border-purple-600 text-white shadow-md shadow-purple-500/20'
                                         : 'bg-white border-gray-200 text-gray-500 hover:border-purple-300 hover:bg-purple-50'
                                         }`}
                                 >
-                                    {formData.categories.includes(cat) && <Check size={10} />}
+                                    {formData.category === cat && <Check size={10} />}
                                     {cat}
                                 </button>
                             ))}
@@ -252,8 +259,8 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
                                 type="number"
                                 className="w-full px-4 py-2.5 bg-white border border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-700/15 focus:border-purple-700 outline-none transition-all text-sm font-bold text-gray-500 line-through"
                                 placeholder="0"
-                                value={formData.originalPrice}
-                                onChange={e => setFormData({ ...formData, originalPrice: Number(e.target.value) })}
+                                value={formData.coverPrice}
+                                onChange={e => setFormData({ ...formData, coverPrice: Number(e.target.value) })}
                             />
                         </div>
                         <div className="space-y-1.5">
