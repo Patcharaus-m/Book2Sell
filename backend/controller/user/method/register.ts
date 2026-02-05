@@ -17,18 +17,31 @@ export default async function register(data: IUser) {
 
     // --- Logic เดิมของคุณ ---
     // เช็คว่า Username หรือ Email ซ้ำไหม
-    const existingUser = await User.findOne({ 
-      $or: [{ username: data.username }, { email: data.email }] 
+    const existingUser = await User.findOne({
+      $or: [{ username: data.username }, { email: data.email }]
     });
-    
+
     if (existingUser) {
       return errRes.BAD_REQUEST({ message: "ชื่อผู้ใช้หรืออีเมลนี้ถูกใช้งานแล้ว" });
     }
 
     // สร้าง User ใหม่
     const newUser = await User.create(data);
-    return successRes(newUser);
+    const formatdeta = {
+      username: newUser.username,
+      password: newUser.password,
+      email: newUser.email,
+      phone: newUser.phone,
+      creditBalance: 0,
+      _id: newUser.id,
+      success: true
+    }
+    console.log(newUser)
+
+    return successRes(formatdeta);
+
   } catch (error: any) {
+    console.log(error)
     return errRes.INTERNAL_SERVER_ERROR({ message: error.message });
   }
 }

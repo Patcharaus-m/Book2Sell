@@ -1,0 +1,107 @@
+import React, { createContext, useContext, useState, useEffect } from "react";
+import loginService from "../services/loginService";
+import registerService from "../services/registerService";
+
+const AuthContext = createContext();
+
+/**
+ * AuthProvider - จัดการระบบล็อกอินและการคงสถานะผู้ใช้ (Senior Level Implementation)
+ * ใช้ Service Modules สำหรับ Login และ Register
+ */
+export function AuthProvider({ children }) {
+    const [user, setUser] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    // ตรวจสอบสถานะการเข้าสู่ระบบจาก localStorage เมื่อ App เริ่มทำงาน
+    useEffect(() => {
+        const checkAuth = () => {
+            try {
+                const storedUser = localStorage.getItem("auth_user");
+                if (storedUser) {
+                    setUser(JSON.parse(storedUser));
+                }
+            } catch (error) {
+                console.error("Failed to parse stored user:", error);
+                localStorage.removeItem("auth_user");
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        checkAuth();
+    }, []);
+
+    /**
+     * ฟังก์ชัน Register - สมัครสมาชิกใหม่ผ่าน registerService
+     */
+    const register = async (username, email, password, phone = '') => {
+        const result = await registerService.register(username, email, password, phone);
+        console.log(result)
+        if (result.success && result.user) {
+            setUser(result.user);
+            localStorage.setItem("auth_user", JSON.stringify(result.user));
+        }
+
+        return result;
+    };
+
+    /**
+     * ฟังก์ชัน Login - ตรวจสอบผ่าน loginService
+     */
+    const login = async (username, password) => {
+        const result = await loginService.login(username, password);
+
+        if (result.success && result.user) {
+            setUser(result.user);
+            localStorage.setItem("auth_user", JSON.stringify(result.user));
+        }
+
+        return result;
+    };
+
+    /**
+     * ฟังก์ชัน Logout - ล้างข้อมูลทั้งหมด
+     */
+    const logout = () => {
+        setUser(null);
+        localStorage.removeItem("auth_user");
+    };
+
+    /**
+     * ฟังก์ชัน Top-Up เครดิต (Frontend Logic)
+     */
+    const topUp = async (amount) => {
+        if (!user) return { success: false, message: "User not logged in" };
+
+        const newCredits = (user.storeCredits || 0) + amount;
+        const updatedUser = { ...user, storeCredits: newCredits };
+
+        setUser(updatedUser);
+        localStorage.setItem("auth_user", JSON.stringify(updatedUser));
+
+        return { success: true, balance: newCredits };
+    };
+
+    const value = {
+        user,
+        login,
+        register,
+        logout,
+        topUp,
+        isLoading
+    };
+
+    return (
+        <AuthContext.Provider value={value}>
+            {children}
+        </AuthContext.Provider>
+    );
+}
+
+export const useAuth = () => {
+    const context = useContext(AuthContext);
+    if (!context) {
+        throw new Error("useAuth must be used within an AuthProvider");
+    }
+    return context;
+};
