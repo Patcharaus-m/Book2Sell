@@ -1,4 +1,4 @@
-import { Search, ShoppingCart, LogOut, ShoppingBag, Plus, X, ChevronDown, Package, Settings, BookOpen, Book, Library, Wallet } from "lucide-react";
+import { Search, ShoppingCart, LogOut, ShoppingBag, Plus, X, ChevronDown, Package, Settings, BookOpen, Book, Library, Wallet, User } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useBook } from "../../context/BookContext";
 import { useCart } from "../../context/CartContext";
@@ -157,10 +157,13 @@ export default function Navbar() {
                                             </div>
 
                                             <Link to="/my-shop" className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors">
-                                                <Package size={16} className="text-purple-500" /> ร้านของฉัน
+                                                <Package size={16} className="text-purple-500" /> ของฉัน
                                             </Link>
                                             <Link to="/settings" className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors">
                                                 <Settings size={16} className="text-purple-500" /> ตั้งค่าบัญชี
+                                            </Link>
+                                            <Link to="/account" className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors">
+                                                <User size={16} className="text-purple-500" /> บัญชีของฉัน
                                             </Link>
                                             <button
                                                 onClick={() => { setIsTopUpOpen(true); setShowUserMenu(false); }}
@@ -217,13 +220,13 @@ export default function Navbar() {
             </div>
 
             {/* External Modals */}
-            <LoginModal 
-                isOpen={isLoginModalOpen} 
+            <LoginModal
+                isOpen={isLoginModalOpen}
                 onClose={() => setIsLoginModalOpen(false)}
                 onSwitchToRegister={switchToRegister}
             />
-            <RegisterModal 
-                isOpen={isRegisterModalOpen} 
+            <RegisterModal
+                isOpen={isRegisterModalOpen}
                 onClose={() => setIsRegisterModalOpen(false)}
                 onSwitchToLogin={switchToLogin}
             />

@@ -11,6 +11,9 @@ import BookDetail from "./components/book/BookDetail";
 import { useBook } from "./context/BookContext";
 import BookDetailModal from "./components/book/BookDetailModal";
 import { useState } from "react";
+import MyShop from "./Pages/myShop";
+import Settings from "./Pages/setting";
+import Account from "./Pages/Account";
 
 // Admin
 import AdminDashboard from "./components/admin/AdminDashboard";
@@ -47,6 +50,15 @@ function FullWidthLayout({ onBookClick }) {
     <div className="min-h-screen bg-white">
       <Navbar />
       <CartDrawer />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <Outlet context={{ onBookClick }} />
+      </div>
+    </div>
+  );
+}
+function CleanLayout({ onBookClick }) {
+  return (
+    <div className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <Outlet context={{ onBookClick }} />
       </div>
@@ -100,6 +112,7 @@ function AppContent({ selectedBook, setSelectedBook, isEditing, setIsEditing, ha
         {/* หน้าหลักสำหรับผู้ใช้ทั่วไป */}
         <Route element={<MainLayout onBookClick={handleBookClick} />}>
           <Route path="/" element={<BookList />} />
+          <Route path="/my-shop" element={<MyShop />} />
         </Route>
 
         {/* หน้ารายละเอียดและชำระเงิน */}
@@ -111,7 +124,11 @@ function AppContent({ selectedBook, setSelectedBook, isEditing, setIsEditing, ha
         {/* หน้าจัดการสำหรับ Admin */}
         <Route element={<FullWidthLayout onBookClick={handleBookClick} />}>
           <Route path="/admin" element={<AdminDashboard />} />
+          
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/account" element={<Account />} />
         </Route>
+      
       </Routes>
 
       {/* Modal แสดงรายละเอียดหนังสือที่ถูกเลือก */}
