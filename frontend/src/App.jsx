@@ -11,13 +11,19 @@ import BookDetail from "./components/book/BookDetail";
 import { useBook } from "./context/BookContext";
 import BookDetailModal from "./components/book/BookDetailModal";
 import { useState } from "react";
-import MyShop from "./Pages/myShop";
 import Settings from "./Pages/setting";
-import Account from "./Pages/Account";
+
+// setting component
+import ProductInStore from "./Pages/settingComponent/productInStore";
+import Review from "./Pages/settingComponent/review";
+import AboutUs from "./Pages/settingComponent/aboutUs";
 
 // Admin
 import AdminDashboard from "./components/admin/AdminDashboard";
 import AdvancedBookModal from "./components/book/AdvancedBookModal";
+
+// Layouts
+import SettingsLayout from "./Pages/settingComponent/settingLayout";
 
 // Cart
 import CartDrawer from "./components/cart_checkout/CartDrawer";
@@ -112,7 +118,6 @@ function AppContent({ selectedBook, setSelectedBook, isEditing, setIsEditing, ha
         {/* หน้าหลักสำหรับผู้ใช้ทั่วไป */}
         <Route element={<MainLayout onBookClick={handleBookClick} />}>
           <Route path="/" element={<BookList />} />
-          <Route path="/my-shop" element={<MyShop />} />
         </Route>
 
         {/* หน้ารายละเอียดและชำระเงิน */}
@@ -121,14 +126,18 @@ function AppContent({ selectedBook, setSelectedBook, isEditing, setIsEditing, ha
           <Route path="/checkout" element={<Checkout />} />
         </Route>
 
-        {/* หน้าจัดการสำหรับ Admin */}
+        {/* หน้าจัดการและตั้งค่าส่วนตัว (Nested Layout) */}
         <Route element={<FullWidthLayout onBookClick={handleBookClick} />}>
           <Route path="/admin" element={<AdminDashboard />} />
-          
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/account" element={<Account />} />
+
+          <Route element={<SettingsLayout />}>
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/product-in-store" element={<ProductInStore />} />
+            <Route path="/review" element={<Review />} />
+            <Route path="/about-us" element={<AboutUs />} />
+          </Route>
         </Route>
-      
+
       </Routes>
 
       {/* Modal แสดงรายละเอียดหนังสือที่ถูกเลือก */}

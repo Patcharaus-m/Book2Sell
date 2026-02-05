@@ -61,7 +61,7 @@ export default function Navbar() {
                             <Library className="h-6 w-6" />
                         </div>
                         <span className="text-2xl font-black tracking-tighter bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent hidden sm:block">
-                            Book2Sell
+                            Book2Hand
                         </span>
                     </Link>
 
@@ -156,13 +156,13 @@ export default function Navbar() {
                                                 <p className="text-xs text-purple-600 font-bold">เครดิต: ฿{user.storeCredits?.toLocaleString()}</p>
                                             </div>
 
-                                            <Link to="/my-shop" className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors">
+                                            <Link to="/product-in-store" className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors">
                                                 <Package size={16} className="text-purple-500" /> ของฉัน
                                             </Link>
                                             <Link to="/settings" className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors">
                                                 <Settings size={16} className="text-purple-500" /> ตั้งค่าบัญชี
                                             </Link>
-                                            <Link to="/account" className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors">
+                                            <Link to="/about-us" className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors">
                                                 <User size={16} className="text-purple-500" /> บัญชีของฉัน
                                             </Link>
                                             <button

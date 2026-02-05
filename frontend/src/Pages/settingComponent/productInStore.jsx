@@ -1,9 +1,9 @@
 import React from "react";
-import { useBook } from "../context/BookContext";
-import { useAuth } from "../context/AuthContext";
-import { Settings as SettingsIcon } from "lucide-react";
+import { useBook } from "../../context/BookContext";
+import { useAuth } from "../../context/AuthContext";
+import { BookOpen } from "lucide-react";
 
-export default function Settings() {
+export default function ProductInStore() {
     const { filteredBooks } = useBook();
     const { user } = useAuth();
 
@@ -12,8 +12,8 @@ export default function Settings() {
     return (
         <>
             <div className="mb-8">
-                <h1 className="text-3xl font-black text-gray-900 tracking-tight">ตั้งค่า</h1>
-                <p className="text-gray-500 mt-2">การตั้งค่าบัญชีส่วนตัวของคุณ</p>
+                <h1 className="text-3xl font-black text-gray-900 tracking-tight">สินค้าในร้าน</h1>
+                <p className="text-gray-500 mt-2">จัดการหนังสือที่คุณลงขายไว้ทั้งหมด</p>
             </div>
 
             {myBooks.length > 0 ? (
@@ -35,10 +35,10 @@ export default function Settings() {
             ) : (
                 <div className="text-center py-24 bg-white rounded-[2rem] border-2 border-dashed border-gray-100 shadow-sm">
                     <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <SettingsIcon size={32} className="text-gray-300" />
+                        <BookOpen size={32} className="text-gray-300" />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">ยังไม่มีการตั้งค่าในตอนนี้</h3>
-                    <p className="text-gray-500 max-w-xs mx-auto mb-8">คุณยังไม่สามารถตั้งค่าบัญชีส่วนตัวของคุณได้ที่นี่</p>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">ยังไม่มีหนังสือลงขาย</h3>
+                    <p className="text-gray-500 max-w-xs mx-auto mb-8">เริ่มสร้างรายได้จากการส่งต่อหนังสือที่คุณรักได้ง่ายๆ เพียงคลิกที่ปุ่มลงขาย</p>
                 </div>
             )}
         </>
