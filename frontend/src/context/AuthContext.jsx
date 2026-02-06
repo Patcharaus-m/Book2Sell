@@ -91,12 +91,43 @@ export function AuthProvider({ children }) {
         return { success: true, balance: newCredits };
     };
 
+    /**
+     * ฟังก์ชัน Process Payment - ตัดเครดิตร้านค้า
+     */
+    const processPayment = (amount) => {
+        if (!user) return { success: false, message: "กรุณาเข้าสู่ระบบก่อนทำรายการ" };
+        const currentCredits = user.storeCredits || 0;
+
+        if (currentCredits < amount) {
+            return { success: false, message: "ยอดเครดิตคงเหลือไม่เพียงพอ กรุณาเติมเงินก่อนซื้อ" };
+        }
+
+        const newCredits = currentCredits - amount;
+        updateUser({ storeCredits: newCredits });
+        return { success: true };
+    };
+
+    /**
+     * ฟังก์ชัน Add Purchased Books - บันทึกรายการที่ซื้อแล้ว (Mock)
+     */
+    const addPurchasedBooks = (bookIds) => {
+        if (!user) return;
+        const currentPurchased = user.purchasedBooks || [];
+        const updatedPurchased = Array.from(new Set([...currentPurchased, ...bookIds]));
+        updateUser({ purchasedBooks: updatedPurchased });
+    };
+
     const value = {
-        user,
+        user: user ? {
+            ...user,
+            purchasedBooks: user.purchasedBooks || []
+        } : null,
         login,
         register,
         logout,
         topUp,
+        processPayment,
+        addPurchasedBooks,
         updateUser,
         isLoading
     };

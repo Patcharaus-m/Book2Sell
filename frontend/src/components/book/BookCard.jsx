@@ -69,9 +69,9 @@ export default function BookCard({ book, onBookClick }) {
                     <div className="flex flex-col">
                         <div className="flex items-center gap-2 mb-0.5">
                             {hasDiscount && (
-                                <span className="text-xs font-bold text-gray-300 line-through decoration-purple-200">฿{book.originalPrice || book.coverPrice}</span>
+                                <span className="text-[10px] font-bold text-gray-300 line-through decoration-rose-300/50">฿{book.coverPrice}</span>
                             )}
-                            <span className="text-xs font-black text-purple-600 bg-purple-50 px-2 py-0.5 rounded-md">สต็อก: {book.stock || 0}</span>
+                            <span className="text-[9px] font-black text-purple-400 bg-purple-50 px-2 py-0.5 rounded-md uppercase tracking-tighter">Stock: {book.stock || 0}</span>
                         </div>
                         <span className="text-xl font-black text-gray-900 tracking-tight">฿{book.sellingPrice}</span>
                     </div>

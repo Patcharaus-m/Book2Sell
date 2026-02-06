@@ -1,34 +1,95 @@
 import React, { useState } from 'react';
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
+import { useBook } from "../../context/BookContext";
 import { Link, useNavigate } from "react-router-dom";
-import { ShoppingBag, CreditCard, Wallet, CheckCircle, ArrowLeft, ShieldCheck, Tag, Info } from "lucide-react";
+import {
+    ShoppingBag,
+    Wallet,
+    CheckCircle,
+    ArrowLeft,
+    ShieldCheck,
+    Tag,
+    Info,
+    Star,
+    MessageSquare,
+    Send,
+    X,
+    User
+} from "lucide-react";
 
 export default function Checkout() {
-    const { user, processPayment } = useAuth();
+    const { user, processPayment, addPurchasedBooks } = useAuth();
     const { cart, totalAmount, clearCart } = useCart();
+    const { addReview } = useBook();
     const navigate = useNavigate();
-    const [paymentMethod, setPaymentMethod] = useState('credits');
     const [isOrdered, setIsOrdered] = useState(false);
     const [error, setError] = useState('');
 
+    // Modals State
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [showReviewModal, setShowReviewModal] = useState(false);
+    const [itemsToReview, setItemsToReview] = useState([]);
+    const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
+    const [rating, setRating] = useState(5.00);
+    const [comment, setComment] = useState('');
+    const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+
     const handlePlaceOrder = () => {
-        if (paymentMethod === 'credits') {
-            const result = processPayment(totalAmount);
-            if (!result.success) {
-                setError(result.message);
-                return;
-            }
+        if (cart.length === 0) return;
+        setShowConfirmModal(true);
+    };
+
+    const handleConfirmPayment = () => {
+        const result = processPayment(totalAmount);
+        if (!result.success) {
+            setError(result.message);
+            setShowConfirmModal(false);
+            return;
         }
 
+        // Save items for review before clearing cart
+        const orderItems = [...cart];
+        setItemsToReview(orderItems);
+        addPurchasedBooks(orderItems.map(item => item.id || item._id));
+
+        setShowConfirmModal(false);
         setIsOrdered(true);
+        // After success animation, show review modal
         setTimeout(() => {
-            clearCart();
-            navigate('/');
+            setShowReviewModal(true);
         }, 3000);
     };
 
-    if (isOrdered) {
+    const handleReviewSubmit = (e) => {
+        if (e) e.preventDefault();
+        const currentItem = itemsToReview[currentReviewIndex];
+
+        setIsSubmittingReview(true);
+
+        // Local update
+        addReview(currentItem.id || currentItem._id, { rating, comment }, user);
+
+        // Move to next item or close
+        setTimeout(() => {
+            setIsSubmittingReview(false);
+            if (currentReviewIndex < itemsToReview.length - 1) {
+                setCurrentReviewIndex(prev => prev + 1);
+                setRating(5.00);
+                setComment('');
+            } else {
+                handleCloseModal();
+            }
+        }, 500);
+    };
+
+    const handleCloseModal = () => {
+        setShowReviewModal(false);
+        clearCart();
+        navigate('/');
+    };
+
+    if (isOrdered && !showReviewModal) {
         return (
             <div className="min-h-[80vh] flex items-center justify-center p-4">
                 <div className="relative w-full max-w-md bg-white/80 backdrop-blur-2xl border border-white/50 rounded-[3.5rem] p-12 shadow-3xl animate-in zoom-in-95 spring-bounce-20 duration-500 flex flex-col items-center text-center">
@@ -44,13 +105,13 @@ export default function Checkout() {
                     <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
                         <div className="h-full bg-gradient-to-r from-pink-400 to-purple-600 animate-[progress_3s_linear]" />
                     </div>
-                    <p className="mt-4 text-[10px] font-black uppercase tracking-widest text-gray-300">พาคุณกลับหน้าหลักสักครู่...</p>
+                    <p className="mt-4 text-[10px] font-black uppercase tracking-widest text-gray-300">เตรียมรับของขวัญพิเศษสักครู่...</p>
                 </div>
             </div>
         );
     }
 
-    if (cart.length === 0) {
+    if (cart.length === 0 && !isOrdered) {
         return (
             <div className="min-h-[70vh] flex items-center justify-center p-4">
                 <div className="max-w-md w-full bg-white/40 backdrop-blur-lg rounded-[3rem] border border-white/50 p-16 shadow-xl text-center border-dashed">
@@ -85,203 +146,184 @@ export default function Checkout() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-                {/* Order Summary */}
                 <div className="lg:col-span-2 space-y-10">
                     <div className="bg-white/60 backdrop-blur-xl border border-white/50 rounded-[3rem] p-8 shadow-xl shadow-gray-200/20 overflow-hidden relative">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-pink-100/20 rounded-full blur-3xl -mr-32 -mt-32" />
-
                         <div className="relative flex items-center gap-4 mb-10">
                             <div className="w-12 h-12 bg-pink-100 rounded-2xl flex items-center justify-center text-pink-600 shadow-inner">
                                 <ShoppingBag size={24} />
                             </div>
                             <h2 className="text-2xl font-black text-gray-900 tracking-tight">รายการสินค้า</h2>
                         </div>
-
                         <div className="space-y-8 relative">
                             {cart.map((item) => (
-                                <div key={item.id} className="group flex gap-8 items-center p-4 hover:bg-white/40 rounded-3xl transition-all">
+                                <div key={item.id || item._id} className="group flex gap-8 items-center p-4 hover:bg-white/40 rounded-3xl transition-all">
                                     <div className="relative w-20 h-28 flex-shrink-0 shadow-2xl group-hover:scale-105 transition-transform duration-500">
                                         <img
                                             src={item.image || (item.images && item.images[0]) || item.imageUrl}
                                             alt={item.title}
                                             className="w-full h-full object-cover rounded-2xl"
                                         />
-                                        <div className="absolute inset-x-0 bottom-0 py-1 bg-black/60 backdrop-blur-sm text-[8px] text-white text-center font-bold rounded-b-2xl opacity-0 group-hover:opacity-100 transition-opacity">
-                                            {item.condition}
-                                        </div>
                                     </div>
-
                                     <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <span className="px-2 py-0.5 bg-gray-100 text-[10px] font-black text-gray-400 rounded-md uppercase tracking-tighter group-hover:bg-pink-100 group-hover:text-pink-600 transition-colors">Book</span>
-                                            {item.isbn && <span className="text-[10px] text-gray-300 font-medium">ISBN: {item.isbn}</span>}
-                                        </div>
-                                        <h3 className="text-xl font-black text-gray-900 truncate mb-1 group-hover:text-pink-700 transition-colors">{item.title}</h3>
+                                        <h3 className="text-xl font-black text-gray-900 truncate mb-1">{item.title}</h3>
                                         <p className="text-sm text-gray-400 font-medium italic">โดย {item.author || 'ไม่ระบุผู้แต่ง'}</p>
                                     </div>
-
                                     <div className="text-right">
-                                        <p className="text-2xl font-black text-gray-900 group-hover:scale-110 transition-transform origin-right">
+                                        <p className="text-2xl font-black text-gray-900">
                                             ฿{((item.sellingPrice || item.price) * (item.quantity || 1)).toLocaleString()}
                                         </p>
-                                        <div className="flex flex-col items-end mt-1">
-                                            <p className="text-xs font-black text-gray-400 uppercase tracking-tight bg-gray-50 px-2 py-0.5 rounded-lg border border-gray-100 italic">x {item.quantity || 1} เล่ม</p>
-                                            <p className="text-[10px] font-bold text-purple-400 uppercase tracking-wider mt-0.5">@ ฿{(item.sellingPrice || item.price).toLocaleString()}</p>
-                                        </div>
+                                        <p className="text-xs font-black text-gray-400 uppercase italic">x {item.quantity || 1} เล่ม</p>
                                     </div>
                                 </div>
                             ))}
                         </div>
                     </div>
 
-                    {/* Payment Method */}
                     <div className="bg-white/60 backdrop-blur-xl border border-white/50 rounded-[3rem] p-8 shadow-xl shadow-gray-200/20 overflow-hidden relative">
-                        <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-100/20 rounded-full blur-3xl -ml-32 -mb-32" />
-
-                        <div className="relative flex items-center justify-between mb-10">
+                        <div className="relative flex items-center justify-between mb-8">
                             <div className="flex items-center gap-4">
                                 <div className="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center text-purple-600 shadow-inner">
-                                    <CreditCard size={24} />
+                                    <Wallet size={24} />
                                 </div>
-                                <h2 className="text-2xl font-black text-gray-900 tracking-tight">วิธีการชำระเงิน</h2>
-                            </div>
-                            <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-purple-50/50 rounded-xl text-purple-600 text-[10px] font-black uppercase tracking-widest border border-purple-100">
-                                <ShieldCheck size={14} /> Encrypted
+                                <h2 className="text-2xl font-black text-gray-900 tracking-tight">ชำระด้วยเครดิตร้านค้า</h2>
                             </div>
                         </div>
-
-                        <div className="relative grid grid-cols-1 sm:grid-cols-2 gap-6">
-                            <button
-                                onClick={() => setPaymentMethod('credits')}
-                                className={`group flex items-center gap-5 p-6 rounded-[2rem] border-2 transition-all duration-300 relative overflow-hidden ${paymentMethod === 'credits'
-                                    ? 'border-purple-600 bg-white shadow-xl shadow-purple-100/50'
-                                    : 'border-white bg-white/20 hover:bg-white/40 grayscale hover:grayscale-0'
-                                    }`}
-                            >
-                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 ${paymentMethod === 'credits' ? 'bg-purple-600 text-white rotate-6' : 'bg-gray-100 text-gray-400'
-                                    }`}>
-                                    <Wallet size={28} />
+                        <div className="relative bg-white/40 p-10 rounded-[2.5rem] border border-white/60 shadow-inner flex flex-col sm:flex-row items-center justify-between gap-6">
+                            <div className="flex items-center gap-6">
+                                <div className="w-16 h-16 bg-purple-600 text-white rounded-[1.5rem] flex items-center justify-center shadow-lg">
+                                    <Wallet size={32} />
                                 </div>
-                                <div className="text-left">
-                                    <p className={`font-black text-lg ${paymentMethod === 'credits' ? 'text-gray-900' : 'text-gray-500'}`}>เครดิตร้านค้า</p>
-                                    <p className="text-[11px] font-bold text-purple-500">คงเหลือ: ฿{(user?.creditBalance || 0).toLocaleString()}</p>
+                                <div>
+                                    <p className="text-sm font-black text-gray-400 uppercase tracking-widest mb-1">Your Balance</p>
+                                    <p className="text-3xl font-black text-gray-900 tracking-tight">฿{(user?.storeCredits || 0).toLocaleString()}</p>
                                 </div>
-                                {paymentMethod === 'credits' && (
-                                    <div className="absolute top-4 right-4 animate-in zoom-in duration-300">
-                                        <div className="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center text-white scale-75">
-                                            <CheckCircle size={14} />
-                                        </div>
-                                    </div>
-                                )}
-                            </button>
-
-                            <button
-                                onClick={() => setPaymentMethod('card')}
-                                className={`group flex items-center gap-5 p-6 rounded-[2rem] border-2 transition-all duration-300 relative overflow-hidden ${paymentMethod === 'card'
-                                    ? 'border-pink-600 bg-white shadow-xl shadow-pink-100/50'
-                                    : 'border-white bg-white/20 hover:bg-white/40 grayscale hover:grayscale-0'
-                                    }`}
-                            >
-                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 ${paymentMethod === 'card' ? 'bg-pink-600 text-white rotate-6' : 'bg-gray-100 text-gray-400'
-                                    }`}>
-                                    <CreditCard size={28} />
-                                </div>
-                                <div className="text-left">
-                                    <p className={`font-black text-lg ${paymentMethod === 'card' ? 'text-gray-900' : 'text-gray-500'}`}>บัตรเครดิต</p>
-                                    <p className="text-[11px] font-bold text-pink-500">Simulator System</p>
-                                </div>
-                                {paymentMethod === 'card' && (
-                                    <div className="absolute top-4 right-4 animate-in zoom-in duration-300">
-                                        <div className="w-6 h-6 bg-pink-600 rounded-full flex items-center justify-center text-white scale-75">
-                                            <CheckCircle size={14} />
-                                        </div>
-                                    </div>
-                                )}
-                            </button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Totals Summary */}
                 <div className="space-y-6">
-                    <div className="bg-gradient-to-br from-gray-900 via-purple-950 to-pink-950 rounded-[3rem] p-10 text-white shadow-2xl relative overflow-hidden group">
-                        {/* Decorative circles */}
-                        <div className="absolute -top-20 -right-20 w-48 h-48 bg-pink-600/20 rounded-full blur-[80px]" />
-                        <div className="absolute -bottom-20 -left-20 w-48 h-48 bg-purple-600/20 rounded-full blur-[80px]" />
-
+                    <div className="bg-gradient-to-br from-gray-900 via-purple-950 to-pink-950 rounded-[3rem] p-10 text-white shadow-2xl relative overflow-hidden">
                         <div className="relative">
                             <h3 className="text-xs font-black text-pink-400 uppercase tracking-[0.3em] mb-10 pb-4 border-b border-white/5">Order Summary</h3>
-
                             <div className="space-y-6 mb-12">
-                                <div className="flex justify-between items-center group/item hover:translate-x-1 transition-transform">
-                                    <span className="text-sm font-bold text-slate-400">ราคาสินค้า</span>
-                                    <span className="text-lg font-black tracking-tight">฿{totalAmount.toLocaleString()}</span>
-                                </div>
-                                <div className="flex justify-between items-center group/item hover:translate-x-1 transition-transform">
-                                    <div className="flex items-center gap-1.5">
-                                        <span className="text-sm font-bold text-slate-400">ค่าจัดส่ง</span>
-                                        <Info size={12} className="text-slate-600" />
-                                    </div>
-                                    <span className="text-md font-black text-pink-400 uppercase tracking-widest text-sm">FREE</span>
-                                </div>
-                                <div className="flex justify-between items-center pt-2 group/item hover:translate-x-1 transition-transform">
-                                    <span className="text-sm font-bold text-slate-400">ส่วนลดพิเศษ</span>
-                                    <span className="text-md font-black text-rose-400">- ฿0</span>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-sm font-bold text-slate-400">ยอดรวม</span>
+                                    <span className="text-2xl font-black tracking-tight">฿{totalAmount.toLocaleString()}</span>
                                 </div>
                             </div>
-
-                            <div className="pt-8 border-t border-white/10 mb-12">
-                                <div className="flex justify-between items-end">
-                                    <div>
-                                        <p className="text-[10px] font-black text-pink-400 uppercase tracking-widest mb-1">ยอดรวมสุทธิ</p>
-                                        <p className="text-sm font-bold text-slate-500">VAT Included</p>
-                                    </div>
-                                    <p className="text-5xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-pink-300">
-                                        ฿{totalAmount.toLocaleString()}
-                                    </p>
-                                </div>
-                            </div>
-
                             {error && (
-                                <div className="mb-8 p-5 bg-rose-500/10 border border-rose-500/20 rounded-3xl text-rose-400 text-xs font-bold text-center animate-in slide-in-from-top-2">
+                                <div className="mb-8 p-5 bg-rose-500/10 border border-rose-500/20 rounded-3xl text-rose-400 text-xs font-bold text-center">
                                     {error}
                                 </div>
                             )}
-
                             <button
                                 onClick={handlePlaceOrder}
-                                className="w-full py-5.5 bg-white text-gray-900 font-black text-xl rounded-[2rem] hover:bg-pink-50 transition-all active:scale-95 shadow-2xl hover:shadow-white/10 flex items-center justify-center gap-3 group/btn"
+                                className="w-full py-6 bg-white text-gray-900 font-black text-xl rounded-[2rem] hover:bg-pink-50 transition-all active:scale-95 shadow-2xl flex items-center justify-center gap-3"
                             >
                                 <span>สั่งซื้อทันที</span>
-                                <div className="w-8 h-8 bg-gray-900 text-white rounded-full flex items-center justify-center group-hover:rotate-12 transition-transform">
-                                    <ArrowLeft size={18} className="rotate-180" />
-                                </div>
+                                <ArrowLeft size={18} className="rotate-180" />
                             </button>
-
-                            <div className="mt-8 flex flex-col items-center gap-3">
-                                <div className="flex items-center gap-2 text-[10px] font-black tracking-[0.1em] text-slate-500 uppercase">
-                                    <ShieldCheck size={14} className="text-pink-500" />
-                                    <span>Secure checkout</span>
-                                </div>
-                                <div className="flex gap-2">
-                                    <div className="w-8 h-5 bg-white/5 rounded border border-white/10" />
-                                    <div className="w-8 h-5 bg-white/5 rounded border border-white/10" />
-                                    <div className="w-8 h-5 bg-white/5 rounded border border-white/10" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="p-8 bg-white/20 backdrop-blur-md rounded-[2.5rem] border border-white/50 border-dashed">
-                        <div className="flex items-start gap-4">
-                            <div className="mt-1 text-pink-500"><Tag size={20} /></div>
-                            <div>
-                                <h4 className="font-black text-gray-900 mb-1 italic">มีคูปองลับ?</h4>
-                                <p className="text-xs text-gray-500 font-medium">กรอกรหัสส่วนลดหลังชำระเงินสำเร็จ เพื่อรับเครดิตคืนในรอบถัดไป</p>
-                            </div>
                         </div>
                     </div>
                 </div>
+            </div>
+
+            {/* Modals Container */}
+            <div className="relative z-[100]">
+                {/* Confirmation Modal */}
+                {showConfirmModal && (
+                    <div className="fixed inset-0 flex items-center justify-center p-4">
+                        <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onClick={() => setShowConfirmModal(false)} />
+                        <div className="relative w-full max-w-md bg-white/90 backdrop-blur-2xl border border-white rounded-[3.5rem] p-10 shadow-3xl">
+                            <div className="flex flex-col items-center text-center">
+                                <div className="w-20 h-20 bg-purple-50 rounded-[2rem] flex items-center justify-center text-purple-600 mb-6">
+                                    <Wallet size={36} />
+                                </div>
+                                <h3 className="text-3xl font-black text-gray-900 mb-2">ยืนยันการชำระเงิน?</h3>
+                                <p className="text-gray-500 font-medium mb-8">
+                                    ยอดเงิน <span className="text-purple-600 font-black">฿{totalAmount.toLocaleString()}</span> จะถูกหักจากเครดิตของคุณ
+                                </p>
+                                <div className="w-full space-y-4">
+                                    <button
+                                        onClick={handleConfirmPayment}
+                                        className="w-full py-5 bg-gray-900 text-white font-black rounded-2xl hover:bg-purple-600 transition-all"
+                                    >
+                                        ยืนยันและสั่งซื้อ
+                                    </button>
+                                    <button
+                                        onClick={() => setShowConfirmModal(false)}
+                                        className="w-full py-4 text-gray-400 font-black"
+                                    >
+                                        ยกเลิก
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Review Modal */}
+                {showReviewModal && (
+                    <div className="fixed inset-0 flex items-center justify-center p-4">
+                        <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-md" onClick={handleCloseModal} />
+                        <div className="relative w-full max-w-2xl bg-white/80 backdrop-blur-2xl border border-white/50 rounded-[3.5rem] p-12 shadow-3xl overflow-hidden">
+                            <div className="relative">
+                                <div className="flex flex-col items-center text-center mb-10">
+                                    <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center text-purple-600 mb-4">
+                                        <MessageSquare size={32} />
+                                    </div>
+                                    <h3 className="text-3xl font-black text-gray-900 tracking-tight">Review Your Records</h3>
+                                    <p className="text-sm text-gray-400 font-medium">Item {currentReviewIndex + 1} of {itemsToReview.length}</p>
+                                </div>
+
+                                {itemsToReview.length > 0 && (
+                                    <div className="flex flex-col md:flex-row gap-8 items-start bg-white/40 p-6 rounded-[2.5rem] border border-white mb-8">
+                                        <div className="w-32 h-44 flex-shrink-0 shadow-2xl rounded-2xl overflow-hidden">
+                                            <img
+                                                src={itemsToReview[currentReviewIndex].image || (itemsToReview[currentReviewIndex].images && itemsToReview[currentReviewIndex].images[0]) || itemsToReview[currentReviewIndex].imageUrl}
+                                                alt=""
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                        <div className="flex-1">
+                                            <h4 className="text-2xl font-black text-gray-900">{itemsToReview[currentReviewIndex].title}</h4>
+                                            <div className="mt-4 flex gap-1.5">
+                                                {[1, 2, 3, 4, 5].map((star) => (
+                                                    <button key={star} onClick={() => setRating(star)}>
+                                                        <Star size={28} className={star <= rating ? "text-amber-400 fill-amber-400" : "text-gray-200"} />
+                                                    </button>
+                                                ))}
+                                                <span className="ml-2 text-2xl font-black text-purple-600">{(rating || 0).toFixed(2)}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <form onSubmit={handleReviewSubmit} className="space-y-6">
+                                    <textarea
+                                        required
+                                        placeholder="Share your cosmic insights..."
+                                        value={comment || ''}
+                                        onChange={(e) => setComment(e.target.value)}
+                                        className="w-full bg-white border border-white rounded-[2rem] px-8 py-6 h-32 outline-none text-sm font-medium"
+                                    />
+                                    <div className="flex justify-between items-center">
+                                        <button type="button" onClick={handleCloseModal} className="text-xs font-black text-gray-400 uppercase">Skip</button>
+                                        <button
+                                            type="submit"
+                                            disabled={isSubmittingReview || !(comment || '').trim()}
+                                            className="px-10 py-4 bg-gray-900 text-white font-black rounded-2xl hover:bg-purple-600 transition-all flex items-center gap-2"
+                                        >
+                                            {isSubmittingReview ? "Submitting..." : <><Send size={20} /> Submit</>}
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

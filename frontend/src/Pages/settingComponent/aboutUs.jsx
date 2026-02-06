@@ -1,12 +1,11 @@
 import React, { useEffect } from "react";
 
 // Import images to ensure Vite resolves them correctly
-import patcharausImg from "./Gemini_Generated_Image_18s39o18s39o18s3.png";
-import thanayutImg from "./Gemini_Generated_Image_vnems8vnems8vnem.png";
-import pcruImg from "./Gemini_Generated_Image_xirduyxirduyxird.png";
-import jrwImg from "./Gemini_Generated_Image_gtr79hgtr79hgtr7.png";
-import taizhonImg from "./1770316934979.png";
-
+import chayaphonImg from "../../assets/chayaphon.png";
+import thanayutImg from "../../assets/Q.png";
+import pcruImg from "../../assets/pcru.png";
+import jrwImg from "../../assets/best.png";
+import taizhonImg from "../../assets/taizhon.png";
 export default function AboutUs() {
     // Force the body and parent layouts to be transparent/dark while this page is active
     useEffect(() => {
@@ -30,7 +29,7 @@ export default function AboutUs() {
         }, {
             name: "CHAYAPHON SOMBOONSUK",
             role: "Frontend-minion",
-            image: patcharausImg,
+            image: chayaphonImg,
             color: "from-yellow-500 to-orange-600",
             textColor: "text-yellow-400"
         },

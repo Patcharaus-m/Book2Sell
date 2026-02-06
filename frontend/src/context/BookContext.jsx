@@ -179,13 +179,10 @@ const setSearchKeyword = useCallback((keyword) => {
         });
     }, [books, filters]);
 
-    
-
     const value = {
         books,
         filteredBooks,
         addBook,
-        deleteBook,
         filters,
         setFilters,
         setSearchKeyword
