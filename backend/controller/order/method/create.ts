@@ -45,7 +45,8 @@ export default async function create(data: { bookId: string, buyerId: string, sh
 
     return successRes({ 
         message: "สั่งซื้อสำเร็จ! หักเครดิตเรียบร้อยแล้ว", 
-        payload: { order: newOrder, newBalance: buyer.creditBalance } 
+        order: newOrder, 
+        newBalance: buyer.creditBalance 
     });
 
   } catch (error: any) {

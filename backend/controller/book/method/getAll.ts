@@ -3,13 +3,13 @@ import Book from "@/model/book";
 
 export default async function getAll() {
   try {
-    // ดึงข้อมูลหนังสือทั้งหมด และเรียงจากใหม่ไปเก่า (createdAt: -1)
-    // กรองเฉพาะหนังสือที่ยังขายอยู่ และไม่ถูกลบ
+    // ดึงเฉพาะหนังสือที่ยังขายอยู่ (status: 'available') และไม่ถูกลบ
+    // populate sellerId เพื่อดึงชื่อผู้ลงขาย
     const books = await Book.find({ 
-      status: 'available', 
-      isDeleted: { $ne: true } 
-    }).sort({ createdAt: -1 });
-    
+      status: 'available',
+      isDeleted: { $ne: true }
+    }).populate('sellerId', 'name').sort({ createdAt: -1 });
+
     return successRes(books);
   } catch (error: any) {
     console.log(`INTERNAL_SERVER_ERROR catch error: ${error.message}`);
