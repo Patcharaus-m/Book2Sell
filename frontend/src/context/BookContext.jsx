@@ -171,10 +171,34 @@ export const BookProvider = ({ children }) => {
         });
     }, [books, filters]);
 
+    const addReview = useCallback((bookId, reviewContent, currentUser) => {
+        const newReview = {
+            id: Date.now().toString(),
+            userId: currentUser?.id || 'guest',
+            userName: currentUser?.name || 'Anonymous',
+            rating: reviewContent.rating,
+            comment: reviewContent.comment,
+            createdAt: new Date().toISOString()
+        };
+
+        setBooks(prev => prev.map(book => {
+            if (book.id === bookId) {
+                return {
+                    ...book,
+                    reviews: [newReview, ...(book.reviews || [])]
+                };
+            }
+            return book;
+        }));
+
+        return { success: true };
+    }, []);
+
     const value = {
         books,
         filteredBooks,
         addBook,
+        addReview,
         filters,
         setFilters,
         setSearchKeyword

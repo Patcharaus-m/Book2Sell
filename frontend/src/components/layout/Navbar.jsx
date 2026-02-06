@@ -177,13 +177,13 @@ export default function Navbar() {
                                                 <p className="text-sm font-bold text-gray-900">{user.name}</p>
                                                 <p className="text-xs text-purple-600 font-bold">เครดิต: ฿{user.storeCredits?.toLocaleString()}</p>
                                             </div>
-
-                                            <Link to="/product-in-store" className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors">
-                                                <Package size={16} className="text-purple-500" /> ของฉัน
-                                            </Link>
                                             <Link to="/settings" className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors">
                                                 <Settings size={16} className="text-purple-500" /> ตั้งค่าบัญชี
                                             </Link>
+                                            <Link to="/product-in-store" className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors">
+                                                <Package size={16} className="text-purple-500" /> ของฉัน
+                                            </Link>
+
                                             <button
                                                 onClick={() => { setIsTopUpOpen(true); setShowUserMenu(false); }}
                                                 className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors border-t border-gray-50"
