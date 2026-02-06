@@ -23,9 +23,6 @@ import MyAccount from "./Pages/myAccount";
 import AdminDashboard from "./components/admin/AdminDashboard";
 import AdvancedBookModal from "./components/book/AdvancedBookModal";
 
-// Layouts
-import SettingsLayout from "./Pages/settingComponent/settingLayout";
-
 // Cart
 import CartDrawer from "./components/cart_checkout/CartDrawer";
 import Checkout from "./components/cart_checkout/Checkout";
@@ -35,7 +32,7 @@ import SettingNavbar from "./Pages/pageComponent/settingNavbar";
  * MainLayout - เลย์เอาต์สำหรับหน้าหลักที่มีระบบค้นหาและกรอง
  */
 function MainLayout({ onBookClick }) {
-  const { setFilters } = useBook();
+  const { setFilters } = useBook(); 
   return (
     <div className="min-h-screen bg-slate-50/50">
       <Navbar />
