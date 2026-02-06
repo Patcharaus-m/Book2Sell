@@ -4,6 +4,7 @@ import { cors } from "./middleware";
 import { connectDB } from "./database";
 import routers from "./routers/book";
 import userRouter from "./routers/user";
+import reviewRouter from "./routers/review";
 
 const app = express();
 
@@ -13,6 +14,7 @@ app.use(express.json());
 
 app.use("/api/book", routers);
 app.use("/api/user", userRouter);
+app.use("/api/review", reviewRouter);
 
 // Connect to database
 connectDB();
