@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 // Import images to ensure Vite resolves them correctly
 import chayaphonImg from "../../assets/chayaphon.png";
@@ -6,6 +6,16 @@ import thanayutImg from "../../assets/Q.png";
 import pcruImg from "../../assets/pcru.png";
 import jrwImg from "../../assets/best.png";
 import taizhonImg from "../../assets/taizhon.png";
+
+//popup img
+import knightImg from "../../assets/saber.png";
+import samuraiImg from "../../assets/samurai.png";
+import mageImg from "../../assets/mage.png";
+import monkImg from "../../assets/monk.png";
+import crossImg from "../../assets/cross.png";
+
+import { createPortal } from "react-dom";
+
 export default function AboutUs() {
     // Force the body and parent layouts to be transparent/dark while this page is active
     useEffect(() => {
@@ -19,24 +29,32 @@ export default function AboutUs() {
         };
     }, []);
 
+    const [hoveredMember, setHoveredMember] = useState(null);
+
     const teamMembers = [
         {
             name: "PATCHRAUS MEUANGDEKSUKUL",
             role: "Backend-Dev",
             image: pcruImg,
-            color: "from-blue-600 to-indigo-700",
-            textColor: "text-blue-400"
+            extraImage: mageImg,
+            extraText: "PATCHRAUS THE BACKEND DEV",
+            color: "from-green-600 to-indigo-700",
+            textColor: "text-green-400"
         }, {
             name: "CHAYAPHON SOMBOONSUK",
             role: "Frontend-minion",
             image: chayaphonImg,
-            color: "from-yellow-500 to-orange-600",
-            textColor: "text-yellow-400"
+            extraImage: samuraiImg,
+            extraText: "CHAYAPHON THE FRONTEND MINION",
+            color: "from-blue-600 to-orange-600",
+            textColor: "text-blue-400"
         },
         {
             name: "PIRACHAT CHAIPOL",
             role: "Frontend-Dev",
             image: taizhonImg,
+            extraImage: knightImg,
+            extraText: "TAIZHON THE FRONTEND",
             color: "from-pink-600 to-purple-700",
             textColor: "text-pink-400"
         },
@@ -44,13 +62,17 @@ export default function AboutUs() {
             name: "JIRAWAT PHUNIM",
             role: "Tester",
             image: jrwImg,
-            color: "from-green-500 to-emerald-700",
-            textColor: "text-green-400"
+            extraImage: monkImg,
+            extraText: "JIRAWAT THE TESTER",
+            color: "from-yellow-500 to-emerald-700",
+            textColor: "text-yellow-400"
         },
         {
             name: "THANAYUT PAENMA",
             role: "Libero",
             image: thanayutImg,
+            extraImage: crossImg,
+            extraText: "THANAYUT THE LIBERO",
             color: "from-red-600 to-rose-700",
             textColor: "text-red-400"
         }
@@ -71,11 +93,63 @@ export default function AboutUs() {
                     body.about-us-mode {
                         background-color: #13092D !important;
                     }
+                    @keyframes textGlitch {
+                        0% { clip-path: inset(40% 0 61% 0); transform: translate(-2px, 2px); }
+                        20% { clip-path: inset(92% 0 1% 0); transform: translate(2px, -2px); }
+                        40% { clip-path: inset(43% 0 1% 0); transform: translate(1px, 2px); }
+                        60% { clip-path: inset(25% 0 58% 0); transform: translate(-2px, 1px); }
+                        80% { clip-path: inset(54% 0 7% 0); transform: translate(1px, -2px); }
+                        100% { clip-path: inset(58% 0 43% 0); transform: translate(-1px, 1px); }
+                    }
+                    @keyframes cyberEntrance {
+                        0% { transform: scale(0.2) rotate(-15deg) translateY(50px); opacity: 0; filter: blur(20px); }
+                        60% { transform: scale(1.1) rotate(3deg) translateY(0); opacity: 1; filter: blur(0px); }
+                        80% { transform: scale(0.95) rotate(-1deg); }
+                        100% { transform: scale(1) rotate(0deg); }
+                    }
+                    @keyframes float {
+                        0%, 100% { transform: translateY(0) rotate(0deg); }
+                        25% { transform: translateY(-15px) rotate(1deg); }
+                        75% { transform: translateY(15px) rotate(-1deg); }
+                    }
+                    @keyframes rumble {
+                        0% { transform: translate(0, 0) rotate(0deg); }
+                        25% { transform: translate(1px, 1px) rotate(0.2deg); }
+                        50% { transform: translate(-1px, -1px) rotate(-0.2deg); }
+                        75% { transform: translate(-1px, 1px) rotate(0.2deg); }
+                        100% { transform: translate(1px, -1px) rotate(-0.2deg); }
+                    }
+                    @keyframes saiyanAura {
+                        0% { filter: drop-shadow(0 0 20px currentColor) drop-shadow(0 0 40px currentColor); transform: scale(1); }
+                        50% { filter: drop-shadow(0 -20px 40px currentColor) drop-shadow(0 -50px 70px currentColor); transform: scale(1.01); }
+                        100% { filter: drop-shadow(0 0 20px currentColor) drop-shadow(0 0 40px currentColor); transform: scale(1); }
+                    }
+                    .animate-glitch {
+                        animation: textGlitch 0.4s infinite linear alternate-reverse;
+                    }
+                    .animate-cyber-entrance {
+                        animation: cyberEntrance 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+                    }
+                    .animate-rumble {
+                        animation: rumble 0.15s infinite linear;
+                    }
+                    .animate-saiyan-aura {
+                        animation: saiyanAura 1.5s infinite ease-in-out;
+                    }
+                    .neon-glow {
+                        text-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 40px currentColor;
+                    }
+                    .text-static {
+                        transform: translateZ(0); /* Hardware accelerate but no movement */
+                    }
                 `}
             </style>
 
-            {/* Immersive Dark Background Transition - covers everything including scroll areas */}
-            <div className="fixed inset-0 bg-[#13092D] bg-gradient-to-br from-[#13092D] via-[#0c0518] to-[#020105] -z-10 animate-in fade-in duration-1000" />
+            {/* Immersive Dark Background Transition - PROTAL TO BODY to escape parent layout clipping */}
+            {createPortal(
+                <div className="fixed inset-0 bg-[#13092D] bg-gradient-to-br from-[#13092D] via-[#0c0518] to-[#020105] -z-10 animate-in fade-in duration-1000" />,
+                document.body
+            )}
 
             {/* Header Section */}
             <div className="mb-24 border-l-[12px] border-purple-600 pl-10">
@@ -88,6 +162,8 @@ export default function AboutUs() {
                 {teamMembers.map((member, index) => (
                     <div
                         key={index}
+                        onMouseEnter={() => setHoveredMember(member)}
+                        onMouseLeave={() => setHoveredMember(null)}
                         className={`group flex flex-col bg-[#13092D] h-[700px] transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] overflow-hidden hover:z-20 hover:scale-[1.02] hover:shadow-[0_0_120px_rgba(0,0,0,0.8)]`}
                     >
                         {/* Huge Image Area - Expanding to fill */}
@@ -105,13 +181,6 @@ export default function AboutUs() {
 
                             {/* Decorative Overlay */}
                             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-
-                            {/* Overlay info that appears on hover */}
-                            <div className="absolute inset-x-0 bottom-0 p-8 translate-y-full group-hover:translate-y-0 transition-transform duration-700 delay-100 ease-[cubic-bezier(0.23,1,0.32,1)]">
-                                <span className="text-white text-[10px] font-black tracking-[0.6em] uppercase border-2 border-white/50 px-6 py-3 bg-white/10 backdrop-blur-xl block text-center">
-                                    Full Portfolio
-                                </span>
-                            </div>
                         </div>
 
                         {/* Name & Role Section - Bottom */}
@@ -134,6 +203,32 @@ export default function AboutUs() {
                     </div>
                 ))}
             </div>
+
+            {/* Global Explosive Hover Overlay - PORTAL TO BODY to ensure it appears on top of everything */}
+            {hoveredMember && createPortal(
+                <div className="fixed inset-0 z-[9999] pointer-events-none flex items-center justify-center overflow-visible animate-rumble">
+                    {/* Extra Popup Image - Fire Aura Steady */}
+                    {hoveredMember.extraImage && (
+                        <div className={`absolute inset-0 flex items-center justify-center ${hoveredMember.textColor}`}>
+                            <img
+                                src={hoveredMember.extraImage}
+                                alt="Extra"
+                                className="w-[80vw] h-[80vh] object-contain animate-cyber-entrance animate-saiyan-aura"
+                            />
+                        </div>
+                    )}
+
+                    {/* Extra Animated Text - Static, Glowing, SMALLER */}
+                    {hoveredMember.extraText && (
+                        <div className="absolute inset-0 flex items-center justify-center z-[130]">
+                            <p className={`${hoveredMember.textColor} font-black text-3xl md:text-5xl tracking-widest whitespace-nowrap neon-glow text-static drop-shadow-2xl animate-cyber-entrance`}>
+                                {hoveredMember.extraText}
+                            </p>
+                        </div>
+                    )}
+                </div>,
+                document.body
+            )}
 
             {/* Footer Quote */}
             <div className="mt-32 border-t-8 border-purple-500/10 pt-16 flex flex-col md:flex-row justify-between items-start md:items-end gap-12 pb-24">
