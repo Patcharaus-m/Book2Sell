@@ -17,10 +17,6 @@ export const BookProvider = ({ children }) => {
         sortBy: 'newest'
     });
 
-    const setSearchKeyword = useCallback((keyword) => {
-        setFilters(prev => ({ ...prev, keyword }));
-    }, []);
-
     // โหลดข้อมูลจาก Backend เมื่อเริ่มต้น
     useEffect(() => {
         fetchBooks();
@@ -105,47 +101,39 @@ export const BookProvider = ({ children }) => {
         }
     };
 
-    // const deleteBook = async (id) => {
-    //     try {
-    //         const response = await fetch(`http://localhost:3000/book/${id}`, {
-    //             method: "DELETE"
-    //         });
-    //         const data = await response.json();
-    //         if (data.success) {
-    //             setBooks(prev => prev.filter(book => book.id !== id));
-    //         }
-    //     } catch (error) {
-    //         console.error("Failed to delete book:", error);
-    //     }
-    // };
+    // เพิ่มฟังก์ชันนี้ใน BookProvider ก่อนบรรทัด filteredBooks
+const handleRemoteSearch = useCallback(async (keyword) => {
+    // ถ้าไม่มีคำค้น ให้กลับไปโหลดหนังสือทั้งหมดตามปกติ
+    if (!keyword || keyword.trim() === '') {
+        fetchBooks();
+        return;
+    }
 
-    // const updateBook = async (id, updatedData) => {
-    //     try {
-    //         const payload = {
-    //             ...updatedData,
-    //             sellingPrice: Number(updatedData.sellingPrice || updatedData.price) || 0,
-    //             originalPrice: Number(updatedData.originalPrice || updatedData.sellingPrice || updatedData.price) || 0,
-    //             price: Number(updatedData.sellingPrice || updatedData.price) || 0
-    //         };
+    try {
+        const response = await fetch(`http://localhost:3000/api/book/search?q=${keyword}`);
+        const data = await response.json();
+        
+        if (data.status && data.payload) {
+            // Normalize ข้อมูลเพื่อให้ UI แสดงผลได้ถูกต้องเหมือน fetchBooks ปกติ
+            const searchedBooks = data.payload.map(book => ({
+                ...book,
+                id: book.id || book._id,
+                category: book.category || 'อื่นๆ',
+                sellingPrice: book.sellingPrice || book.price || 0,
+                categories: book.categories || [book.category || 'อื่นๆ']
+            }));
+            setBooks(searchedBooks);
+        }
+    } catch (error) {
+        console.error("Remote search failed:", error);
+    }
+}, []);
 
-    //         const response = await fetch(`http://localhost:3000/book/${id}`, {
-    //             method: "PUT",
-    //             headers: { "Content-Type": "application/json" },
-    //             body: JSON.stringify(payload)
-    //         });
-
-    //         const data = await response.json();
-    //         if (data.success) {
-    //             setBooks(prevBooks => prevBooks.map(book =>
-    //                 book.id === id ? data.book : book
-    //             ));
-    //             return { success: true };
-    //         }
-    //     } catch (error) {
-    //         console.error("Failed to update book:", error);
-    //         return { success: false };
-    //     }
-    // };
+// แก้ไขฟังก์ชัน setSearchKeyword เดิมให้นิยเรียกใช้ handleRemoteSearch ด้วย
+const setSearchKeyword = useCallback((keyword) => {
+    setFilters(prev => ({ ...prev, keyword }));
+    handleRemoteSearch(keyword); // เรียกค้นหาจาก Server
+}, [handleRemoteSearch]);
 
     const filteredBooks = useMemo(() => {
         return books.filter(book => {
@@ -170,6 +158,8 @@ export const BookProvider = ({ children }) => {
             return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
         });
     }, [books, filters]);
+
+    
 
     const value = {
         books,

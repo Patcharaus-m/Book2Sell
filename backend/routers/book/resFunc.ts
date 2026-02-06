@@ -1,4 +1,5 @@
 import controllers from "@/controller/book/method";
+import { errRes } from "@/controller/main";
 import { IBook } from "@/types/book";
 import { Request, Response } from "express";
 
@@ -15,7 +16,19 @@ const getAll = async (req: Request, res: Response) => {
     res.status(result.code).json(result);
 };
 
+async function searchBook(req: Request, res: Response) {
+  // รับค่าจาก query string เช่น /api/book/search?q=แฮร์รี่
+  const query = req.query.q as string;
+  
+  if (!query) {
+    return res.status(400).json(errRes.BAD_REQUEST({ message: "กรุณาใส่ชื่อหนังสือที่ต้องการค้นหา" }));
+  }
+
+  const data = await controllers.search(query);
+  return res.status(data.code).json(data);
+}
 export default {
   create,
   getAll,
+  searchBook
 };
