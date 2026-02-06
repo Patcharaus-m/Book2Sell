@@ -96,15 +96,15 @@ export function AuthProvider({ children }) {
      */
     const processPayment = (amount) => {
         if (!user) return { success: false, message: "กรุณาเข้าสู่ระบบก่อนทำรายการ" };
-        const currentCredits = user.storeCredits || 0;
+        const currentCredits = user.creditBalance || 0;
 
         if (currentCredits < amount) {
             return { success: false, message: "ยอดเครดิตคงเหลือไม่เพียงพอ กรุณาเติมเงินก่อนซื้อ" };
         }
 
         const newCredits = currentCredits - amount;
-        updateUser({ storeCredits: newCredits });
-        return { success: true };
+        updateUser({ creditBalance: newCredits });
+        return { success: true, balance: newCredits };
     };
 
     /**

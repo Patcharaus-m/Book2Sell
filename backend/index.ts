@@ -5,6 +5,7 @@ import { connectDB } from "./database";
 import routers from "./routers/book";
 import userRouter from "./routers/user";
 import reviewRouter from "./routers/review";
+import orderRouter from "./routers/order";
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(express.json());
 app.use("/api/book", routers);
 app.use("/api/user", userRouter);
 app.use("/api/review", reviewRouter);
+app.use("/api/order", orderRouter);
 
 // Connect to database
 connectDB();

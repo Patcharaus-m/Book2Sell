@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
-import { useBook } from "../../context/BookContext";
+
+import { createOrderService } from "../../services/orderService";
+import { createReviewService } from "../../services/reviewService";
 import { Link, useNavigate } from "react-router-dom";
 import {
     ShoppingBag,
@@ -21,7 +23,7 @@ import {
 export default function Checkout() {
     const { user, processPayment, addPurchasedBooks } = useAuth();
     const { cart, totalAmount, clearCart } = useCart();
-    const { addReview } = useBook();
+
     const navigate = useNavigate();
     const [isOrdered, setIsOrdered] = useState(false);
     const [error, setError] = useState('');
@@ -40,17 +42,49 @@ export default function Checkout() {
         setShowConfirmModal(true);
     };
 
-    const handleConfirmPayment = () => {
-        const result = processPayment(totalAmount);
-        if (!result.success) {
-            setError(result.message);
+    const handleConfirmPayment = async () => {
+        // ตรวจสอบเครดิตก่อน
+        if ((user?.creditBalance || 0) < totalAmount) {
+            setError("ยอดเงินคงเหลือไม่พอ กรุณาเติมเครดิต");
             setShowConfirmModal(false);
             return;
         }
 
-        // Save items for review before clearing cart
+        // สั่งซื้อทุกรายการใน cart
         const orderItems = [...cart];
-        setItemsToReview(orderItems);
+        const createdOrders = [];  // เก็บ orderId สำหรับใช้ตอน review
+        let allSuccess = true;
+        let lastError = "";
+
+        for (const item of orderItems) {
+            const result = await createOrderService({
+                bookId: item._id || item.id,
+                userId: user._id || user.id,
+                shippingAddress: user.address || "ที่อยู่เริ่มต้น"
+            });
+
+            if (!result.status) {
+                allSuccess = false;
+                lastError = result.message || "เกิดข้อผิดพลาด";
+                break;
+            }
+            
+            // เก็บข้อมูล order พร้อมกับ book info สำหรับใช้ตอน review
+            createdOrders.push({
+                ...item,
+                orderId: result.payload?.order?._id || result.payload?.order?.id
+            });
+        }
+
+        if (!allSuccess) {
+            setError(lastError);
+            setShowConfirmModal(false);
+            return;
+        }
+
+        // สำเร็จทั้งหมด - อัปเดต local state
+        processPayment(totalAmount);
+        setItemsToReview(createdOrders);  // ใช้ createdOrders ที่มี orderId แล้ว
         addPurchasedBooks(orderItems.map(item => item.id || item._id));
 
         setShowConfirmModal(false);
@@ -61,14 +95,23 @@ export default function Checkout() {
         }, 3000);
     };
 
-    const handleReviewSubmit = (e) => {
+    const handleReviewSubmit = async (e) => {
         if (e) e.preventDefault();
         const currentItem = itemsToReview[currentReviewIndex];
 
         setIsSubmittingReview(true);
 
-        // Local update
-        addReview(currentItem.id || currentItem._id, { rating, comment }, user);
+        // เรียก API สร้าง Review
+        if (currentItem.orderId) {
+            await createReviewService({
+                orderId: currentItem.orderId,
+                userId: user._id || user.id,
+                rating,
+                comment
+            });
+        }
+
+        // Local update สำหรับ UI (ถ้าต้องการ - ปัจจุบันไม่จำเป็น เพราะบันทึกใน DB แล้ว)
 
         // Move to next item or close
         setTimeout(() => {
@@ -196,7 +239,7 @@ export default function Checkout() {
                                 </div>
                                 <div>
                                     <p className="text-sm font-black text-gray-400 uppercase tracking-widest mb-1">Your Balance</p>
-                                    <p className="text-3xl font-black text-gray-900 tracking-tight">฿{(user?.storeCredits || 0).toLocaleString()}</p>
+                                    <p className="text-3xl font-black text-gray-900 tracking-tight">฿{(user?.creditBalance || 0).toLocaleString()}</p>
                                 </div>
                             </div>
                         </div>

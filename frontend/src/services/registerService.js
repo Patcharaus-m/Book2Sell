@@ -82,7 +82,7 @@ export const registerService = {
                     email: payload.email,
                     phone: payload.phone,
                     name: payload.username,
-                    storeCredits: payload.creditBalance || 0
+                    creditBalance: payload.creditBalance || 0
                 };
 
                 return {

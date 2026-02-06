@@ -183,6 +183,7 @@ const setSearchKeyword = useCallback((keyword) => {
         books,
         filteredBooks,
         addBook,
+        deleteBook,
         filters,
         setFilters,
         setSearchKeyword
