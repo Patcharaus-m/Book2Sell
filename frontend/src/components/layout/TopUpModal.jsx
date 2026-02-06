@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { X, Wallet, CreditCard, Coins, CheckCircle, ArrowRight, Loader2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+// 1. นำเข้า Service ที่เราสร้างไว้เพื่อยิง API
+import { topUpService } from '../../services/userService';
 
 const TopUpModal = ({ isOpen, onClose }) => {
-    const { user, topUp } = useAuth();
+    // 2. ขอ updateUser มาด้วย เพื่อใช้อัปเดตตัวเลขบนหน้าจอและ localStorage ทันทีที่เติมเสร็จ
+    const { user, updateUser } = useAuth();
     const [selectedAmount, setSelectedAmount] = useState(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
@@ -12,29 +15,56 @@ const TopUpModal = ({ isOpen, onClose }) => {
 
     const handleConfirm = async () => {
         if (!selectedAmount) return;
+        if (!user) return alert("กรุณาเข้าสู่ระบบ");
 
         setIsProcessing(true);
-        // Simulate payment processing delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
 
-        const result = await topUp(selectedAmount);
-        setIsProcessing(false);
+        // --- ส่วนที่แก้: เรียก API จริง ---
+        try {
+            // เรียก service ยิงไป Backend
+            const result = await topUpService(user.id, selectedAmount);
+            
+            // DEBUG: ดู response จาก backend
+            console.log('TopUp API Response:', result);
 
-        if (result.success) {
-            setIsSuccess(true);
-            setTimeout(() => {
-                setIsSuccess(false);
-                setSelectedAmount(null);
-                onClose();
-            }, 1500);
+            // Backend ส่ง code: 201 สำหรับ success
+            if (result.code === 201 || result.code === 200) {
+                // ดึง creditBalance จาก payload (อาจซ้อนกัน)
+                const newBalance = result.payload?.payload?.creditBalance 
+                                ?? result.payload?.creditBalance;
+                
+                console.log('New Balance:', newBalance);
+                
+                // ถ้าสำเร็จ: อัปเดต State user และ localStorage ทันที
+                updateUser({ creditBalance: newBalance });
+
+                // จำลอง Delay นิดหน่อยให้อนิเมชัน Loader ทำงานสวยๆ (ตาม UX เดิมของคุณ)
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                setIsProcessing(false);
+                setIsSuccess(true);
+                
+                setTimeout(() => {
+                    setIsSuccess(false);
+                    setSelectedAmount(null);
+                    onClose();
+                }, 1500);
+            } else {
+                // ถ้า API ตอบกลับมาว่าไม่ผ่าน
+                setIsProcessing(false);
+                alert(result.message || "เติมเงินไม่สำเร็จ");
+            }
+        } catch {
+            setIsProcessing(false);
+            alert("เกิดข้อผิดพลาดในการเชื่อมต่อ");
         }
+        // -----------------------------
     };
 
     if (!isOpen) return null;
 
     return (
         <div
-            // เพิ่ม h-screen w-screen เข้าไป
             className="fixed inset-0 z-[110] flex items-center justify-center h-screen w-screen bg-black/60 backdrop-blur-sm p-4 transition-all duration-500"
             onClick={onClose}
         >
@@ -63,7 +93,8 @@ const TopUpModal = ({ isOpen, onClose }) => {
                             <div className="bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-3xl">
                                 <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">ยอดเงินคงเหลือ</p>
                                 <p className="text-3xl font-black bg-gradient-to-r from-yellow-300 to-amber-500 bg-clip-text text-transparent">
-                                    ฿{user?.storeCredits?.toLocaleString() || 0}
+                                    {/* แก้ Data Binding ให้ตรงกับ Backend (creditBalance) */}
+                                    ฿{user?.creditBalance?.toLocaleString() || 0}
                                 </p>
                             </div>
                             <div className="pb-2">
@@ -152,7 +183,8 @@ const TopUpModal = ({ isOpen, onClose }) => {
                             <p className="text-gray-500 font-bold mb-6 text-center">ยอดเครดิตของคุณได้รับการอัปเดตเรียบร้อยแล้ว</p>
                             <div className="bg-gray-50 px-6 py-3 rounded-2xl border border-gray-100 flex items-center gap-3">
                                 <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">ยอดเครดิตใหม่</span>
-                                <span className="text-lg font-black text-green-600">฿{user?.storeCredits?.toLocaleString()}</span>
+                                {/* แก้ Data Binding ให้ตรงกับ Backend (creditBalance) */}
+                                <span className="text-lg font-black text-green-600">฿{user?.creditBalance?.toLocaleString()}</span>
                             </div>
                         </div>
                     )}

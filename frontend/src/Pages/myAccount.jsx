@@ -110,7 +110,7 @@ const MyAccount = () => {
                             <CreditCard size={80} />
                         </div>
                         <p className="text-[10px] font-black uppercase tracking-widest text-purple-200 mb-2">ยอดเงินคงเหลือ</p>
-                        <h3 className="text-4xl font-black mb-6">฿{user.storeCredits?.toLocaleString() || 0}</h3>
+                        <h3 className="text-4xl font-black mb-6">฿{user.creditBalance?.toLocaleString() || 0}</h3>
                         <button
                             onClick={() => topUp(500)}
                             className="w-full py-3 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"

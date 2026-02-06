@@ -82,8 +82,8 @@ export function AuthProvider({ children }) {
     const topUp = async (amount) => {
         if (!user) return { success: false, message: "User not logged in" };
 
-        const newCredits = (user.storeCredits || 0) + amount;
-        const updatedUser = { ...user, storeCredits: newCredits };
+        const newCredits = (user.creditBalance || 0) + amount;
+        const updatedUser = { ...user, creditBalance: newCredits };
 
         setUser(updatedUser);
         localStorage.setItem("auth_user", JSON.stringify(updatedUser));

@@ -164,7 +164,7 @@ export default function Checkout() {
                                 </div>
                                 <div className="text-left">
                                     <p className={`font-black text-lg ${paymentMethod === 'credits' ? 'text-gray-900' : 'text-gray-500'}`}>เครดิตร้านค้า</p>
-                                    <p className="text-[11px] font-bold text-purple-500">คงเหลือ: ฿{(user?.storeCredits || 0).toLocaleString()}</p>
+                                    <p className="text-[11px] font-bold text-purple-500">คงเหลือ: ฿{(user?.creditBalance || 0).toLocaleString()}</p>
                                 </div>
                                 {paymentMethod === 'credits' && (
                                     <div className="absolute top-4 right-4 animate-in zoom-in duration-300">

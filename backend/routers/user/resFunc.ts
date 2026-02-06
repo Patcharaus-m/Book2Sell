@@ -26,8 +26,21 @@ async function editInfo(req: Request, res: Response) {
   return res.status(data.code).json(data);
 }
 
+async function topUp(req: Request, res: Response) {
+    const { userId, amount } = req.body;
+    
+    // Validate
+    if (!userId || !amount) {
+        return res.status(400).json({ code: 400, success: false, message: "ข้อมูลไม่ครบ" });
+    }
+
+    const data = await controller.topUp({ userId, amount: Number(amount) });
+    return res.status(data.code).json(data);
+}
+
 export default {
   register,
   login,
-  editInfo
+  editInfo,
+  topUp
 };

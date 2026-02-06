@@ -33,7 +33,7 @@ export const loginService = {
                     email: payload.email,
                     phone: payload.phone,
                     name: payload.username, // ใช้ username เป็น display name
-                    storeCredits: payload.creditBalance || 0
+                    creditBalance: payload.creditBalance || 0
                 };
 
                 return {

@@ -7,5 +7,6 @@ const routers = express.Router();
 routers.post("/register", resFunc.register);
 routers.post("/login", resFunc.login);
 routers.post("/editInfo", resFunc.editInfo);
+routers.post("/topUp", resFunc.topUp);
 
 export default routers;

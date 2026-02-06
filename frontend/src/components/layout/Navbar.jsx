@@ -162,7 +162,7 @@ export default function Navbar() {
                                     >
                                         <div className="text-right hidden lg:block">
                                             <p className={`text-xs font-bold ${isAboutUsPage ? "text-white" : "text-gray-900"}`}>{user.name}</p>
-                                            <p className={`text-[10px] font-bold ${isAboutUsPage ? "text-purple-300" : "text-purple-600"}`}>฿{user.storeCredits?.toLocaleString() || 0}</p>
+                                            <p className={`text-[10px] font-bold ${isAboutUsPage ? "text-purple-300" : "text-purple-600"}`}>฿{user.creditBalance?.toLocaleString() || 0}</p>
                                         </div>
                                         <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold shadow-sm">
                                             {user.name.charAt(0).toUpperCase()}
@@ -175,7 +175,7 @@ export default function Navbar() {
                                         <div className="absolute right-0 mt-2 w-60 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden py-2 origin-top-right animate-popup z-50">
                                             <div className="px-4 py-3 border-b border-gray-50 lg:hidden bg-gray-50/50">
                                                 <p className="text-sm font-bold text-gray-900">{user.name}</p>
-                                                <p className="text-xs text-purple-600 font-bold">เครดิต: ฿{user.storeCredits?.toLocaleString()}</p>
+                                                <p className="text-xs text-purple-600 font-bold">เครดิต: ฿{user.creditBalance?.toLocaleString()}</p>
                                             </div>
 
                                             <Link to="/product-in-store" className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors">
