@@ -15,7 +15,8 @@ import {
     MessageSquare,
     Send,
     X,
-    User
+    User,
+    MapPin
 } from "lucide-react";
 
 export default function Checkout() {
@@ -25,6 +26,18 @@ export default function Checkout() {
     const navigate = useNavigate();
     const [isOrdered, setIsOrdered] = useState(false);
     const [error, setError] = useState('');
+
+    // Address State
+    const [address, setAddress] = useState({
+        houseNo: '',
+        province: '',
+        district: '',
+        subDistrict: '',
+        road: '',
+        soi: '',
+        postalCode: '',
+        note: ''
+    });
 
     // Modals State
     const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -180,6 +193,111 @@ export default function Checkout() {
                         </div>
                     </div>
 
+
+
+                    {/* Address Card */}
+                    <div className="bg-white/60 backdrop-blur-xl border border-white/50 rounded-[3rem] p-8 shadow-xl shadow-gray-200/20 overflow-hidden relative">
+                        <div className="relative flex items-center justify-between mb-8">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 bg-orange-100 rounded-2xl flex items-center justify-center text-orange-600 shadow-inner">
+                                    <MapPin size={24} />
+                                </div>
+                                <h2 className="text-2xl font-black text-gray-900 tracking-tight">ที่อยู่จัดส่ง</h2>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* House No */}
+                            <div className="md:col-span-2">
+                                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">บ้านเลขที่ / หมู่บ้าน / อาคาร</label>
+                                <input
+                                    type="text"
+                                    value={address.houseNo}
+                                    onChange={(e) => setAddress({ ...address, houseNo: e.target.value })}
+                                    className="w-full bg-white/50 border border-gray-200 rounded-2xl px-5 py-4 font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                                    placeholder="ระบุบ้านเลขที่..."
+                                />
+                            </div>
+
+                            {/* Road & Soi */}
+                            <div>
+                                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">ถนน</label>
+                                <input
+                                    type="text"
+                                    value={address.road}
+                                    onChange={(e) => setAddress({ ...address, road: e.target.value })}
+                                    className="w-full bg-white/50 border border-gray-200 rounded-2xl px-5 py-4 font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                                    placeholder="ถนน..."
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">ซอย</label>
+                                <input
+                                    type="text"
+                                    value={address.soi}
+                                    onChange={(e) => setAddress({ ...address, soi: e.target.value })}
+                                    className="w-full bg-white/50 border border-gray-200 rounded-2xl px-5 py-4 font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                                    placeholder="ซอย..."
+                                />
+                            </div>
+
+                            {/* Sub-district & District */}
+                            <div>
+                                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">ตำบล / แขวง</label>
+                                <input
+                                    type="text"
+                                    value={address.subDistrict}
+                                    onChange={(e) => setAddress({ ...address, subDistrict: e.target.value })}
+                                    className="w-full bg-white/50 border border-gray-200 rounded-2xl px-5 py-4 font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                                    placeholder="ตำบล/แขวง..."
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">อำเภอ / เขต</label>
+                                <input
+                                    type="text"
+                                    value={address.district}
+                                    onChange={(e) => setAddress({ ...address, district: e.target.value })}
+                                    className="w-full bg-white/50 border border-gray-200 rounded-2xl px-5 py-4 font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                                    placeholder="อำเภอ/เขต..."
+                                />
+                            </div>
+
+                            {/* Province & Postal Code */}
+                            <div>
+                                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">จังหวัด</label>
+                                <input
+                                    type="text"
+                                    value={address.province}
+                                    onChange={(e) => setAddress({ ...address, province: e.target.value })}
+                                    className="w-full bg-white/50 border border-gray-200 rounded-2xl px-5 py-4 font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                                    placeholder="จังหวัด..."
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">รหัสไปรษณีย์</label>
+                                <input
+                                    type="text"
+                                    value={address.postalCode}
+                                    onChange={(e) => setAddress({ ...address, postalCode: e.target.value })}
+                                    className="w-full bg-white/50 border border-gray-200 rounded-2xl px-5 py-4 font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                                    placeholder="รหัสไปรษณีย์..."
+                                />
+                            </div>
+
+                            {/* Note */}
+                            <div className="md:col-span-2">
+                                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">เพิ่มเติม (Optional)</label>
+                                <textarea
+                                    value={address.note}
+                                    onChange={(e) => setAddress({ ...address, note: e.target.value })}
+                                    className="w-full bg-white/50 border border-gray-200 rounded-2xl px-5 py-4 font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all h-24 resize-none"
+                                    placeholder="รายละเอียดเพิ่มเติม (จุดสังเกต, เบอร์โทรสำรอง)..."
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Payment Card */}
                     <div className="bg-white/60 backdrop-blur-xl border border-white/50 rounded-[3rem] p-8 shadow-xl shadow-gray-200/20 overflow-hidden relative">
                         <div className="relative flex items-center justify-between mb-8">
                             <div className="flex items-center gap-4">
@@ -325,6 +443,6 @@ export default function Checkout() {
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     );
 }

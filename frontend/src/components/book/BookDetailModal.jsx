@@ -140,20 +140,24 @@ const BookDetailModal = ({ isOpen, onClose, book }) => {
                         </div>
                     </div>
 
-                    {/* Seller Info */}
-                    <div className="mb-8 p-4 bg-purple-50/30 rounded-2xl border border-purple-100/30 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center text-white font-black">
-                                {book.sellerName?.charAt(0) || 'U'}
+                    {/* Seller Info - PROMINENT */}
+                    <div className="mb-8 p-5 bg-gradient-to-br from-purple-100/50 to-purple-50/30 rounded-3xl border-2 border-purple-200/50 shadow-sm">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <div className="w-14 h-14 bg-gradient-to-br from-purple-600 to-purple-500 rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-md ring-4 ring-purple-200/30">
+                                    {(book.sellerId?.name || book.sellerName)?.charAt(0) || 'U'}
+                                </div>
+                                <div>
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <p className="text-[11px] font-black text-purple-600 uppercase tracking-wider bg-white px-2 py-0.5 rounded-lg border border-purple-100">ลงโดย / Posted by</p>
+                                    </div>
+                                    <p className="text-lg font-black text-gray-900">{book.sellerId?.name || book.sellerName || 'ไม่ระบุชื่อ'}</p>
+                                </div>
                             </div>
-                            <div>
-                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-tighter">ผู้ลงขาย</p>
-                                <p className="text-xs font-black text-gray-900">{book.sellerName || 'ไม่ระบุชื่อ'}</p>
-                            </div>
+                            <button className="p-3 text-purple-600 hover:bg-white/80 rounded-2xl transition-all hover:scale-105 active:scale-95 shadow-sm" title="ติดต่อผู้ขาย">
+                                <MessageCircle size={22} />
+                            </button>
                         </div>
-                        <button className="p-2 text-purple-600 hover:bg-purple-100 rounded-xl transition-all" title="ติดต่อผู้ขาย">
-                            <MessageCircle size={20} />
-                        </button>
                     </div>
 
                     <div className="mt-auto flex gap-3">

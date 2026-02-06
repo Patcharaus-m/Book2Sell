@@ -1,0 +1,45 @@
+/* Sparks.css */
+
+/* 1. Keyframes สำหรับการกะพริบอย่างรวดเร็ว */
+@keyframes flash {
+    0% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.5);
+        /* เพิ่มแสงฟุ้งๆ (Glow) สีฟ้าขาว */
+        box-shadow: 0 0 10px #00bfff, 0 0 20px #fff;
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+}
+
+.sparks-container {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    background-color: #111;
+    /* พื้นหลังดำ */
+    margin: 50px auto;
+    overflow: hidden;
+    /* ซ่อนส่วนที่เกินขอบ */
+}
+
+.spark {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background-color: #fff;
+    border-radius: 50%;
+    opacity: 0;
+    /* อนิเมชั่นเร็วมากๆ (0.2s - 0.5s) */
+    animation-name: flash;
+    animation-timing-function: ease-out;
+    animation-iteration-count: infinite;
+}

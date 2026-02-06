@@ -12,12 +12,21 @@ const BookSchema = new mongoose.Schema(
     condition: { type: String, required: true }, // สภาพหนังสือ (เช่น 90%) [cite: 4]
     description: { type: String }, // คำอธิบายตำหนิรายเล่ม [cite: 34]
     stock: { type: Number, default: 1 }, // สต็อก (มักมี 1 เล่ม) [cite: 4]
-    status: { 
-      type: String, 
+    status: {
+      type: String,
       enum: ["available", "sold", "closed"], // สถานะ "ขายแล้ว" หรือ "ปิดการขาย" [cite: 8]
-      default: "available" 
+      default: "available"
     },
     images: [{ type: String }], // รูปถ่ายจริงเห็นตำหนิชัดเจน (หลายรูป) [cite: 3, 34]
+    reviews: [
+      {
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        userName: { type: String },
+        rating: { type: Number, min: 1, max: 5 },
+        comment: { type: String },
+        createdAt: { type: Date, default: Date.now }
+      }
+    ], // รีวิวหนังสือ
     isDeleted: { type: Boolean, default: false } // สำหรับ Soft Delete [cite: 8]
   },
   { timestamps: true, versionKey: false }
