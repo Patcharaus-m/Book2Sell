@@ -20,3 +20,17 @@ export const getBooksBySellerId = async (sellerId) => {
     return { status: false, message: "เชื่อมต่อเซิร์ฟเวอร์ไม่ได้" };
   }
 };
+
+// ฟังก์ชันลบหนังสือ (ต้องส่ง userId ไปยืนยันตัวตนด้วย)
+export const deleteBookService = async (bookId, userId) => {
+    try {
+        const response = await fetch(`http://localhost:3000/api/book/${bookId}`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId }) 
+        });
+        return await response.json();
+    } catch (error) {
+        return { status: false, message: error.message };
+    }
+};

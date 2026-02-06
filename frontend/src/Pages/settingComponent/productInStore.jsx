@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { BookOpen, Edit2, Trash2, X, AlertOctagon } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import { useBook } from "../../context/BookContext";
 import { getBooksBySellerId } from "../../services/bookService";
 
 export default function ProductInStore() {
     const { user } = useAuth();
+    const { deleteBook } = useBook();
     const [userProducts, setUserProducts] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -30,14 +32,18 @@ export default function ProductInStore() {
 
     const [itemToDelete, setItemToDelete] = useState(null);
 
-    const handleDelete = (id) => {
-        // Implementation note: Since deleteBook is currently commented out in BookContext,
-        // we would normally call it here: deleteBook(id);
-        // For now, we'll show a message or handle it locally if possible,
-        // but since it's context-driven, a real delete needs context support.
-        console.log("Delete requested for book ID:", id);
-        setItemToDelete(null);
-        alert("การลบสินค้าต้องเชื่อมต่อกับระบบหลังบ้าน (API) ซึ่งยังไม่เปิดใช้งานฟังก์ชันลบใน Context");
+    const handleDelete = async (bookId) => {
+        const userId = user._id || user.id;
+        const result = await deleteBook(bookId, userId);
+        
+        if (result.success) {
+            // ลบออกจาก local state ด้วย
+            setUserProducts(prev => prev.filter(book => book._id !== bookId && book.id !== bookId));
+            setItemToDelete(null);
+            alert("ลบหนังสือเรียบร้อยแล้ว!");
+        } else {
+            alert(result.message || "ไม่สามารถลบหนังสือได้");
+        }
     };
 
     return (
@@ -126,7 +132,7 @@ export default function ProductInStore() {
                                 ยกเลิก
                             </button>
                             <button
-                                onClick={() => handleDelete(itemToDelete.id)}
+                                onClick={() => handleDelete(itemToDelete._id || itemToDelete.id)}
                                 className="flex-1 py-4 bg-red-500 hover:bg-red-600 text-white font-black rounded-2xl shadow-xl shadow-red-200 transition-all hover:scale-105"
                             >
                                 ลบทิ้ง

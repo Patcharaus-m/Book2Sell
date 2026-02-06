@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
+import { deleteBookService } from '../services/bookService';
 
 const BookContext = createContext();
 
@@ -101,6 +102,25 @@ export const BookProvider = ({ children }) => {
         }
     };
 
+    // ฟังก์ชันลบหนังสือ
+    const deleteBook = async (bookId, userId) => {
+        try {
+            const result = await deleteBookService(bookId, userId);
+            console.log('Delete book response:', result);
+
+            if (result.code === 201 || result.status === 2001) {
+                // ลบหนังสือออกจาก state (หรือ mark เป็น isDeleted)
+                setBooks(prev => prev.filter(book => book.id !== bookId && book._id !== bookId));
+                return { success: true, message: "ลบหนังสือเรียบร้อยแล้ว" };
+            }
+
+            return { success: false, message: result.error?.message || "ไม่สามารถลบหนังสือได้" };
+        } catch (error) {
+            console.error("Failed to delete book:", error);
+            return { success: false, message: "เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์" };
+        }
+    };
+
     // เพิ่มฟังก์ชันนี้ใน BookProvider ก่อนบรรทัด filteredBooks
 const handleRemoteSearch = useCallback(async (keyword) => {
     // ถ้าไม่มีคำค้น ให้กลับไปโหลดหนังสือทั้งหมดตามปกติ
@@ -165,6 +185,7 @@ const setSearchKeyword = useCallback((keyword) => {
         books,
         filteredBooks,
         addBook,
+        deleteBook,
         filters,
         setFilters,
         setSearchKeyword
