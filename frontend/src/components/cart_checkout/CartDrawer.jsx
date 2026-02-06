@@ -1,10 +1,10 @@
 import React from 'react';
 import { useCart } from "../../context/CartContext";
 import { Link } from "react-router-dom";
-import { X, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
+import { X, Trash2, ShoppingBag, ArrowRight, Minus, Plus } from "lucide-react";
 
 export default function CartDrawer() {
-    const { cart, removeFromCart, isDrawerOpen, setIsDrawerOpen, totalAmount } = useCart();
+    const { cart, removeFromCart, updateQuantity, isDrawerOpen, setIsDrawerOpen, totalAmount } = useCart();
 
     if (!isDrawerOpen) return null;
 
@@ -61,14 +61,36 @@ export default function CartDrawer() {
                                             <h4 className="font-bold text-gray-900 line-clamp-1">{item.title}</h4>
                                             <p className="text-sm text-gray-500 mt-1">สภาพ {item.condition}%</p>
                                             <div className="mt-4 flex items-center justify-between">
-                                                <span className="font-black text-lg">฿{item.sellingPrice || item.price}</span>
-                                                <button
-                                                    onClick={() => removeFromCart(item.id)}
-                                                    className="p-1 text-gray-300 hover:text-red-500 transition-colors"
-                                                >
-                                                    <Trash2 size={18} />
-                                                </button>
+                                                <div className="flex items-center bg-gray-50 rounded-xl p-1 border border-gray-100">
+                                                    <button
+                                                        onClick={() => updateQuantity(item.id, -1)}
+                                                        className="p-1.5 hover:bg-white rounded-lg transition-colors text-gray-400 hover:text-purple-600 disabled:opacity-30"
+                                                        disabled={item.quantity <= 1}
+                                                    >
+                                                        <Minus size={14} />
+                                                    </button>
+                                                    <span className="w-10 text-center font-black text-base">{item.quantity}</span>
+                                                    <button
+                                                        onClick={() => updateQuantity(item.id, 1)}
+                                                        className="p-1.5 hover:bg-white rounded-lg transition-colors text-gray-400 hover:text-purple-600 disabled:opacity-30"
+                                                        disabled={item.quantity >= (item.stock || 1)}
+                                                    >
+                                                        <Plus size={14} />
+                                                    </button>
+                                                </div>
+                                                <div className="flex flex-col items-end">
+                                                    <span className="font-black text-lg">฿{(item.sellingPrice || item.price) * item.quantity}</span>
+                                                    {item.quantity >= item.stock && (
+                                                        <span className="text-[10px] font-black text-rose-500 uppercase tracking-tighter mt-1 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-100">ขีดจำกัดสต็อก</span>
+                                                    )}
+                                                </div>
                                             </div>
+                                            <button
+                                                onClick={() => removeFromCart(item.id)}
+                                                className="mt-2 text-[10px] font-bold text-gray-300 hover:text-red-500 transition-colors uppercase flex items-center gap-1"
+                                            >
+                                                <Trash2 size={12} /> ลบออก
+                                            </button>
                                         </div>
                                     </div>
                                 ))
