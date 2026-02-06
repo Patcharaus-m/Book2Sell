@@ -11,4 +11,7 @@ routers.get("/", resFunc.getAll);
 
 routers.get("/search", resFunc.searchBook);
 
+// เพิ่มบรรทัดนี้ลงไป
+routers.delete("/:id", resFunc.deleteBook);
+
 export default routers;

@@ -27,8 +27,21 @@ async function searchBook(req: Request, res: Response) {
   const data = await controllers.search(query);
   return res.status(data.code).json(data);
 }
+
+async function deleteBook(req: Request, res: Response) {
+  // รับ bookId จาก params และ userId จาก body (หรือจาก token middleware ถ้ามี)
+  const payload = {
+    bookId: req.params.id as string,
+    userId: req.body.userId as string // หรือ req.user.id
+  };
+  
+  const data = await controllers.deleteBook(payload);
+  return res.status(data.code).json(data);
+}
+
 export default {
   create,
   getAll,
-  searchBook
+  searchBook,
+  deleteBook
 };
