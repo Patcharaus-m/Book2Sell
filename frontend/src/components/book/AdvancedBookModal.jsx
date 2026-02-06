@@ -68,6 +68,36 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
         }
     };
 
+    const compressImage = (base64Str, maxWidth = 800, maxHeight = 800, quality = 0.7) => {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.src = base64Str;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > maxWidth) {
+                        height *= maxWidth / width;
+                        width = maxWidth;
+                    }
+                } else {
+                    if (height > maxHeight) {
+                        width *= maxHeight / height;
+                        height = maxHeight;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                resolve(canvas.toDataURL('image/jpeg', quality));
+            };
+        });
+    };
+
     const handleImageUpload = (e) => {
         const files = Array.from(e.target.files);
         if (formData.images.length + files.length > 5) {
@@ -77,10 +107,11 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
 
         files.forEach(file => {
             const reader = new FileReader();
-            reader.onloadend = () => {
+            reader.onloadend = async () => {
+                const compressed = await compressImage(reader.result);
                 setFormData(prev => ({
                     ...prev,
-                    images: [...prev.images, reader.result]
+                    images: [...prev.images, compressed]
                 }));
             };
             reader.readAsDataURL(file);
@@ -101,7 +132,24 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
             alert("กรุณาเลือกหมวดหมู่");
             return;
         }
-        onSubmit(formData);
+
+        // Final payload cleaning to strictly match IBook
+        const payload = {
+            title: formData.title,
+            author: formData.author,
+            category: formData.category,
+            isbn: formData.isbn || undefined,
+            coverPrice: formData.coverPrice ? Number(formData.coverPrice) : undefined,
+            sellingPrice: Number(formData.sellingPrice),
+            condition: formData.condition,
+            description: formData.description || undefined,
+            stock: formData.stock ? Number(formData.stock) : undefined,
+            status: formData.status,
+            images: formData.images,
+            isDeleted: false
+        };
+
+        onSubmit(payload);
         onClose();
     };
 

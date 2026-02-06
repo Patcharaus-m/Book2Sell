@@ -79,14 +79,14 @@ export default function Navbar() {
                     {/* 2. Desktop Search */}
                     <div className="hidden md:flex flex-1 max-w-xl mx-8">
                         <div className="relative group w-full">
-                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <div name="search-1" className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                 <Search className={`h-5 w-5 transition-colors ${isAboutUsPage ? "text-gray-400 group-focus-within:text-purple-400" : "text-gray-400 group-focus-within:text-purple-600"}`} />
                             </div>
                             <input
                                 type="text"
                                 className={`block w-full pl-12 pr-10 py-3 border rounded-full text-sm font-medium focus:outline-none focus:ring-2 transition-all ${isAboutUsPage
-                                        ? "bg-white/5 border-white/10 text-white placeholder-gray-500 focus:ring-purple-500/50 focus:bg-white/10 focus:border-purple-500/50"
-                                        : "bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:ring-purple-100 focus:border-purple-500 focus:bg-white"
+                                    ? "bg-white/5 border-white/10 text-white placeholder-gray-500 focus:ring-purple-500/50 focus:bg-white/10 focus:border-purple-500/50"
+                                    : "bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:ring-purple-100 focus:border-purple-500 focus:bg-white"
                                     }`}
                                 placeholder="ค้นหาหนังสือ..."
                                 value={filters.keyword}
@@ -137,8 +137,8 @@ export default function Navbar() {
                                 <button
                                     onClick={() => setIsSellModalOpen(true)}
                                     className={`relative group hidden sm:flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm hover:shadow-xl transition-all duration-250 active:scale-95 overflow-hidden ${isAboutUsPage
-                                            ? "bg-white/10 text-white hover:bg-white/20 border border-white/10 hover:shadow-purple-500/10"
-                                            : "bg-gray-900 text-white hover:shadow-purple-500/20"
+                                        ? "bg-white/10 text-white hover:bg-white/20 border border-white/10 hover:shadow-purple-500/10"
+                                        : "bg-gray-900 text-white hover:shadow-purple-500/20"
                                         }`}
                                 >
                                     {/* เลเยอร์สี Gradient - Only for default mode or modified for dark mode */}
@@ -156,8 +156,8 @@ export default function Navbar() {
                                     <button
                                         onClick={() => setShowUserMenu(!showUserMenu)}
                                         className={`flex items-center gap-2 p-1 pl-3 pr-2 border rounded-full transition-all hover:shadow-md ${isAboutUsPage
-                                                ? "border-white/10 hover:bg-white/5"
-                                                : "border-gray-100 hover:bg-gray-50"
+                                            ? "border-white/10 hover:bg-white/5"
+                                            : "border-gray-100 hover:bg-gray-50"
                                             }`}
                                     >
                                         <div className="text-right hidden lg:block">
@@ -183,9 +183,6 @@ export default function Navbar() {
                                             </Link>
                                             <Link to="/settings" className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors">
                                                 <Settings size={16} className="text-purple-500" /> ตั้งค่าบัญชี
-                                            </Link>
-                                            <Link to="/myAccount" className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors">
-                                                <User size={16} className="text-purple-500" /> บัญชีของฉัน
                                             </Link>
                                             <button
                                                 onClick={() => { setIsTopUpOpen(true); setShowUserMenu(false); }}
