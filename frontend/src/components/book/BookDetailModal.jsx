@@ -104,15 +104,22 @@ const BookDetailModal = ({ isOpen, onClose, book }) => {
                         <div className="p-4 bg-gray-50/50 rounded-2xl border border-gray-100">
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">ราคาขาย</p>
                             <div className="flex items-baseline gap-2">
-                                <span className="text-2xl font-black text-gray-900">฿{book.sellingPrice || book.price}</span>
-                                {hasDiscount && <span className="text-sm font-bold text-gray-300 line-through">฿{book.originalPrice}</span>}
+                                <span className="text-3xl font-black text-gray-900">฿{book.sellingPrice || book.price}</span>
+                                {(hasDiscount || book.coverPrice) && (
+                                    <span className="text-lg font-bold text-gray-300 line-through decoration-purple-100">
+                                        ฿{book.originalPrice || book.coverPrice}
+                                    </span>
+                                )}
                             </div>
                         </div>
                         <div className="p-4 bg-gray-50/50 rounded-2xl border border-gray-100">
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">สภาพสินค้า</p>
-                            <div className={`flex items-center gap-2 font-black ${book.condition.includes('9') || book.condition === 'มือหนึ่ง' ? 'text-green-600' : 'text-orange-600'}`}>
-                                <CheckCircle size={14} />
-                                <span>{book.condition}</span>
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">สถานะ / สต็อก</p>
+                            <div className="flex flex-col">
+                                <div className={`flex items-center gap-2 font-black text-lg ${book.condition.includes('9') || book.condition === 'มือหนึ่ง' ? 'text-green-600' : 'text-orange-600'}`}>
+                                    <CheckCircle size={18} />
+                                    <span>{book.condition}</span>
+                                </div>
+                                <p className="text-xs font-black text-purple-600 mt-1 uppercase bg-purple-50 w-fit px-2 py-0.5 rounded-lg border border-purple-100">คงเหลือ {book.stock || 0} เล่ม</p>
                             </div>
                         </div>
                     </div>
@@ -149,14 +156,17 @@ const BookDetailModal = ({ isOpen, onClose, book }) => {
                         </button>
                     </div>
 
-                    {/* Actions */}
                     <div className="mt-auto flex gap-3">
                         <button
                             onClick={handleAddToCart}
-                            className="flex-1 py-4 bg-gray-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-gray-200 hover:bg-purple-600 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
+                            disabled={Number(book.stock) === 0}
+                            className={`flex-1 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl transition-all flex items-center justify-center gap-2 ${Number(book.stock) === 0
+                                ? 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none'
+                                : 'bg-gray-900 text-white shadow-gray-200 hover:bg-purple-600 hover:scale-[1.02] active:scale-95'
+                                }`}
                         >
                             <ShoppingCart size={16} />
-                            เพิ่มลงในรถเข็น
+                            {Number(book.stock) === 0 ? 'สินค้าหมด' : 'เพิ่มลงในรถเข็น'}
                         </button>
                     </div>
                 </div>

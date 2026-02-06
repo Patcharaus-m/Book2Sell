@@ -9,10 +9,33 @@ export function CartProvider({ children }) {
     const addToCart = (book) => {
         setCart(prev => {
             const existing = prev.find(item => item.id === book.id);
-            if (existing) return prev; // Unique items for books mostly
+            if (existing) {
+                // Check stock before incrementing
+                if (existing.quantity < (book.stock || 1)) {
+                    return prev.map(item =>
+                        item.id === book.id
+                            ? { ...item, quantity: item.quantity + 1 }
+                            : item
+                    );
+                }
+                return prev;
+            }
             return [...prev, { ...book, quantity: 1 }];
         });
         setIsDrawerOpen(true);
+    };
+
+    const updateQuantity = (bookId, delta) => {
+        setCart(prev => prev.map(item => {
+            if (item.id === bookId) {
+                const newQty = item.quantity + delta;
+                // Min 1, Max stock
+                if (newQty >= 1 && newQty <= (item.stock || 1)) {
+                    return { ...item, quantity: newQty };
+                }
+            }
+            return item;
+        }));
     };
 
     const removeFromCart = (bookId) => {
@@ -31,6 +54,7 @@ export function CartProvider({ children }) {
             isDrawerOpen,
             setIsDrawerOpen,
             addToCart,
+            updateQuantity,
             removeFromCart,
             clearCart,
             totalAmount

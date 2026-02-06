@@ -5,51 +5,49 @@ import { SlidersHorizontal, ChevronDown, XCircle, SortAsc, SortDesc, Clock, Flam
  * BookFilterBar (Refactored) - ตัดส่วนค้นหาออก ให้เหลือแค่ตัวกรองหมวดหมู่และราคา
  * ทำหน้าที่เป็นแผงควบคุมตัวกรองรอง (Secondary Filter Panel)
  */
-const CustomDropdown = ({ options, value, onChange, placeholder, icon, className, itemClassName }) => {
-    const [isOpen, setIsOpen] = useState(false);
+const CustomDropdown = ({ options, value, onChange, placeholder, icon, className, itemClassName, isOpen, onToggle }) => {
     const selectedOption = options.find(opt => opt.value === value);
-
-    // Close dropdown on outside click
-    useEffect(() => {
-        if (!isOpen) return;
-        const handleClose = () => setIsOpen(false);
-        window.addEventListener('click', handleClose);
-        return () => window.removeEventListener('click', handleClose);
-    }, [isOpen]);
 
     return (
         <div className={`relative ${className}`} onClick={(e) => e.stopPropagation()}>
             <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="w-full pl-6 pr-10 py-4 flex items-center justify-between bg-transparent hover:bg-purple-50/50 rounded-full outline-none transition-all font-black text-xs uppercase tracking-widest text-gray-600 border border-transparent hover:border-purple-100 focus:border-purple-200"
+                onClick={onToggle}
+                className={`w-full pl-6 pr-10 py-4 flex items-center justify-between rounded-full outline-none transition-all duration-[250ms] font-black text-xs uppercase tracking-widest border border-transparent ${isOpen
+                    ? 'bg-purple-600 text-white shadow-lg shadow-purple-200'
+                    : 'bg-transparent hover:bg-purple-50/50 text-gray-600 hover:border-purple-100 focus:border-purple-200'
+                    }`}
             >
                 <div className="flex items-center gap-2">
-                    {icon && <span className="text-purple-500">{icon}</span>}
+                    {icon && <span className={isOpen ? 'text-white' : 'text-purple-500'}>{icon}</span>}
                     <span>{selectedOption ? selectedOption.label : placeholder}</span>
                 </div>
-                <ChevronDown className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : ''} text-purple-400`} size={16} />
+                <ChevronDown className={`transition-transform duration-[250ms] ${isOpen ? 'rotate-180 text-white' : 'text-purple-400'}`} size={16} />
             </button>
 
-            {isOpen && (
-                <div className="absolute top-full left-0 mt-2 w-full min-w-[220px] bg-gradient-to-br from-purple-600 to-indigo-700 rounded-2xl shadow-2xl border border-purple-400/20 py-2 z-[100] animate-popup overflow-hidden">
-                    {options.map((opt) => (
-                        <button
-                            key={opt.value}
-                            onClick={() => {
-                                onChange(opt.value);
-                                setIsOpen(false);
-                            }}
-                            className={`w-full text-left px-6 py-3.5 text-[11px] font-bold uppercase tracking-widest transition-all flex items-center gap-3 ${value === opt.value
-                                ? 'bg-white/20 text-white'
-                                : 'text-purple-50 hover:bg-white/10 hover:text-white'
-                                } ${itemClassName}`}
-                        >
-                            {opt.icon && <span className="text-purple-200">{opt.icon}</span>}
-                            {opt.label}
-                        </button>
-                    ))}
-                </div>
-            )}
+            {/* Dropdown Menu with 0.25s transition */}
+            <div
+                className={`absolute top-full left-0 mt-3 w-full min-w-[240px] bg-gradient-to-br from-purple-600 to-indigo-700 rounded-2xl shadow-2xl border border-purple-400/20 py-2 z-40 transition-all duration-[250ms] ease-out origin-top ${isOpen
+                    ? 'opacity-100 scale-100 translate-y-0 visible'
+                    : 'opacity-0 scale-95 -translate-y-2 invisible pointer-events-none'
+                    }`}
+            >
+                {options.map((opt) => (
+                    <button
+                        key={opt.value}
+                        onClick={() => {
+                            onChange(opt.value);
+                            onToggle(); // Close after select
+                        }}
+                        className={`w-full text-left px-6 py-3.5 text-[11px] font-bold uppercase tracking-widest transition-all flex items-center gap-3 ${value === opt.value
+                            ? 'bg-white/20 text-white'
+                            : 'text-purple-50 hover:bg-white/10 hover:text-white'
+                            } ${itemClassName}`}
+                    >
+                        {opt.icon && <span className="text-purple-200">{opt.icon}</span>}
+                        {opt.label}
+                    </button>
+                ))}
+            </div>
         </div>
     );
 };
@@ -63,6 +61,16 @@ const BookFilterBar = ({ onFilterChange }) => {
         sortBy: 'newest'
     });
 
+    const [activeDropdown, setActiveDropdown] = useState(null);
+
+    // Close dropdown on outside click
+    useEffect(() => {
+        if (!activeDropdown) return;
+        const handleClose = () => setActiveDropdown(null);
+        window.addEventListener('click', handleClose);
+        return () => window.removeEventListener('click', handleClose);
+    }, [activeDropdown]);
+
     useEffect(() => {
         onFilterChange(filters);
     }, [filters, onFilterChange]);
@@ -75,6 +83,11 @@ const BookFilterBar = ({ onFilterChange }) => {
             condition: '',
             sortBy: 'newest'
         });
+        setActiveDropdown(null);
+    };
+
+    const toggleDropdown = (name) => {
+        setActiveDropdown(activeDropdown === name ? null : name);
     };
 
     const categories = ["นิยาย", "การ์ตูน", "ความรู้", "เทคโนโลยี", "ประวัติศาสตร์", "พัฒนาตนเอง", "สยองขวัญ", "สืบสวน", "อื่นๆ"];
@@ -99,7 +112,7 @@ const BookFilterBar = ({ onFilterChange }) => {
     const hasActiveFilters = filters.category || filters.minPrice || filters.maxPrice || filters.condition || filters.sortBy !== 'newest';
 
     return (
-        <div className="w-full space-y-4 mb-10 animate-in fade-in slide-in-from-top-4 duration-700">
+        <div className="w-full space-y-4 mb-10 animate-in fade-in slide-in-from-top-4 duration-700 relative z-40">
             <div className="bg-white/80 backdrop-blur-xl p-2 rounded-[3rem] shadow-xl shadow-gray-200/30 border border-white flex flex-wrap items-center gap-2">
 
                 {/* หมวดหมู่ (Custom Dropdown) */}
@@ -109,6 +122,8 @@ const BookFilterBar = ({ onFilterChange }) => {
                     onChange={(val) => setFilters({ ...filters, category: val })}
                     placeholder="เลือกหมวดหมู่"
                     className="flex-1 min-w-[180px]"
+                    isOpen={activeDropdown === 'category'}
+                    onToggle={() => toggleDropdown('category')}
                 />
 
                 <div className="h-8 w-px bg-gray-100 hidden md:block" />
@@ -148,6 +163,8 @@ const BookFilterBar = ({ onFilterChange }) => {
                     onChange={(val) => setFilters({ ...filters, condition: val })}
                     placeholder="ทุกสภาพสินค้า"
                     className="min-w-[180px]"
+                    isOpen={activeDropdown === 'condition'}
+                    onToggle={() => toggleDropdown('condition')}
                 />
 
                 {/* ปุ่มล้างตัวกรอง */}
@@ -169,6 +186,8 @@ const BookFilterBar = ({ onFilterChange }) => {
                         className="min-w-[180px]"
                         icon={sortOptions.find(o => o.value === filters.sortBy)?.icon}
                         itemClassName="text-[10px]"
+                        isOpen={activeDropdown === 'sort'}
+                        onToggle={() => toggleDropdown('sort')}
                     />
                 </div>
             </div>
