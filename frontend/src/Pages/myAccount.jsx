@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { User, Mail, Phone, CreditCard, ShoppingBag, History, Shield, LogOut, Edit3, Save, ArrowRight, ChevronRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { updateUserInfo } from '../services/editInfoService';
 
 const MyAccount = () => {
-    const { user, logout, topUp } = useAuth();
+    const { user, logout, topUp, updateUser } = useAuth();
     const navigate = useNavigate();
 
     const [isEditing, setIsEditing] = useState(false);
@@ -32,8 +33,37 @@ const MyAccount = () => {
         );
     }
 
-    const handleSave = () => {
-        setIsEditing(false);
+    const handleSave = async () => {
+        try {
+            // Debug: ดูว่า user object มี field อะไรบ้าง
+            console.log("User object:", user);
+
+            // สร้าง payload โดยดึง id จาก user ใน context ไปด้วย
+            const payload = {
+                userId: user?._id || user?.id, // รองรับทั้ง _id และ id
+                username: formData.name,
+                email: formData.email,
+                phone: formData.phone
+            };
+
+            const result = await updateUserInfo(payload);
+
+            if (result.status === 2001 || result.code === 201) {
+                // อัปเดต state ใน AuthContext ให้ UI เปลี่ยนทันที
+                updateUser({
+                    username: formData.name,
+                    name: formData.name,
+                    email: formData.email,
+                    phone: formData.phone
+                });
+                
+                alert("อัปเดตข้อมูลสำเร็จ!");
+                setIsEditing(false);
+            }
+        } catch (error) {
+            console.error('Failed to update user info:', error);
+            alert(error.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
+        }
     };
 
     const handleLogout = () => {

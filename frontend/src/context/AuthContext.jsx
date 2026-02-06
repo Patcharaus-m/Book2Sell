@@ -68,6 +68,15 @@ export function AuthProvider({ children }) {
     };
 
     /**
+     * ฟังก์ชัน updateUser - อัปเดตข้อมูลผู้ใช้ใน state และ localStorage
+     */
+    const updateUser = (updatedUserData) => {
+        const newUser = { ...user, ...updatedUserData };
+        setUser(newUser);
+        localStorage.setItem("auth_user", JSON.stringify(newUser));
+    };
+
+    /**
      * ฟังก์ชัน Top-Up เครดิต (Frontend Logic)
      */
     const topUp = async (amount) => {
@@ -88,6 +97,7 @@ export function AuthProvider({ children }) {
         register,
         logout,
         topUp,
+        updateUser,
         isLoading
     };
 
