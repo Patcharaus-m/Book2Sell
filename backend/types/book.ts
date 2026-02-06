@@ -1,4 +1,5 @@
 export interface IBook {
+  sellerId: string; // ID ของคนโพส
   title: string;
   author: string;
   category: string;

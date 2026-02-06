@@ -24,6 +24,12 @@ const errRes = {
     error: body,
     payload: null,
   }),
+  FORBIDDEN: (body: { message: string }) => ({
+    code: 403,
+    status: 4031,
+    error: body,
+    payload: null,
+  }),
 };
 function successRes<T = null>(payload: T): ITypeSuccess<T> {
   return {

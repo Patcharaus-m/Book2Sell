@@ -1,14 +1,9 @@
 import React from 'react';
 import { useCart } from "../../context/CartContext";
-import { useAuth } from "../../context/AuthContext";
-import { useBook } from "../../context/BookContext";
-import { Link } from "react-router-dom";
-import { ShoppingCart, ShoppingBag, ImageIcon, Trash2, Edit } from "lucide-react";
+import { ShoppingCart, ImageIcon } from "lucide-react";
 
 export default function BookCard({ book, onBookClick }) {
     const { addToCart } = useCart();
-    const { user } = useAuth();
-    const { deleteBook } = useBook();
 
     const handleAddToCart = (e) => {
         e.preventDefault();
@@ -16,19 +11,10 @@ export default function BookCard({ book, onBookClick }) {
         addToCart(book);
     };
 
-    const handleDelete = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (window.confirm('คุณแน่ใจหรือไม่ที่จะลบหนังสือเล่มนี้?')) {
-            deleteBook(book.id);
-        }
-    };
-
     const handleCardClick = () => {
         if (onBookClick) onBookClick(book);
     };
 
-    const isOwner = user && user.id === book.sellerId;
 
     const hasDiscount = book.originalPrice > book.sellingPrice;
     const discountPercentage = hasDiscount ? Math.round(((book.originalPrice - book.sellingPrice) / book.originalPrice) * 100) : 0;
@@ -46,28 +32,7 @@ export default function BookCard({ book, onBookClick }) {
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 />
 
-                {isOwner && (
-                    <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all z-10">
-                        <button
-                            onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                if (onBookClick) onBookClick(book, true); // true for edit mode
-                            }}
-                            className="bg-blue-500/90 backdrop-blur-sm text-white p-2 rounded-xl hover:bg-blue-600 transition-all shadow-lg"
-                            title="แก้ไขหนังสือ"
-                        >
-                            <Edit size={16} />
-                        </button>
-                        <button
-                            onClick={handleDelete}
-                            className="bg-red-500/90 backdrop-blur-sm text-white p-2 rounded-xl hover:bg-red-600 transition-all shadow-lg"
-                            title="ลบหนังสือ"
-                        >
-                            <Trash2 size={16} />
-                        </button>
-                    </div>
-                )}
+
 
                 {hasDiscount && (
                     <div className="absolute top-3 left-3 bg-red-500 text-white text-[10px] font-black px-2 py-1 rounded-lg shadow-lg">

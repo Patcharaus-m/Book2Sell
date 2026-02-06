@@ -11,6 +11,9 @@ routers.get("/", resFunc.getAll);
 
 routers.get("/search", resFunc.searchBook);
 
+// ดึงหนังสือตาม sellerId
+routers.get("/seller/:sellerId", resFunc.getBySellerId);
+
 // เพิ่มบรรทัดนี้ลงไป
 routers.delete("/:id", resFunc.deleteBook);
 

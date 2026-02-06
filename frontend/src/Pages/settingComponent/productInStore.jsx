@@ -1,14 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BookOpen, Edit2, Trash2, X, AlertOctagon } from "lucide-react";
-import { useBook } from "../../context/BookContext";
 import { useAuth } from "../../context/AuthContext";
+import { getBooksBySellerId } from "../../services/bookService";
 
 export default function ProductInStore() {
-    const { books } = useBook();
     const { user } = useAuth();
+    const [userProducts, setUserProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    // Filter books to only show those belonging to the current user
-    const userProducts = books.filter(book => book.sellerId === user?.id || book.sellerId === user?._id);
+    // ดึงหนังสือของ user นี้จาก API
+    useEffect(() => {
+        const fetchMyBooks = async () => {
+            if (!user?._id && !user?.id) {
+                setLoading(false);
+                return;
+            }
+            
+            const sellerId = user._id || user.id;
+            const result = await getBooksBySellerId(sellerId);
+            
+            if (result.payload) {
+                setUserProducts(result.payload);
+            }
+            setLoading(false);
+        };
+
+        fetchMyBooks();
+    }, [user]);
 
     const [itemToDelete, setItemToDelete] = useState(null);
 
@@ -29,7 +47,11 @@ export default function ProductInStore() {
                 <p className="text-gray-500 mt-2 italic">จัดการหนังสือที่คุณลงขาย</p>
             </div>
 
-            {userProducts.length > 0 ? (
+            {loading ? (
+                <div className="text-center py-12">
+                    <p className="text-gray-500">กำลังโหลด...</p>
+                </div>
+            ) : userProducts.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                     {userProducts.map(product => (
                         <div

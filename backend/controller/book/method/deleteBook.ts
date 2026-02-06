@@ -13,7 +13,10 @@ export default async function deleteBook(data: { bookId: string, userId: string 
       return errRes.DATA_NOT_FOUND({ message: "ไม่พบหนังสือที่ต้องการลบ" });
     }
 
-    // (Optional) เช็คสิทธิ์เจ้าของ: if (book.sellerId.toString() !== userId) return errRes.FORBIDDEN(...)
+    // เช็คสิทธิ์เจ้าของ
+    if (book.sellerId.toString() !== userId) {
+      return errRes.FORBIDDEN({ message: "คุณไม่มีสิทธิ์ลบหนังสือเล่มนี้" });
+    }
 
     // ทำ Soft Delete (แนะนำ)
     book.isDeleted = true;

@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const BookSchema = new mongoose.Schema(
   {
+    sellerId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // เจ้าของโพส
     title: { type: String, required: true }, // ชื่อเรื่อง [cite: 4]
     author: { type: String, required: true }, // ชื่อคนแต่ง [cite: 4]
     category: { type: String, required: true }, // หมวดหมู่ (นิยาย, การ์ตูน) [cite: 21]

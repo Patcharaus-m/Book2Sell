@@ -39,9 +39,16 @@ async function deleteBook(req: Request, res: Response) {
   return res.status(data.code).json(data);
 }
 
+async function getBySellerId(req: Request, res: Response) {
+  const sellerId = req.params.sellerId as string;
+  const data = await controllers.getBySellerId(sellerId);
+  return res.status(data.code).json(data);
+}
+
 export default {
   create,
   getAll,
   searchBook,
-  deleteBook
+  deleteBook,
+  getBySellerId
 };
