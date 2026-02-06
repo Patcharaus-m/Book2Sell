@@ -32,7 +32,7 @@ import SettingNavbar from "./Pages/pageComponent/settingNavbar";
  * MainLayout - เลย์เอาต์สำหรับหน้าหลักที่มีระบบค้นหาและกรอง
  */
 function MainLayout({ onBookClick }) {
-  const { setFilters } = useBook(); 
+  const { setFilters } = useBook();
   return (
     <div className="min-h-screen bg-slate-50/50">
       <Navbar />
@@ -47,15 +47,14 @@ function MainLayout({ onBookClick }) {
   );
 }
 function SettingsLayout() {
-    return (
-        <div className="bg-gray-50/50 min-h-screen">
-            <SettingNavbar />
-
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <Outlet />
-            </main>
-        </div>
-    );
+  return (
+    <div className="bg-gray-50/50 min-h-screen">
+      <SettingNavbar />
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <Outlet />
+      </main>
+    </div>
+  );
 }
 
 /*only store*/

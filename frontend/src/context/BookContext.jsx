@@ -68,7 +68,7 @@ export const BookProvider = ({ children }) => {
                 status: newBook.status || 'available',
                 images: newBook.images || [],
                 isDeleted: false,
-                // Metadata for backend identification
+                // These are for backend identification, but we match IBook fields too
                 sellerId: currentUser?.id || 'anonymous',
                 sellerName: currentUser?.name || 'Unknown Seller'
             };
