@@ -1,0 +1,49 @@
+/* Fire.css */
+
+/* 1. สร้าง Keyframes การเคลื่อนที่ของเปลวไฟ */
+@keyframes rise {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0;
+    background-color: #ff4500; /* ส้มแดง */
+  }
+  10% {
+    opacity: 1;
+  }
+  50% {
+    background-color: #ff8c00; /* ส้ม */
+     /* เพิ่มการส่ายเล็กน้อยเพื่อให้ดูเหมือนเปลวไฟ */
+    transform: translateY(-40px) scale(1.2) translateX(-5px);
+  }
+  100% {
+    transform: translateY(-100px) scale(0.5) translateX(5px);
+    opacity: 0;
+    background-color: #ffd700; /* เหลือง */
+  }
+}
+
+/* Container หลักของกองไฟ */
+.fire-container {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  /* จัดให้อยู่ตรงกลางเพื่อการแสดงผล */
+  margin: 50px auto;
+  background-color: #333; /* พื้นหลังมืดๆ จะได้เห็นไฟชัด */
+  border-radius: 50%;
+}
+
+/* อนุภาคเปลวไฟแต่ละอัน */
+.fire-particle {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  background-color: #ff4500;
+  border-radius: 50%; /* ทำเป็นวงกลม/หยดน้ำ */
+  opacity: 0;
+  /* เรียกใช้ keyframe ชื่อ 'rise' */
+  animation: rise 1.5s infinite ease-in-out;
+  /* filter: blur(2px);  <-- ถ้าอยากให้ไฟดูฟุ้งๆ ให้เปิดบรรทัดนี้ */
+}
