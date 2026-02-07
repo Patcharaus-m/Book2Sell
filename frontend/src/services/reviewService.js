@@ -10,6 +10,7 @@ export const createReviewService = async (reviewData) => {
         });
         return await response.json();
     } catch (error) {
+        console.error(error);
         return { status: false, message: "เชื่อมต่อเซิร์ฟเวอร์ไม่ได้" };
     }
 };

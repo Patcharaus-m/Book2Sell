@@ -85,7 +85,7 @@ export default function Checkout() {
             
             // Debug: ดูข้อมูลที่ส่งไป API
             const orderData = {
-                bookId: item._id || item.id,
+                bookId: item.id || item._id,
                 userId: user._id || user.id,
                 shippingAddress: fullAddress
             };
