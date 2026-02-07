@@ -1,19 +1,35 @@
-import React, { useState } from 'react';
-import { User, Mail, Phone, CreditCard, ShoppingBag, History, Shield, LogOut, Edit3, Save, ArrowRight, ChevronRight } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { User, Mail, Phone, CreditCard, ShoppingBag, History, Shield, LogOut, Edit3, Save, ChevronRight, BookOpen, Star, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useBook } from '../context/BookContext';
 import { useNavigate } from 'react-router-dom';
 import { updateUserInfo } from '../services/editInfoService';
 
 const MyAccount = () => {
     const { user, logout, topUp, updateUser } = useAuth();
+    const { books } = useBook();
     const navigate = useNavigate();
 
     const [isEditing, setIsEditing] = useState(false);
+    const [showHistory, setShowHistory] = useState(false);
     const [formData, setFormData] = useState({
         name: user?.name || user?.username || '',
         email: user?.email || '',
         phone: user?.phone || ''
     });
+
+    // ดึงประวัติหนังสือที่ซื้อจาก purchasedBooks (เรียงจากซื้อล่าสุดก่อน)
+    const purchaseHistory = useMemo(() => {
+        if (!user?.purchasedBooks || user.purchasedBooks.length === 0) return [];
+
+        // Map book IDs to book data and reverse to show recent first
+        const history = user.purchasedBooks
+            .map(bookId => books.find(b => (b.id === bookId || b._id === bookId)))
+            .filter(Boolean)
+            .reverse(); // ซื้อล่าสุดก่อน
+
+        return history;
+    }, [user?.purchasedBooks, books]);
 
     if (!user) {
         return (
@@ -35,12 +51,8 @@ const MyAccount = () => {
 
     const handleSave = async () => {
         try {
-            // Debug: ดูว่า user object มี field อะไรบ้าง
-            console.log("User object:", user);
-
-            // สร้าง payload โดยดึง id จาก user ใน context ไปด้วย
             const payload = {
-                userId: user?._id || user?.id, // รองรับทั้ง _id และ id
+                userId: user?._id || user?.id,
                 username: formData.name,
                 email: formData.email,
                 phone: formData.phone
@@ -49,14 +61,13 @@ const MyAccount = () => {
             const result = await updateUserInfo(payload);
 
             if (result.status === 2001 || result.code === 201) {
-                // อัปเดต state ใน AuthContext ให้ UI เปลี่ยนทันที
                 updateUser({
                     username: formData.name,
                     name: formData.name,
                     email: formData.email,
                     phone: formData.phone
                 });
-                
+
                 alert("อัปเดตข้อมูลสำเร็จ!");
                 setIsEditing(false);
             }
@@ -104,7 +115,7 @@ const MyAccount = () => {
                         </div>
                     </div>
 
-                    {/* Credit Card - Soft Style */}
+                    {/* Credit Card */}
                     <div className="bg-gradient-to-br from-purple-600 to-indigo-700 rounded-[2rem] p-8 text-white shadow-xl shadow-purple-100 relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-8 opacity-10 -mr-4 -mt-4">
                             <CreditCard size={80} />
@@ -163,7 +174,7 @@ const MyAccount = () => {
                     {/* Quick Access Menu */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div
-                            onClick={() => navigate('/my-shop')}
+                            onClick={() => navigate('/product-in-store')}
                             className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-50 flex items-center justify-between hover:shadow-md transition-all cursor-pointer group"
                         >
                             <div className="flex items-center gap-4">
@@ -179,7 +190,7 @@ const MyAccount = () => {
                         </div>
 
                         <div
-                            onClick={() => navigate('/settings')}
+                            onClick={() => setShowHistory(true)}
                             className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-50 flex items-center justify-between hover:shadow-md transition-all cursor-pointer group"
                         >
                             <div className="flex items-center gap-4">
@@ -188,7 +199,9 @@ const MyAccount = () => {
                                 </div>
                                 <div>
                                     <h4 className="font-bold text-gray-900 text-sm">ประวัติการสั่งซื้อ</h4>
-                                    <p className="text-[10px] text-gray-400">ติดตามสถานะพัสดุ</p>
+                                    <p className="text-[10px] text-gray-400">
+                                        {purchaseHistory.length > 0 ? `${purchaseHistory.length} รายการ` : 'ยังไม่มีรายการ'}
+                                    </p>
                                 </div>
                             </div>
                             <ChevronRight size={16} className="text-gray-300 group-hover:translate-x-1 transition-transform" />
@@ -196,11 +209,103 @@ const MyAccount = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Purchase History Modal */}
+            {showHistory && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
+                    <div className="bg-white rounded-[2.5rem] w-full max-w-2xl max-h-[80vh] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
+                        {/* Header */}
+                        <div className="p-8 pb-6 border-b border-gray-100 flex items-center justify-between">
+                            <div>
+                                <h2 className="text-2xl font-black text-gray-900 tracking-tight">ประวัติการสั่งซื้อ</h2>
+                                <p className="text-sm text-gray-400 mt-1">หนังสือที่คุณซื้อ (ล่าสุดก่อน)</p>
+                            </div>
+                            <button
+                                onClick={() => setShowHistory(false)}
+                                className="p-3 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all"
+                            >
+                                <X size={20} className="text-gray-500" />
+                            </button>
+                        </div>
+
+                        {/* Content */}
+                        <div className="p-8 overflow-y-auto max-h-[60vh]">
+                            {purchaseHistory.length > 0 ? (
+                                <div className="space-y-4">
+                                    {purchaseHistory.map((book, index) => (
+                                        <div
+                                            key={book.id || book._id || index}
+                                            onClick={() => {
+                                                setShowHistory(false);
+                                                navigate(`/book/${book.id || book._id}`);
+                                            }}
+                                            className="flex items-center gap-4 p-4 bg-gray-50 hover:bg-purple-50 rounded-2xl cursor-pointer transition-all group"
+                                        >
+                                            {/* Book Cover */}
+                                            <div className="w-16 h-20 bg-white rounded-xl overflow-hidden shadow-sm flex-shrink-0">
+                                                {book.images?.[0] || book.imageUrl ? (
+                                                    <img
+                                                        src={book.images?.[0] || book.imageUrl}
+                                                        alt={book.title}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-100 to-indigo-100">
+                                                        <BookOpen size={24} className="text-purple-400" />
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Book Info */}
+                                            <div className="flex-1 min-w-0">
+                                                <h4 className="font-bold text-gray-900 truncate group-hover:text-purple-600 transition-colors">
+                                                    {book.title}
+                                                </h4>
+                                                <p className="text-sm text-gray-400 truncate">{book.author}</p>
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <span className="text-xs font-bold text-purple-600">฿{book.sellingPrice?.toLocaleString()}</span>
+                                                    <span className="text-[10px] px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded-full font-bold">
+                                                        {book.condition}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            {/* Order Number */}
+                                            <div className="text-right flex-shrink-0">
+                                                <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest">
+                                                    #{purchaseHistory.length - index}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-center py-16">
+                                    <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                                        <History size={32} className="text-gray-300" />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-gray-900 mb-2">ยังไม่มีประวัติการสั่งซื้อ</h3>
+                                    <p className="text-gray-500 max-w-xs mx-auto">เมื่อคุณซื้อหนังสือ ประวัติจะปรากฏที่นี่</p>
+                                    <button
+                                        onClick={() => {
+                                            setShowHistory(false);
+                                            navigate('/');
+                                        }}
+                                        className="mt-6 px-6 py-3 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700 transition-all"
+                                    >
+                                        เริ่มช้อปปิ้ง
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
 
-// Helper for the Plus icon which was missing in imports
+// Helper for the Plus icon
 const Plus = ({ size, className }) => (
     <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M5 12h14" /><path d="M12 5v14" /></svg>
 );

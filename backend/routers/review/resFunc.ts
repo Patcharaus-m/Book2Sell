@@ -11,13 +11,13 @@ async function create(req: Request, res: Response) {
     }
 
     // ส่งต่อให้ Controller ทำงาน
-    const data = await controller.create({ 
-        orderId, 
+    const data = await controller.create({
+        orderId,
         reviewerId: userId, // หรือ req.user.id ถ้าใช้ Token
-        rating, 
-        comment 
+        rating,
+        comment
     });
-    
+
     return res.status(data.code).json(data);
 }
 

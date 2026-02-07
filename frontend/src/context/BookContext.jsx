@@ -122,38 +122,38 @@ export const BookProvider = ({ children }) => {
     };
 
     // เพิ่มฟังก์ชันนี้ใน BookProvider ก่อนบรรทัด filteredBooks
-const handleRemoteSearch = useCallback(async (keyword) => {
-    // ถ้าไม่มีคำค้น ให้กลับไปโหลดหนังสือทั้งหมดตามปกติ
-    if (!keyword || keyword.trim() === '') {
-        fetchBooks();
-        return;
-    }
-
-    try {
-        const response = await fetch(`http://localhost:3000/api/book/search?q=${keyword}`);
-        const data = await response.json();
-        
-        if (data.status && data.payload) {
-            // Normalize ข้อมูลเพื่อให้ UI แสดงผลได้ถูกต้องเหมือน fetchBooks ปกติ
-            const searchedBooks = data.payload.map(book => ({
-                ...book,
-                id: book.id || book._id,
-                category: book.category || 'อื่นๆ',
-                sellingPrice: book.sellingPrice || book.price || 0,
-                categories: book.categories || [book.category || 'อื่นๆ']
-            }));
-            setBooks(searchedBooks);
+    const handleRemoteSearch = useCallback(async (keyword) => {
+        // ถ้าไม่มีคำค้น ให้กลับไปโหลดหนังสือทั้งหมดตามปกติ
+        if (!keyword || keyword.trim() === '') {
+            fetchBooks();
+            return;
         }
-    } catch (error) {
-        console.error("Remote search failed:", error);
-    }
-}, []);
 
-// แก้ไขฟังก์ชัน setSearchKeyword เดิมให้นิยเรียกใช้ handleRemoteSearch ด้วย
-const setSearchKeyword = useCallback((keyword) => {
-    setFilters(prev => ({ ...prev, keyword }));
-    handleRemoteSearch(keyword); // เรียกค้นหาจาก Server
-}, [handleRemoteSearch]);
+        try {
+            const response = await fetch(`http://localhost:3000/api/book/search?q=${keyword}`);
+            const data = await response.json();
+
+            if (data.status && data.payload) {
+                // Normalize ข้อมูลเพื่อให้ UI แสดงผลได้ถูกต้องเหมือน fetchBooks ปกติ
+                const searchedBooks = data.payload.map(book => ({
+                    ...book,
+                    id: book.id || book._id,
+                    category: book.category || 'อื่นๆ',
+                    sellingPrice: book.sellingPrice || book.price || 0,
+                    categories: book.categories || [book.category || 'อื่นๆ']
+                }));
+                setBooks(searchedBooks);
+            }
+        } catch (error) {
+            console.error("Remote search failed:", error);
+        }
+    }, []);
+
+    // แก้ไขฟังก์ชัน setSearchKeyword เดิมให้นิยเรียกใช้ handleRemoteSearch ด้วย
+    const setSearchKeyword = useCallback((keyword) => {
+        setFilters(prev => ({ ...prev, keyword }));
+        handleRemoteSearch(keyword); // เรียกค้นหาจาก Server
+    }, [handleRemoteSearch]);
 
     const filteredBooks = useMemo(() => {
         return books.filter(book => {
@@ -179,11 +179,57 @@ const setSearchKeyword = useCallback((keyword) => {
         });
     }, [books, filters]);
 
+    // เพิ่มรีวิวให้กับหนังสือ (Frontend local state)
+    const addReview = useCallback((bookId, reviewData, currentUser) => {
+        const newReview = {
+            id: `review_${Date.now()}`,
+            rating: reviewData.rating,
+            comment: reviewData.comment,
+            userName: currentUser?.name || 'Anonymous',
+            userId: currentUser?.id || 'anonymous',
+            createdAt: new Date().toISOString()
+        };
+
+        setBooks(prev => prev.map(book => {
+            if (book.id === bookId || book._id === bookId) {
+                return {
+                    ...book,
+                    reviews: [...(book.reviews || []), newReview]
+                };
+            }
+            return book;
+        }));
+
+        return { success: true, review: newReview };
+    }, []);
+
+    // ดึงรีวิวทั้งหมดจากหนังสือทุกเล่มที่ผู้ใช้เป็นเจ้าของ (สำหรับ Settings Review)
+    const getSellerReviews = useCallback((sellerId) => {
+        const sellerBooks = books.filter(book => book.sellerId === sellerId);
+        const allReviews = [];
+
+        sellerBooks.forEach(book => {
+            if (book.reviews && book.reviews.length > 0) {
+                book.reviews.forEach(review => {
+                    allReviews.push({
+                        ...review,
+                        bookTitle: book.title,
+                        bookId: book.id || book._id
+                    });
+                });
+            }
+        });
+
+        return allReviews.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    }, [books]);
+
     const value = {
         books,
         filteredBooks,
         addBook,
         deleteBook,
+        addReview,
+        getSellerReviews,
         filters,
         setFilters,
         setSearchKeyword,
