@@ -186,7 +186,8 @@ const setSearchKeyword = useCallback((keyword) => {
         deleteBook,
         filters,
         setFilters,
-        setSearchKeyword
+        setSearchKeyword,
+        refreshBooks: fetchBooks  // เพิ่มฟังก์ชัน refresh สำหรับเรียกหลังซื้อ
     };
 
     return (

@@ -69,11 +69,28 @@ export function AuthProvider({ children }) {
 
     /**
      * ฟังก์ชัน updateUser - อัปเดตข้อมูลผู้ใช้ใน state และ localStorage
+     * ใช้ functional update เพื่อหลีกเลี่ยง stale closure issue
      */
     const updateUser = (updatedUserData) => {
-        const newUser = { ...user, ...updatedUserData };
-        setUser(newUser);
-        localStorage.setItem("auth_user", JSON.stringify(newUser));
+        console.log('=== AuthContext updateUser called ===');
+        console.log('Updating with:', updatedUserData);
+        
+        // ใช้ functional update เพื่อให้ได้ค่า state ล่าสุดเสมอ
+        setUser(prevUser => {
+            console.log('Previous user state:', prevUser);
+            const newUser = { ...prevUser, ...updatedUserData };
+            console.log('New user object:', newUser);
+            console.log('New creditBalance:', newUser.creditBalance);
+            
+            // Update localStorage
+            localStorage.setItem("auth_user", JSON.stringify(newUser));
+            
+            // Verify
+            const saved = JSON.parse(localStorage.getItem("auth_user"));
+            console.log('Verified localStorage creditBalance:', saved.creditBalance);
+            
+            return newUser;
+        });
     };
 
     /**

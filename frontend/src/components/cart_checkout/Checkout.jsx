@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
+import { useBook } from "../../context/BookContext";
 
 import { createOrderService } from "../../services/orderService";
 import { createReviewService } from "../../services/reviewService";
@@ -22,8 +23,9 @@ import {
 } from "lucide-react";
 
 export default function Checkout() {
-    const { user, processPayment, addPurchasedBooks } = useAuth();
+    const { user, processPayment, addPurchasedBooks, updateUser } = useAuth();
     const { cart, totalAmount, clearCart } = useCart();
+    const { refreshBooks } = useBook();
 
     const navigate = useNavigate();
     const [isOrdered, setIsOrdered] = useState(false);
@@ -116,11 +118,16 @@ export default function Checkout() {
                            result.payload?._id || 
                            result.payload?.id;
             
+            // ดึง newBalance จาก Backend
+            const newBalance = result.payload?.newBalance;
+            
             console.log('Extracted orderId:', orderId);
+            console.log('New balance from backend:', newBalance);
             
             createdOrders.push({
                 ...item,
-                orderId: orderId
+                orderId: orderId,
+                newBalance: newBalance
             });
         }
 
@@ -130,10 +137,28 @@ export default function Checkout() {
             return;
         }
 
-        // สำเร็จทั้งหมด - อัปเดต local state
-        processPayment(totalAmount);
+        // สำเร็จทั้งหมด - อัปเดต local state ด้วยค่าจาก Backend (ใช้ค่าล่าสุดจาก order สุดท้าย)
+        const lastOrderResult = createdOrders.length > 0 ? createdOrders[createdOrders.length - 1] : null;
+        
+        console.log('=== UPDATING CREDIT BALANCE ===');
+        console.log('lastOrderResult:', lastOrderResult);
+        console.log('lastOrderResult.newBalance:', lastOrderResult?.newBalance);
+        
+        if (lastOrderResult && lastOrderResult.newBalance !== undefined) {
+            // ใช้ค่า newBalance จาก Backend เพื่อ sync กับ Database
+            console.log('Updating user credit balance to:', lastOrderResult.newBalance);
+            updateUser({ creditBalance: lastOrderResult.newBalance });
+        } else {
+            // Fallback: ถ้าไม่มี newBalance ให้คำนวณเอง
+            console.log('FALLBACK: Using processPayment instead');
+            processPayment(totalAmount);
+        }
+        
         setItemsToReview(createdOrders);  // ใช้ createdOrders ที่มี orderId แล้ว
         addPurchasedBooks(orderItems.map(item => item.id || item._id));
+        
+        // รีเฟรชรายการหนังสือให้หนังสือที่ซื้อไปหายจากหน้าร้าน
+        refreshBooks();
 
         setShowConfirmModal(false);
         setIsOrdered(true);
