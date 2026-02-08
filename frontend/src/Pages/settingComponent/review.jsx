@@ -87,12 +87,12 @@ export default function Review() {
             </div>
 
             {/* Tab Selector */}
-            <div className="flex gap-2 mb-6">
+            <div className="flex gap-2 mb-6 bg-white/50 p-1.5 rounded-[2rem] w-fit backdrop-blur-sm border border-white/50">
                 <button
                     onClick={() => setActiveTab("received")}
-                    className={`px-6 py-3 rounded-2xl font-bold text-sm transition-all ${activeTab === "received"
-                            ? "bg-purple-600 text-white shadow-lg shadow-purple-200"
-                            : "bg-white text-gray-500 border border-gray-200 hover:border-purple-200 hover:text-purple-600"
+                    className={`px-6 py-3 rounded-2xl font-black text-sm transition-all duration-300 ${activeTab === "received"
+                        ? "bg-gradient-to-r from-purple-600 to-pink-500 text-white shadow-lg shadow-purple-200 transform scale-105"
+                        : "text-gray-500 hover:bg-white/50 hover:text-purple-600"
                         }`}
                 >
                     <MessageSquare size={16} className="inline mr-2" />
@@ -100,9 +100,9 @@ export default function Review() {
                 </button>
                 <button
                     onClick={() => setActiveTab("written")}
-                    className={`px-6 py-3 rounded-2xl font-bold text-sm transition-all ${activeTab === "written"
-                            ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200"
-                            : "bg-white text-gray-500 border border-gray-200 hover:border-indigo-200 hover:text-indigo-600"
+                    className={`px-6 py-3 rounded-2xl font-black text-sm transition-all duration-300 ${activeTab === "written"
+                        ? "bg-gradient-to-r from-purple-600 to-pink-500 text-white shadow-lg shadow-purple-200 transform scale-105"
+                        : "text-gray-500 hover:bg-white/50 hover:text-purple-600"
                         }`}
                 >
                     <PenLine size={16} className="inline mr-2" />
@@ -116,26 +116,21 @@ export default function Review() {
                 <div className="space-y-4">
                     {reviews.map((review, index) => (
                         <div
-                            key={review._id || index}
-                            className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-md transition-all"
+                            key={review.id}
+                            className="group bg-white/60 backdrop-blur-xl p-6 rounded-[2rem] border border-white/50 shadow-sm hover:shadow-lg hover:shadow-purple-100/50 hover:-translate-y-1 transition-all duration-300"
                         >
                             <div className="flex justify-between items-start mb-4">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-full flex items-center justify-center text-purple-500">
+                                    <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl flex items-center justify-center text-purple-500 group-hover:scale-110 transition-transform duration-300 shadow-inner">
                                         <User size={24} />
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-gray-900">
-                                            {/* แสดงชื่อคน: ถ้ารับรีวิวมาให้โชว์ชื่อลูกค้า ถ้าเขียนรีวิวให้โชว์คำว่า คุณ */}
-                                            {activeTab === "received" 
-                                                ? (review.reviewerId?.username || review.reviewerId?.name || "ลูกค้า")
-                                                : "คุณ"}
+                                        <h4 className="font-black text-gray-900 group-hover:text-purple-700 transition-colors">
+                                            {activeTab === "received" ? review.userName : "คุณ"}
                                         </h4>
-                                        <p className="text-xs text-gray-400">
-                                            {activeTab === "received" ? "รีวิวจากลูกค้า" : "รีวิวหนังสือ: "}
-                                            {activeTab === "written" && (
-                                                <span className="text-purple-600 font-semibold ml-1">{review.bookTitle}</span>
-                                            )}
+                                        <p className="text-xs text-gray-400 font-bold">
+                                            {activeTab === "received" ? "รีวิว: " : "รีวิวหนังสือ: "}
+                                            <span className="text-pink-500">{review.bookTitle}</span>
                                         </p>
                                     </div>
                                 </div>
@@ -147,11 +142,12 @@ export default function Review() {
                                                 size={14}
                                                 fill={i < review.rating ? "currentColor" : "none"}
                                                 stroke={i < review.rating ? "none" : "currentColor"}
+                                                className="drop-shadow-sm"
                                             />
                                         ))}
                                     </div>
-                                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                                        {review.createdAt ? new Date(review.createdAt).toLocaleDateString('th-TH', {
+                                    <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest group-hover:text-purple-300 transition-colors">
+                                        {new Date(review.createdAt).toLocaleDateString('th-TH', {
                                             year: 'numeric',
                                             month: 'short',
                                             day: 'numeric'
@@ -160,9 +156,12 @@ export default function Review() {
                                 </div>
                             </div>
                             {review.comment && (
-                                <p className="text-gray-600 leading-relaxed font-medium pl-1 italic bg-gray-50 p-4 rounded-2xl">
-                                    "{review.comment}"
-                                </p>
+                                <div className="relative">
+                                    <div className="absolute -left-2 -top-2 text-4xl text-purple-100 font-serif">"</div>
+                                    <p className="text-gray-600 leading-relaxed font-medium pl-4 italic bg-purple-50/50 p-4 rounded-2xl border border-purple-100/30 group-hover:bg-purple-50 transition-colors">
+                                        {review.comment}
+                                    </p>
+                                </div>
                             )}
                         </div>
                     ))}

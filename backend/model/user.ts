@@ -6,6 +6,7 @@ const UserSchema = new mongoose.Schema(
     password: { type: String, required: true }, // รหัส [cite: 37]
     email: { type: String, required: true, unique: true }, // อีเมล [cite: 39]
     phone: { type: String, required: true }, // เบอร์ [cite: 38]
+    profileImage: { type: String }, // รูปโปรไฟล์ (Base64)
     // contactChannel: { type: String }, // ช่องทางติดต่อ [cite: 40]
     creditBalance: { type: Number, default: 0 }, // ระบบเครดิต [cite: 42]
   },

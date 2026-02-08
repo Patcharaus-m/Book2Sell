@@ -99,7 +99,7 @@ const BookDetailModal = ({ isOpen, onClose, book }) => {
                 <button
                     onClick={onClose}
                     className="absolute top-6 right-6 p-2 bg-white/80 backdrop-blur-md text-gray-400 hover:text-red-500 rounded-full transition-all z-20 shadow-sm border border-gray-100
-                     hover:bg-red-500 hover:text-white hover:rotate-180 duration-250"
+                     hover:bg-red-500 hover:text-white hover:rotate-180 duration-250 active:scale-95 active:text-red-1000"
                 >
                     <X size={20} />
                 </button>

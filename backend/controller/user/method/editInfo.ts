@@ -4,7 +4,7 @@ import User from "../../../model/user";
 export default async function editInfo(body: any) {
   try {
     // 1. ดึงข้อมูลและ ID จาก body (สมมติว่า middleware ส่ง userId มาให้ใน body แล้ว)
-    const { userId, username, email, phone } = body;
+    const { userId, username, email, phone, profileImage } = body;
 
     if (!userId) {
       return errRes.BAD_REQUEST({ message: "ไม่พบ User ID สำหรับการแก้ไข" });
@@ -14,10 +14,11 @@ export default async function editInfo(body: any) {
     // ใช้ { new: true } เพื่อให้ได้ข้อมูลที่อัปเดตแล้วกลับมาทันที
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      { 
-        username, 
-        email, 
-        phone 
+      {
+        username,
+        email,
+        phone,
+        profileImage
       },
       { new: true, runValidators: true }
     ).select("-password"); // ไม่ดึงรหัสผ่านออกมา

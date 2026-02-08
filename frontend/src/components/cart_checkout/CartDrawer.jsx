@@ -107,10 +107,10 @@ export default function CartDrawer() {
                                 <Link
                                     to="/checkout"
                                     onClick={() => setIsDrawerOpen(false)}
-                                    className="w-full py-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-black text-center rounded-2xl shadow-xl shadow-purple-500/20 hover:shadow-purple-500/40 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 group border border-white/20"
+                                    className="w-full py-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-black text-center rounded-2xl shadow-xl shadow-purple-500/20 hover:shadow-purple-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 group border border-white/20 overflow-hidden"
                                 >
                                     <span>ไปที่หน้าชำระเงิน</span>
-                                    <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                                    <ArrowRight className="h-5 w-5 transition-all duration-300 group-hover:translate-x-1 group-active:translate-x-12 group-active:opacity-0" />
                                 </Link>
                                 <p className="text-center text-xs text-gray-400 font-medium">ภาษีมูลค่าเพิ่มถูกรวมไว้ในการสั่งซื้อแล้ว</p>
                             </div>
