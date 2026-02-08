@@ -1,19 +1,22 @@
 import { Request, Response } from "express";
-import controller from "../../controller/review/method"; // อย่าลืมสร้าง index.ts ให้ controller น้า
+import controller from "../../controller/review/method"; // หรือ path ที่ถูกต้อง
 import { errRes } from "../../controller/main";
 
 async function create(req: Request, res: Response) {
-    const { orderId, userId, rating, comment } = req.body;
+    // 👇 รับมาทั้งคู่เลย กันพลาด
+    const { orderId, reviewerId, userId, rating, comment } = req.body;
 
-    // Validate ข้อมูลเบื้องต้น
-    if (!orderId || !rating) {
-        return res.status(400).json(errRes.BAD_REQUEST({ message: "กรุณาระบุข้อมูลให้ครบถ้วน (OrderId, Rating)" }));
+    // 👇 ตัวแปรจริงที่จะใช้ คืออันไหนก็ได้ที่มีค่าส่งมา
+    const finalReviewerId = reviewerId || userId;
+
+    // Validate
+    if (!orderId || !finalReviewerId || !rating) {
+        return res.status(400).json(errRes.BAD_REQUEST({ message: "ข้อมูลไม่ครบ (ขาด orderId, reviewerId หรือ rating)" }));
     }
 
-    // ส่งต่อให้ Controller ทำงาน
     const data = await controller.create({
         orderId,
-        reviewerId: userId, // หรือ req.user.id ถ้าใช้ Token
+        reviewerId: finalReviewerId, // ✅ ส่งตัวที่ถูกต้องไป
         rating,
         comment
     });
@@ -21,6 +24,20 @@ async function create(req: Request, res: Response) {
     return res.status(data.code).json(data);
 }
 
+async function getSellerReviews(req: Request, res: Response) {
+    const { id } = req.params; 
+    const data = await controller.getBySeller(id as string);
+    return res.status(data.code).json(data);
+}
+
+async function getReviewerReviews(req: Request, res: Response) {
+    const { id } = req.params; 
+    const data = await controller.getByReviewer(id as string);
+    return res.status(data.code).json(data);
+}
+
 export default {
-    create
+    create,
+    getSellerReviews,
+    getReviewerReviews
 };

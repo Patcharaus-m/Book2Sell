@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { deleteBookService } from '../services/bookService';
+import { getReviewsBySellerService } from "../services/reviewService";
 
 const BookContext = createContext();
 
@@ -204,24 +205,23 @@ export const BookProvider = ({ children }) => {
     }, []);
 
     // ดึงรีวิวทั้งหมดจากหนังสือทุกเล่มที่ผู้ใช้เป็นเจ้าของ (สำหรับ Settings Review)
-    const getSellerReviews = useCallback((sellerId) => {
-        const sellerBooks = books.filter(book => book.sellerId === sellerId);
-        const allReviews = [];
-
-        sellerBooks.forEach(book => {
-            if (book.reviews && book.reviews.length > 0) {
-                book.reviews.forEach(review => {
-                    allReviews.push({
-                        ...review,
-                        bookTitle: book.title,
-                        bookId: book.id || book._id
-                    });
-                });
+    const getSellerReviews = useCallback(async (sellerId) => {
+        try {
+            const response = await getReviewsBySellerService(sellerId);
+            // Backend returns { code: 201, status: 2001, payload: [...] }
+            if (response && (response.code === 201 || response.code === 200 || response.status === 2001)) {
+                // Handle both nested { payload: { payload: [...] } } and direct { payload: [...] }
+                const reviewsData = Array.isArray(response.payload) 
+                    ? response.payload 
+                    : (response.payload?.payload || []);
+                return reviewsData;
             }
-        });
-
-        return allReviews.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    }, [books]);
+            return [];
+        } catch (error) {
+            console.error("Failed to fetch seller reviews:", error);
+            return [];
+        }
+    }, []);
 
     const value = {
         books,
@@ -235,6 +235,8 @@ export const BookProvider = ({ children }) => {
         setSearchKeyword,
         refreshBooks: fetchBooks  // เพิ่มฟังก์ชัน refresh สำหรับเรียกหลังซื้อ
     };
+
+    
 
     return (
         <BookContext.Provider value={value}>

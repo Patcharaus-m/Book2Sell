@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, ShoppingCart, Info, CheckCircle, Package, MessageCircle, Star, User } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
+import { getReviewsBySeller } from '../../services/reviewService';
 
 /**
  * BookDetailModal - โมดูลแสดงรายละเอียดหนังสือเชิงลึก
@@ -9,6 +10,8 @@ import { useCart } from '../../context/CartContext';
 const BookDetailModal = ({ isOpen, onClose, book }) => {
     const { addToCart } = useCart();
     const [activeImage, setActiveImage] = useState('');
+    const [reviews, setReviews] = useState([]);
+    const [loadingReviews, setLoadingReviews] = useState(false);
 
     // อัปเดตรูปหลักเมื่อข้อมูลหนังสือเปลี่ยนหรือโหลตเข้ามา
     useEffect(() => {
@@ -17,6 +20,51 @@ const BookDetailModal = ({ isOpen, onClose, book }) => {
         } else if (book) {
             setActiveImage(book.imageUrl || 'https://via.placeholder.com/400x600?text=No+Image');
         }
+
+        // Fetch reviews
+        const fetchReviews = async () => {
+            // 1. ดึง ID คนขายแบบครอบคลุม (ทั้งแบบเป็น object และ string)
+            const sellerId = book?.sellerId?._id || book?.sellerId;
+            
+            // Debug: ดูค่า ID ที่ได้
+            console.log("🔍 Debug SellerID:", sellerId); 
+
+            // 2. ปรับเงื่อนไขตรวจสอบ (ไม่ต้องเช็ค length == 24 เป๊ะๆ ก็ได้ ขอแค่มีค่า)
+            if (sellerId) { 
+                setLoadingReviews(true);
+                try {
+                    console.log(`🚀 Fetching reviews for: ${sellerId}`);
+                    const res = await getReviewsBySeller(sellerId);
+                    
+                    console.log("📦 API Response:", res); // ดูสิ่งที่ API ตอบกลับมา
+
+                    // 3. ตรวจสอบ response ให้ครอบคลุมโครงสร้างที่ Backend ส่งมา
+                    // Backend returns { code: 201, status: 2001, payload: [...] }
+                    if (res && (res.code === 201 || res.code === 200 || res.status === 2001)) {
+                        // Handle both nested { payload: { payload: [...] } } and direct { payload: [...] }
+                        const reviewsData = Array.isArray(res.payload) 
+                            ? res.payload 
+                            : (res.payload?.payload || []);
+                        setReviews(reviewsData);
+                        console.log("✅ Set Reviews:", reviewsData);
+                    } else {
+                        console.warn("⚠️ API returned error or empty status:", res);
+                        setReviews([]);
+                    }
+                } catch (err) {
+                    console.error("❌ Error fetching reviews:", err);
+                    setReviews([]);
+                } finally {
+                    setLoadingReviews(false);
+                }
+            } else {
+                console.log("⚠️ No valid Seller ID found");
+                setReviews([]);
+            }
+        }
+        
+        fetchReviews();
+        
     }, [book, isOpen]);
 
     if (!isOpen || !book) return null;
@@ -32,8 +80,8 @@ const BookDetailModal = ({ isOpen, onClose, book }) => {
     const hasDiscount = book.originalPrice > (book.sellingPrice || book.price);
     const allImages = book.images && book.images.length > 0 ? book.images : [book.imageUrl || 'https://via.placeholder.com/400x600?text=No+Image'];
 
-    // ดึงรีวิวของหนังสือนี้
-    const reviews = book.reviews || [];
+    // ดึงรีวิวของหนังสือนี้ -> ย้ายไป fetch แทน
+    // const reviews = book.reviews || [];
     const averageRating = reviews.length > 0
         ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1)
         : 0;
@@ -211,7 +259,11 @@ const BookDetailModal = ({ isOpen, onClose, book }) => {
 
                     {/* Reviews List */}
                     <div className="flex-1 space-y-3 overflow-y-auto">
-                        {reviews.length > 0 ? (
+                        {loadingReviews ? (
+                            <div className="flex justify-center items-center py-8">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                            </div>
+                        ) : reviews.length > 0 ? (
                             reviews.slice(0, 5).map((review, idx) => (
                                 <div
                                     key={review.id || idx}
@@ -223,7 +275,7 @@ const BookDetailModal = ({ isOpen, onClose, book }) => {
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p className="text-xs font-bold text-gray-900 truncate">
-                                                {review.userName || 'ผู้ใช้'}
+                                                {review.reviewerId?.username || review.reviewerId?.email || review.userName || 'ผู้ใช้'}
                                             </p>
                                             <div className="flex text-amber-400">
                                                 {[...Array(5)].map((_, i) => (

@@ -9,7 +9,7 @@ export default async function search(query: string) {
       status: "available", // ค้นหาเฉพาะเล่มที่ยังว่าง
       isDeleted: false     // และยังไม่ถูกลบ
     })
-      .populate('sellerId', 'name') // ดึงชื่อผู้ลงขาย
+      .populate('sellerId', 'username email') // ดึงชื่อผู้ลงขาย
       .limit(10); // จำกัดผลลัพธ์ไว้ที่ 10 เล่มเพื่อความเร็ว
 
     return successRes(books);

@@ -1,45 +1,47 @@
-import React, { useMemo, useState } from "react";
-import { MessageSquare, Star, User, BookOpen, PenLine } from "lucide-react";
+import React, { useMemo, useState, useEffect } from "react";
+import { MessageSquare, Star, User, PenLine } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import { useBook } from "../../context/BookContext";
+import { getReviewsBySellerService, getReviewsByReviewerService } from "../../services/reviewService";
 
 export default function Review() {
     const { user } = useAuth();
-    const { books, getSellerReviews } = useBook();
     const [activeTab, setActiveTab] = useState("received"); // "received" | "written"
+    
+    // ✅ สร้าง State มารับข้อมูลรีวิว
+    const [receivedReviews, setReceivedReviews] = useState([]); 
+    const [writtenReviews, setWrittenReviews] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    // ดึงรีวิวทั้งหมดที่ได้รับ (สำหรับผู้ขาย)
-    const receivedReviews = useMemo(() => {
-        if (!user?.id) return [];
-        return getSellerReviews(user.id);
-    }, [user, getSellerReviews]);
-
-    // ดึงรีวิวทั้งหมดที่ผู้ใช้เขียน
-    const writtenReviews = useMemo(() => {
-        if (!user?.id) return [];
-        const allReviews = [];
-
-        books.forEach(book => {
-            if (book.reviews && book.reviews.length > 0) {
-                book.reviews.forEach(review => {
-                    if (review.userId === user.id) {
-                        allReviews.push({
-                            ...review,
-                            bookTitle: book.title,
-                            bookId: book.id || book._id
-                        });
-                    }
-                });
+    // ✅ 1. ดึงรีวิวที่ได้รับ (Received) และรีวิวที่เขียน (Written)
+    useEffect(() => {
+        const fetchAllReviews = async () => {
+            if (user?.id) {
+                setLoading(true);
+                
+                // ดึงรีวิวที่ได้รับ (เราเป็นคนขาย)
+                const receivedRes = await getReviewsBySellerService(user.id);
+                const receivedData = Array.isArray(receivedRes?.payload) 
+                    ? receivedRes.payload 
+                    : (receivedRes?.payload?.payload || []);
+                setReceivedReviews(receivedData);
+                
+                // ดึงรีวิวที่เราเขียน (เราเป็นคนรีวิว)
+                const writtenRes = await getReviewsByReviewerService(user.id);
+                const writtenData = Array.isArray(writtenRes?.payload) 
+                    ? writtenRes.payload 
+                    : (writtenRes?.payload?.payload || []);
+                setWrittenReviews(writtenData);
+                
+                setLoading(false);
             }
-        });
-
-        return allReviews.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    }, [books, user]);
+        };
+        fetchAllReviews();
+    }, [user]);
 
     // เลือกแสดงรีวิวตาม Tab ที่เลือก
     const reviews = activeTab === "received" ? receivedReviews : writtenReviews;
 
-    // คำนวณคะแนนเฉลี่ย (สำหรับรีวิวที่ได้รับ)
+    // คำนวณคะแนนเฉลี่ย
     const averageRating = useMemo(() => {
         if (receivedReviews.length === 0) return 0;
         const total = receivedReviews.reduce((acc, r) => acc + r.rating, 0);
@@ -108,11 +110,13 @@ export default function Review() {
                 </button>
             </div>
 
-            {reviews.length > 0 ? (
+            {loading ? (
+                 <div className="text-center py-10 text-gray-400">กำลังโหลดข้อมูล...</div>
+            ) : reviews.length > 0 ? (
                 <div className="space-y-4">
-                    {reviews.map((review) => (
+                    {reviews.map((review, index) => (
                         <div
-                            key={review.id}
+                            key={review._id || index}
                             className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-md transition-all"
                         >
                             <div className="flex justify-between items-start mb-4">
@@ -122,11 +126,16 @@ export default function Review() {
                                     </div>
                                     <div>
                                         <h4 className="font-bold text-gray-900">
-                                            {activeTab === "received" ? review.userName : "คุณ"}
+                                            {/* แสดงชื่อคน: ถ้ารับรีวิวมาให้โชว์ชื่อลูกค้า ถ้าเขียนรีวิวให้โชว์คำว่า คุณ */}
+                                            {activeTab === "received" 
+                                                ? (review.reviewerId?.username || review.reviewerId?.name || "ลูกค้า")
+                                                : "คุณ"}
                                         </h4>
                                         <p className="text-xs text-gray-400">
-                                            {activeTab === "received" ? "รีวิว: " : "รีวิวหนังสือ: "}
-                                            <span className="text-purple-600 font-semibold">{review.bookTitle}</span>
+                                            {activeTab === "received" ? "รีวิวจากลูกค้า" : "รีวิวหนังสือ: "}
+                                            {activeTab === "written" && (
+                                                <span className="text-purple-600 font-semibold ml-1">{review.bookTitle}</span>
+                                            )}
                                         </p>
                                     </div>
                                 </div>
@@ -142,11 +151,11 @@ export default function Review() {
                                         ))}
                                     </div>
                                     <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                                        {new Date(review.createdAt).toLocaleDateString('th-TH', {
+                                        {review.createdAt ? new Date(review.createdAt).toLocaleDateString('th-TH', {
                                             year: 'numeric',
                                             month: 'short',
                                             day: 'numeric'
-                                        })}
+                                        }) : "-"}
                                     </span>
                                 </div>
                             </div>
