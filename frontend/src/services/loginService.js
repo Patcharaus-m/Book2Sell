@@ -48,9 +48,12 @@ export const loginService = {
                 message: response.data.error?.message || 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง'
             };
         } catch (error) {
-            const errorMessage = error.response?.data?.message ||
-                error.message ||
-                'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์';
+            // 1. ลองดึง message จาก Data Level Error (แบบ errRes ของ Backend นี้)
+            const backendError = error.response?.data?.error;
+            const errorMessage = backendError?.message || 
+                               error.response?.data?.message ||
+                               error.message ||
+                               'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์';
 
             return {
                 success: false,

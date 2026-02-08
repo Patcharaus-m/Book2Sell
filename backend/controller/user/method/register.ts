@@ -15,6 +15,18 @@ export default async function register(data: IUser) {
       return errRes.BAD_REQUEST({ message: "รหัสผ่านต้องมีตัวอักษรพิมพ์ใหญ่อย่างน้อย 1 ตัว" });
     }
 
+    // 3. เช็คเบอร์โทรศัพท์ (ถ้ามี)
+    if (data.phone) {
+      // ต้องเป็นตัวเลขเท่านั้น
+      if (!/^\d+$/.test(data.phone)) {
+        return errRes.BAD_REQUEST({ message: "เบอร์โทรศัพท์ต้องเป็นตัวเลขเท่านั้น (0-9)" });
+      }
+      // ต้องไม่เกิน 10 ตัว
+      if (data.phone.length > 10) {
+        return errRes.BAD_REQUEST({ message: "เบอร์โทรศัพท์ต้องมีความยาวไม่เกิน 10 ตัวเลข" });
+      }
+    }
+
     // --- Logic เดิมของคุณ ---
     // เช็คว่า Username หรือ Email ซ้ำไหม
     const existingUser = await User.findOne({

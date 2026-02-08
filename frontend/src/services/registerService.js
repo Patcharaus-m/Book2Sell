@@ -97,14 +97,16 @@ export const registerService = {
                 message: response.data.error?.message || 'เกิดข้อผิดพลาดในการสมัครสมาชิก'
             };
         } catch (error) {
-            let errorMessage = 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์';
+            // 1. ลองดึง message จาก Data Level Error (แบบ errRes ของ Backend นี้)
+            const backendError = error.response?.data?.error;
+            let errorMessage = backendError?.message || 
+                               error.response?.data?.message ||
+                               error.message ||
+                               'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์';
 
-            if (error.response?.data?.message) {
-                errorMessage = error.response.data.message;
-            } else if (error.response?.status === 400) {
-                errorMessage = 'ชื่อผู้ใช้นี้มีอยู่แล้ว หรือข้อมูลไม่ถูกต้อง';
-            } else if (error.message) {
-                errorMessage = error.message;
+            // ถ้าเป็นกรณี 400 และไม่มี message ที่ชัดเจน
+            if (!backendError?.message && error.response?.status === 400) {
+                 errorMessage = 'ชื่อผู้ใช้นี้มีอยู่แล้ว หรือข้อมูลไม่ถูกต้อง';
             }
 
             return {

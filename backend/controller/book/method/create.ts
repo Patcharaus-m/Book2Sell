@@ -4,11 +4,13 @@ import { IBook } from "@/types/book";
 
 export default async function create(data: IBook) {
   try {
+    console.log("Creating book with title (duplicate allowed):", data.title);
     // ตรวจสอบว่าชื่อหนังสือซ้ำไหม (ตามตัวอย่างที่คุณส่งมา)
-    const existingBook = await Book.findOne({ title: data.title });
-    if (existingBook) {
-      return errRes.BAD_REQUEST({ message: "หนังสือเล่มนี้มีในระบบแล้ว" });
-    }
+    // ตรวจสอบว่าชื่อหนังสือซ้ำไหม (ยกเลิกการตรวจสอบเพื่อให้ชื่อซ้ำได้)
+    // const existingBook = await Book.findOne({ title: data.title });
+    // if (existingBook) {
+    //   return errRes.BAD_REQUEST({ message: "หนังสือเล่มนี้มีในระบบแล้ว" });
+    // }
 
     const newBook = await Book.create(data);
     return successRes(newBook);

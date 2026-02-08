@@ -29,6 +29,25 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
         setError('');
         setIsLoading(true);
 
+        // Client-side Validation
+        if (!formData.username || !formData.email || !formData.password || !formData.phone) {
+            setError('กรุณากรอกข้อมูลให้ครบทุกช่อง');
+            setIsLoading(false);
+            return;
+        }
+
+        if (!/^\d+$/.test(formData.phone)) {
+            setError('เบอร์โทรศัพท์ต้องเป็นตัวเลขเท่านั้น (0-9)');
+            setIsLoading(false);
+            return;
+        }
+
+        if (formData.phone.length > 10) {
+            setError('เบอร์โทรศัพท์ต้องมีความยาวไม่เกิน 10 ตัวเลข');
+            setIsLoading(false);
+            return;
+        }
+
         try {
             const result = await register(formData.username, formData.email, formData.password, formData.phone);
             console.log('Register result:', result); // Debug log

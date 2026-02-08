@@ -1,5 +1,5 @@
-import Cart from "../../model/cart";
-import { successRes, errRes } from "../main";
+import Cart from "../../../model/cart";
+import { successRes, errRes } from "../../main";
 
 export default async function getCart(userId: string) {
   try {

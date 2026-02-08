@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import controllers from "../../controller/cart";
+import controllers from "../../controller/cart/method";
 
 async function addToCart(req: Request, res: Response) {
     const { userId, bookId, quantity } = req.body;

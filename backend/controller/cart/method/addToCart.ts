@@ -1,6 +1,6 @@
-import Cart from "../../model/cart";
-import Book from "../../model/book";
-import { successRes, errRes } from "../main";
+import Cart from "../../../model/cart";
+import Book from "../../../model/book";
+import { successRes, errRes } from "../../main";
 
 export default async function addToCart(userId: string, bookId: string, quantity: number = 1) {
     try {
