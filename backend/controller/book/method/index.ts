@@ -4,6 +4,7 @@ import search from "./search";
 import deleteBook from "./deleteBook";
 import getBySellerId from "./getBySellerId";
 import addReview from "./addReview";
+import update from "./update";
 
 export default {
   create,
@@ -11,5 +12,6 @@ export default {
   search,
   deleteBook,
   getBySellerId,
-  addReview
+  addReview,
+  update
 };

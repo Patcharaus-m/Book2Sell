@@ -52,11 +52,29 @@ async function addReview(req: Request, res: Response) {
   return res.status(data.code).json(data);
 }
 
+async function updateBook(req: Request, res: Response) {
+  console.log('=== UPDATE BOOK API CALLED ===');
+  console.log('Method:', req.method);
+  console.log('Params:', req.params);
+  console.log('Body:', req.body);
+  
+  const bookId = req.params.id as string;
+  const { userId, ...bookData } = req.body;
+  
+  const data = await controllers.update({
+    bookId,
+    userId,
+    ...bookData
+  });
+  return res.status(data.code).json(data);
+}
+
 export default {
   create,
   getAll,
   searchBook,
   deleteBook,
   getBySellerId,
-  addReview
+  addReview,
+  updateBook
 };

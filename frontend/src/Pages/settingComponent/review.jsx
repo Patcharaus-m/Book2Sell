@@ -16,23 +16,36 @@ export default function Review() {
     useEffect(() => {
         const fetchAllReviews = async () => {
             if (user?.id) {
+                console.log("🔍 Fetching reviews for user ID:", user.id);
                 setLoading(true);
                 
-                // ดึงรีวิวที่ได้รับ (เราเป็นคนขาย)
-                const receivedRes = await getReviewsBySellerService(user.id);
-                const receivedData = Array.isArray(receivedRes?.payload) 
-                    ? receivedRes.payload 
-                    : (receivedRes?.payload?.payload || []);
-                setReceivedReviews(receivedData);
-                
-                // ดึงรีวิวที่เราเขียน (เราเป็นคนรีวิว)
-                const writtenRes = await getReviewsByReviewerService(user.id);
-                const writtenData = Array.isArray(writtenRes?.payload) 
-                    ? writtenRes.payload 
-                    : (writtenRes?.payload?.payload || []);
-                setWrittenReviews(writtenData);
+                try {
+                    // ดึงรีวิวที่ได้รับ (เราเป็นคนขาย)
+                    const receivedRes = await getReviewsBySellerService(user.id);
+                    console.log("📥 Received Reviews API Response:", receivedRes);
+                    
+                    const receivedData = Array.isArray(receivedRes?.payload) 
+                        ? receivedRes.payload 
+                        : (receivedRes?.payload?.payload || []);
+                    console.log("✅ Received Reviews Data:", receivedData);
+                    setReceivedReviews(receivedData);
+                    
+                    // ดึงรีวิวที่เราเขียน (เราเป็นคนรีวิว)
+                    const writtenRes = await getReviewsByReviewerService(user.id);
+                    console.log("📤 Written Reviews API Response:", writtenRes);
+                    
+                    const writtenData = Array.isArray(writtenRes?.payload) 
+                        ? writtenRes.payload 
+                        : (writtenRes?.payload?.payload || []);
+                    console.log("✅ Written Reviews Data:", writtenData);
+                    setWrittenReviews(writtenData);
+                } catch (error) {
+                    console.error("❌ Error fetching reviews:", error);
+                }
                 
                 setLoading(false);
+            } else {
+                console.log("⚠️ No user.id available:", user);
             }
         };
         fetchAllReviews();
@@ -114,9 +127,9 @@ export default function Review() {
                  <div className="text-center py-10 text-gray-400">กำลังโหลดข้อมูล...</div>
             ) : reviews.length > 0 ? (
                 <div className="space-y-4">
-                    {reviews.map((review, index) => (
+                    {reviews.map((review) => (
                         <div
-                            key={review.id}
+                            key={review._id || review.id}
                             className="group bg-white/60 backdrop-blur-xl p-6 rounded-[2rem] border border-white/50 shadow-sm hover:shadow-lg hover:shadow-purple-100/50 hover:-translate-y-1 transition-all duration-300"
                         >
                             <div className="flex justify-between items-start mb-4">
@@ -147,7 +160,7 @@ export default function Review() {
                                         ))}
                                     </div>
                                     <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest group-hover:text-purple-300 transition-colors">
-                                        {new Date(review.createdAt).toLocaleDateString('th-TH', {
+                                        {review.createdAt ? new Date(review.createdAt).toLocaleDateString('th-TH', {
                                             year: 'numeric',
                                             month: 'short',
                                             day: 'numeric'

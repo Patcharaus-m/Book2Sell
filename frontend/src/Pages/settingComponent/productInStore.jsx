@@ -6,7 +6,7 @@ import { getBooksBySellerId, updateBookService } from "../../services/bookServic
 
 export default function ProductInStore() {
     const { user } = useAuth();
-    const { deleteBook } = useBook();
+    const { deleteBook, refreshBooks } = useBook();
     const [userProducts, setUserProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [itemToDelete, setItemToDelete] = useState(null);
@@ -16,24 +16,24 @@ export default function ProductInStore() {
     const fileInputRef = useRef(null);
 
     // ดึงหนังสือของ user นี้จาก API
-    useEffect(() => {
-        const fetchMyBooks = async () => {
-            if (!user?._id && !user?.id) {
-                setLoading(false);
-                return;
-            }
-
-            const sellerId = user._id || user.id;
-            const result = await getBooksBySellerId(sellerId);
-
-            if (result.payload) {
-                setUserProducts(result.payload);
-            }
+    const fetchMyBooks = React.useCallback(async () => {
+        if (!user?._id && !user?.id) {
             setLoading(false);
-        };
+            return;
+        }
 
-        fetchMyBooks();
+        const sellerId = user._id || user.id;
+        const result = await getBooksBySellerId(sellerId);
+
+        if (result.payload) {
+            setUserProducts(result.payload);
+        }
+        setLoading(false);
     }, [user]);
+
+    useEffect(() => {
+        fetchMyBooks();
+    }, [fetchMyBooks]);
 
     // เมื่อเลือกหนังสือที่จะแก้ไข
     const handleOpenEdit = (product) => {
@@ -61,14 +61,17 @@ export default function ProductInStore() {
         const userId = user._id || user.id;
 
         const result = await updateBookService(bookId, editForm, userId);
+        console.log('Update result:', result);
 
-        if (result.code === 200 || result.code === 201) {
-            // อัปเดต local state
-            setUserProducts(prev => prev.map(book =>
-                (book._id === bookId || book.id === bookId)
-                    ? { ...book, ...editForm }
-                    : book
-            ));
+        if (result.code === 200 || result.code === 201 || result.status === 2001) {
+            // Refetch ข้อมูลล่าสุดจาก Backend เพื่อความชัวร์ (สำหรับหน้านี้)
+            await fetchMyBooks();
+            
+            // อัปเดตข้อมูล Global Context (สำหรับหน้าหลัก)
+            if (refreshBooks) {
+                refreshBooks();
+            }
+
             setItemToEdit(null);
             alert("อัปเดตหนังสือเรียบร้อยแล้ว!");
         } else {

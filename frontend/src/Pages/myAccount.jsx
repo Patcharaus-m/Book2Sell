@@ -1,17 +1,18 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { User, Mail, Phone, CreditCard, ShoppingBag, History, Shield, LogOut, Edit3, Save, ChevronRight, BookOpen, Star, X, Camera } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useBook } from '../context/BookContext';
 import { useNavigate } from 'react-router-dom';
 import { updateUserInfo } from '../services/editInfoService';
+import { getOrderHistoryService } from '../services/orderService';
 
 const MyAccount = () => {
     const { user, logout, topUp, updateUser } = useAuth();
-    const { books } = useBook();
     const navigate = useNavigate();
 
     const [isEditing, setIsEditing] = useState(false);
     const [showHistory, setShowHistory] = useState(false);
+    const [purchaseHistory, setPurchaseHistory] = useState([]);
+    const [loadingHistory, setLoadingHistory] = useState(false);
     const fileInputRef = useRef(null);
     const [formData, setFormData] = useState({
         name: user?.name || user?.username || '',
@@ -20,18 +21,34 @@ const MyAccount = () => {
         profileImage: user?.profileImage || ''
     });
 
-    // ดึงประวัติหนังสือที่ซื้อจาก purchasedBooks (เรียงจากซื้อล่าสุดก่อน)
-    const purchaseHistory = useMemo(() => {
-        if (!user?.purchasedBooks || user.purchasedBooks.length === 0) return [];
-
-        // Map book IDs to book data and reverse to show recent first
-        const history = user.purchasedBooks
-            .map(bookId => books.find(b => (b.id === bookId || b._id === bookId)))
-            .filter(Boolean)
-            .reverse(); // ซื้อล่าสุดก่อน
-
-        return history;
-    }, [user?.purchasedBooks, books]);
+    // ดึงประวัติการสั่งซื้อจาก API
+    useEffect(() => {
+        const fetchOrderHistory = async () => {
+            if (!user) return;
+            setLoadingHistory(true);
+            try {
+                const userId = user._id || user.id;
+                console.log('=== FETCHING ORDER HISTORY ===');
+                console.log('User object:', user);
+                console.log('UserId to send:', userId);
+                
+                const result = await getOrderHistoryService(userId);
+                console.log('Order history API result:', result);
+                
+                if (result.code === 200 || result.code === 201 || result.status === 2001) {
+                    console.log('Setting purchaseHistory:', result.payload);
+                    setPurchaseHistory(result.payload || []);
+                } else {
+                    console.log('API returned non-200:', result);
+                }
+            } catch (error) {
+                console.error('Error fetching order history:', error);
+            } finally {
+                setLoadingHistory(false);
+            }
+        };
+        fetchOrderHistory();
+    }, [user]);
 
     if (!user) {
         return (
@@ -270,54 +287,67 @@ const MyAccount = () => {
 
                         {/* Content */}
                         <div className="p-8 overflow-y-auto max-h-[60vh]">
-                            {purchaseHistory.length > 0 ? (
+                            {loadingHistory ? (
+                                <div className="text-center py-16">
+                                    <div className="w-12 h-12 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mx-auto mb-4"></div>
+                                    <p className="text-gray-500">กำลังโหลดประวัติการสั่งซื้อ...</p>
+                                </div>
+                            ) : purchaseHistory.length > 0 ? (
                                 <div className="space-y-4">
-                                    {purchaseHistory.map((book, index) => (
-                                        <div
-                                            key={book.id || book._id || index}
-                                            onClick={() => {
-                                                setShowHistory(false);
-                                                navigate(`/book/${book.id || book._id}`);
-                                            }}
-                                            className="flex items-center gap-4 p-4 bg-gray-50 hover:bg-purple-50 rounded-2xl cursor-pointer transition-all group"
-                                        >
-                                            {/* Book Cover */}
-                                            <div className="w-16 h-20 bg-white rounded-xl overflow-hidden shadow-sm flex-shrink-0">
-                                                {book.images?.[0] || book.imageUrl ? (
-                                                    <img
-                                                        src={book.images?.[0] || book.imageUrl}
-                                                        alt={book.title}
-                                                        className="w-full h-full object-cover"
-                                                    />
-                                                ) : (
-                                                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-100 to-indigo-100">
-                                                        <BookOpen size={24} className="text-purple-400" />
-                                                    </div>
-                                                )}
-                                            </div>
+                                    {purchaseHistory.map((order, index) => {
+                                        const book = order.bookId; // bookId ถูก populate มาแล้ว
+                                        if (!book) return null;
+                                        return (
+                                            <div
+                                                key={order._id || index}
+                                                onClick={() => {
+                                                    setShowHistory(false);
+                                                    navigate(`/book/${book._id || book.id}`);
+                                                }}
+                                                className="flex items-center gap-4 p-4 bg-gray-50 hover:bg-purple-50 rounded-2xl cursor-pointer transition-all group"
+                                            >
+                                                {/* Book Cover */}
+                                                <div className="w-16 h-20 bg-white rounded-xl overflow-hidden shadow-sm flex-shrink-0">
+                                                    {book.images?.[0] || book.imageUrl ? (
+                                                        <img
+                                                            src={book.images?.[0] || book.imageUrl}
+                                                            alt={book.title}
+                                                            className="w-full h-full object-cover"
+                                                        />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-100 to-indigo-100">
+                                                            <BookOpen size={24} className="text-purple-400" />
+                                                        </div>
+                                                    )}
+                                                </div>
 
-                                            {/* Book Info */}
-                                            <div className="flex-1 min-w-0">
-                                                <h4 className="font-bold text-gray-900 truncate group-hover:text-purple-600 transition-colors">
-                                                    {book.title}
-                                                </h4>
-                                                <p className="text-sm text-gray-400 truncate">{book.author}</p>
-                                                <div className="flex items-center gap-2 mt-1">
-                                                    <span className="text-xs font-bold text-purple-600">฿{book.sellingPrice?.toLocaleString()}</span>
-                                                    <span className="text-[10px] px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded-full font-bold">
-                                                        {book.condition}
+                                                {/* Book Info */}
+                                                <div className="flex-1 min-w-0">
+                                                    <h4 className="font-bold text-gray-900 truncate group-hover:text-purple-600 transition-colors">
+                                                        {book.title}
+                                                    </h4>
+                                                    <p className="text-sm text-gray-400 truncate">{book.author}</p>
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <span className="text-xs font-bold text-purple-600">฿{book.sellingPrice?.toLocaleString()}</span>
+                                                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                                                            order.shippingStatus === 'shipped' 
+                                                                ? 'bg-emerald-50 text-emerald-600' 
+                                                                : 'bg-amber-50 text-amber-600'
+                                                        }`}>
+                                                            {order.shippingStatus === 'shipped' ? 'ส่งแล้ว' : 'กำลังเตรียมส่ง'}
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                {/* Order Date */}
+                                                <div className="text-right flex-shrink-0">
+                                                    <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest">
+                                                        {new Date(order.createdAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
                                                     </span>
                                                 </div>
                                             </div>
-
-                                            {/* Order Number */}
-                                            <div className="text-right flex-shrink-0">
-                                                <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest">
-                                                    #{purchaseHistory.length - index}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             ) : (
                                 <div className="text-center py-16">

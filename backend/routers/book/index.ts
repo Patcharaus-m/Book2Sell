@@ -14,7 +14,10 @@ routers.get("/search", resFunc.searchBook);
 // ดึงหนังสือตาม sellerId
 routers.get("/seller/:sellerId", resFunc.getBySellerId);
 
-// เพิ่มบรรทัดนี้ลงไป
+// แก้ไขหนังสือ
+routers.put("/:id", resFunc.updateBook);
+
+// ลบหนังสือ
 routers.delete("/:id", resFunc.deleteBook);
 
 export default routers;
