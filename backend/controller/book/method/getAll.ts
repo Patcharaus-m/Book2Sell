@@ -8,7 +8,7 @@ export default async function getAll() {
     const books = await Book.find({ 
       status: 'available',
       isDeleted: { $ne: true }
-    }).populate('sellerId', 'username email').sort({ createdAt: -1 });
+    }).populate('sellerId', 'username email profileImage').sort({ createdAt: -1 });
 
     return successRes(books);
   } catch (error: any) {

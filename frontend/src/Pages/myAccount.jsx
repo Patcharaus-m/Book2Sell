@@ -4,11 +4,13 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { updateUserInfo } from '../services/editInfoService';
 import { getOrderHistoryService } from '../services/orderService';
+import TopUpModal from '../components/layout/TopUpModal';
 
 const MyAccount = () => {
-    const { user, logout, topUp, updateUser } = useAuth();
+    const { user, logout, updateUser } = useAuth();
     const navigate = useNavigate();
 
+    const [isTopUpModalOpen, setIsTopUpModalOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [showHistory, setShowHistory] = useState(false);
     const [purchaseHistory, setPurchaseHistory] = useState([]);
@@ -90,6 +92,7 @@ const MyAccount = () => {
                 });
 
                 alert("อัปเดตข้อมูลสำเร็จ!");
+                window.location.reload(); // Force refresh as requested
                 setIsEditing(false);
             }
         } catch (error) {
@@ -180,10 +183,10 @@ const MyAccount = () => {
                         <p className="text-[10px] font-black uppercase tracking-widest text-purple-200 mb-2">ยอดเงินคงเหลือ</p>
                         <h3 className="text-4xl font-black mb-6">฿{user.creditBalance?.toLocaleString() || 0}</h3>
                         <button
-                            onClick={() => topUp(500)}
+                            onClick={() => setIsTopUpModalOpen(true)}
                             className="w-full py-3 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
                         >
-                            <Plus size={16} /> เติมเงิน ฿500
+                            <Plus size={16} /> เติมเครดิต
                         </button>
                     </div>
                 </div>
@@ -371,6 +374,8 @@ const MyAccount = () => {
                     </div>
                 </div>
             )}
+            {/* Top Up Modal */}
+            <TopUpModal isOpen={isTopUpModalOpen} onClose={() => setIsTopUpModalOpen(false)} />
         </div>
     );
 };

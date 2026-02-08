@@ -6,7 +6,7 @@ export default async function getBySeller(sellerId: string) {
   try {
     const reviews = await Review.find({ sellerId: sellerId }) 
       // ✅ เพิ่ม "username" เข้าไปตรงนี้ด้วยครับ (สำคัญมากสำหรับหน้าเว็บ)
-      .populate("reviewerId", "name email username") 
+      .populate("reviewerId", "name email username profileImage") 
       .sort({ createdAt: -1 });
 
     return successRes(reviews);

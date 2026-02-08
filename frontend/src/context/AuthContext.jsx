@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import loginService from "../services/loginService";
 import registerService from "../services/registerService";
+import { topUpService } from "../services/userService";
 
 const AuthContext = createContext();
 
@@ -94,18 +95,33 @@ export function AuthProvider({ children }) {
     };
 
     /**
-     * ฟังก์ชัน Top-Up เครดิต (Frontend Logic)
+     * ฟังก์ชัน Top-Up เครดิต (Real API)
      */
     const topUp = async (amount) => {
         if (!user) return { success: false, message: "User not logged in" };
 
-        const newCredits = (user.creditBalance || 0) + amount;
-        const updatedUser = { ...user, creditBalance: newCredits };
+        try {
+            const userId = user._id || user.id;
+            console.log("SENDING TOPUP:", userId, amount);
+            const result = await topUpService(userId, amount);
+            console.log("TOPUP RESULT:", result);
 
-        setUser(updatedUser);
-        localStorage.setItem("auth_user", JSON.stringify(updatedUser));
-
-        return { success: true, balance: newCredits };
+            if (result.code === 200 || result.success) {
+                // Backend returns { payload: { creditBalance: ... } }
+                const newBalance = result.payload?.creditBalance;
+                
+                if (newBalance !== undefined) {
+                    const updatedUser = { ...user, creditBalance: newBalance };
+                    setUser(updatedUser);
+                    localStorage.setItem("auth_user", JSON.stringify(updatedUser));
+                    return { success: true, balance: newBalance };
+                }
+            }
+            return { success: false, message: result.message || "Top up failed" };
+        } catch (error) {
+            console.error("Top up error:", error);
+            return { success: false, message: "Connection error" };
+        }
     };
 
     /**

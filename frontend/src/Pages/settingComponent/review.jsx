@@ -134,12 +134,20 @@ export default function Review() {
                         >
                             <div className="flex justify-between items-start mb-4">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl flex items-center justify-center text-purple-500 group-hover:scale-110 transition-transform duration-300 shadow-inner">
-                                        <User size={24} />
+                                    <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl flex items-center justify-center text-purple-500 overflow-hidden shadow-inner flex-shrink-0">
+                                        {review.reviewerId?.profileImage ? (
+                                            <img
+                                                src={review.reviewerId.profileImage}
+                                                alt="Reviewer"
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <User size={24} />
+                                        )}
                                     </div>
                                     <div>
                                         <h4 className="font-black text-gray-900 group-hover:text-purple-700 transition-colors">
-                                            {activeTab === "received" ? review.userName : "คุณ"}
+                                            {activeTab === "received" ? (review.reviewerId?.username || review.userName) : "คุณ"}
                                         </h4>
                                         <p className="text-xs text-gray-400 font-bold">
                                             {activeTab === "received" ? "รีวิว: " : "รีวิวหนังสือ: "}

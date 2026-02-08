@@ -194,8 +194,16 @@ const BookDetailModal = ({ isOpen, onClose, book }) => {
                     {/* Seller Info - ผู้ที่ลงขายหนังสือ */}
                     <div className="mb-4 p-4 bg-gradient-to-br from-purple-100/50 to-purple-50/30 rounded-2xl border border-purple-200/50">
                         <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-purple-500 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-md">
-                                {(book.sellerId?.username || book.sellerId?.name || book.sellerName)?.charAt(0)?.toUpperCase() || 'U'}
+                            <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-purple-500 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-md overflow-hidden">
+                                {(book.sellerId?.profileImage) ? (
+                                    <img 
+                                        src={book.sellerId.profileImage} 
+                                        alt="Seller" 
+                                        className="w-full h-full object-cover" 
+                                    />
+                                ) : (
+                                    (book.sellerId?.username || book.sellerId?.name || book.sellerName)?.charAt(0)?.toUpperCase() || 'U'
+                                )}
                             </div>
                             <div className="flex-1">
                                 <p className="text-[9px] font-black text-purple-600 uppercase tracking-wider">ลงขายโดย</p>
@@ -270,8 +278,16 @@ const BookDetailModal = ({ isOpen, onClose, book }) => {
                                     className="p-3 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all"
                                 >
                                     <div className="flex items-start gap-2 mb-2">
-                                        <div className="w-8 h-8 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-full flex items-center justify-center text-purple-500 flex-shrink-0">
-                                            <User size={14} />
+                                        <div className="w-8 h-8 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-full flex items-center justify-center text-purple-500 flex-shrink-0 overflow-hidden">
+                                            {review.reviewerId?.profileImage ? (
+                                                <img 
+                                                    src={review.reviewerId.profileImage}
+                                                    alt="Reviewer"
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                <User size={14} />
+                                            )}
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p className="text-xs font-bold text-gray-900 truncate">

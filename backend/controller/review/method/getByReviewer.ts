@@ -5,7 +5,8 @@ import { successRes, errRes } from "../../main";
 export default async function getByReviewer(reviewerId: string) {
   try {
     const reviews = await Review.find({ reviewerId: reviewerId })
-      .populate("sellerId", "name email username") // ดึงข้อมูลคนขาย
+      .populate("sellerId", "name email username profileImage") // ดึงข้อมูลคนขาย
+      .populate("reviewerId", "name email username profileImage") // ดึงข้อมูลคนรีวิว (ตัวเอง)
       .populate("orderId") // ดึงข้อมูล order เพื่อแสดงหนังสือ
       .sort({ createdAt: -1 });
 

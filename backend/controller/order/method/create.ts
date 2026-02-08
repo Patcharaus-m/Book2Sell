@@ -16,7 +16,7 @@ export default async function create(data: { bookId: string, buyerId: string, sh
 
     // 2. เช็คเงินในกระเป๋าผู้ซื้อ
     const buyer = await User.findById(buyerId);
-    if (!buyer) return errRes.DATA_NOT_FOUND({ message: "ไม่พบข้อมูลผู้ซื้อ" });
+    if (!buyer) return errRes.DATA_NOT_FOUND({ message: "ไม่พบข้อมูลผู้ซื้อ (Buyer not found)" });
     
     // ราคาขาย (sellingPrice)
     const price = book.sellingPrice || 0;
@@ -25,10 +25,19 @@ export default async function create(data: { bookId: string, buyerId: string, sh
         return errRes.BAD_REQUEST({ message: "ยอดเงินคงเหลือไม่พอ กรุณาเติมเครดิต" });
     }
 
+    // NEW: เช็คข้อมูลผู้ขายเพื่อโอนเงิน
+    const seller = await User.findById(book.sellerId);
+    if (!seller) {
+        return errRes.DATA_NOT_FOUND({ message: "ไม่พบข้อมูลผู้ขาย (Seller not found) - ไม่สามารถทำรายการได้" });
+    }
+
     // 3. เริ่ม Transaction (ทำทุกอย่างให้เสร็จ)
-    // 3.1 ตัดเงินผู้ซื้อ
+    // 3.1 ตัดเงินผู้ซื้อ AND เพิ่มเงินผู้ขาย
     buyer.creditBalance -= price;
+    seller.creditBalance = (seller.creditBalance || 0) + price;
+    
     await buyer.save();
+    await seller.save();
 
     // 3.2 เปลี่ยนสถานะหนังสือเป็น 'ขายแล้ว'
     book.status = 'sold';
