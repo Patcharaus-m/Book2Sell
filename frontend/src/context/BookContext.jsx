@@ -26,7 +26,7 @@ export const BookProvider = ({ children }) => {
 
     const fetchBooks = async () => {
         try {
-            const response = await fetch("http://localhost:3000/api/book");
+            const response = await fetch("https://book2-backend.onrender.com/api/book");
             const data = await response.json();
             console.log('Fetch books response:', data); // Debug log
 
@@ -75,7 +75,7 @@ export const BookProvider = ({ children }) => {
                 sellerName: currentUser?.name || 'Unknown Seller'
             };
 
-            const response = await fetch("http://localhost:3000/api/book", {
+            const response = await fetch("https://book2-backend.onrender.com/api/book", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(bookPayload)
@@ -131,7 +131,7 @@ export const BookProvider = ({ children }) => {
         }
 
         try {
-            const response = await fetch(`http://localhost:3000/api/book/search?q=${keyword}`);
+            const response = await fetch(`https://book2-backend.onrender.com/api/book/search?q=${keyword}`);
             const data = await response.json();
 
             if (data.status && data.payload) {

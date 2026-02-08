@@ -3,7 +3,7 @@
 export const createOrderService = async (orderData) => {
     // orderData ต้องมี { bookId, userId, shippingAddress }
     try {
-        const response = await fetch("http://localhost:3000/api/order/create", {
+        const response = await fetch("https://book2-backend.onrender.com/api/order/create", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(orderData)
@@ -17,7 +17,7 @@ export const createOrderService = async (orderData) => {
 // ดึงประวัติการสั่งซื้อของ user
 export const getOrderHistoryService = async (userId) => {
     try {
-        const response = await fetch("http://localhost:3000/api/order/history", {
+        const response = await fetch("https://book2-backend.onrender.com/api/order/history", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ userId })

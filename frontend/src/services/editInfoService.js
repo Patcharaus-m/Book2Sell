@@ -1,7 +1,7 @@
 
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3000/api/user'; // เช็ค URL ให้ตรงกับที่นายยิงใน Postman
+const API_URL = 'https://book2-backend.onrender.com/api/user'; // เช็ค URL ให้ตรงกับที่นายยิงใน Postman
 
 export const updateUserInfo = async (userData) => {
   try {

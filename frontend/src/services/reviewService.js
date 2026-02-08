@@ -1,7 +1,7 @@
 // frontend/src/services/reviewService.js
 import axios from "axios";
 
-const API_URL = "http://localhost:3000/api/review";
+const API_URL = "https://book2-backend.onrender.com/api/review";
 
 export const createReviewService = async (reviewData) => {
     try {

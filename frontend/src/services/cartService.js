@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:3000/api/cart";
+const API_URL = "https://book2-backend.onrender.com/api/cart";
 
 const getCart = async (userId) => {
     const response = await axios.get(`${API_URL}/getCart`, { params: { userId } });

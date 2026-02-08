@@ -1,6 +1,6 @@
 export const searchBooks = async (query) => {
   try {
-    const response = await fetch(`http://localhost:3000/api/book/search?q=${query}`);
+    const response = await fetch(`https://book2-backend.onrender.com/api/book/search?q=${query}`);
     const data = await response.json();
     return data; // จะได้ code, status, payload (รายการหนังสือ)
   } catch (error) {
@@ -12,7 +12,7 @@ export const searchBooks = async (query) => {
 // ดึงหนังสือตาม sellerId (สำหรับหน้าสินค้าในร้าน)
 export const getBooksBySellerId = async (sellerId) => {
   try {
-    const response = await fetch(`http://localhost:3000/api/book/seller/${sellerId}`);
+    const response = await fetch(`https://book2-backend.onrender.com/api/book/seller/${sellerId}`);
     const data = await response.json();
     return data;
   } catch (error) {
@@ -24,7 +24,7 @@ export const getBooksBySellerId = async (sellerId) => {
 // ฟังก์ชันลบหนังสือ (ต้องส่ง userId ไปยืนยันตัวตนด้วย)
 export const deleteBookService = async (bookId, userId) => {
   try {
-    const response = await fetch(`http://localhost:3000/api/book/${bookId}`, {
+    const response = await fetch(`https://book2-backend.onrender.com/api/book/${bookId}`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId })
@@ -38,7 +38,7 @@ export const deleteBookService = async (bookId, userId) => {
 // ฟังก์ชันอัปเดตหนังสือ
 export const updateBookService = async (bookId, bookData, userId) => {
   try {
-    const response = await fetch(`http://localhost:3000/api/book/${bookId}`, {
+    const response = await fetch(`https://book2-backend.onrender.com/api/book/${bookId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...bookData, userId })

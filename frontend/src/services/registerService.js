@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = 'https://book2-backend.onrender.com/api';
 
 /**
  * Register Service - จัดการการสมัครสมาชิกใหม่ผ่าน Backend
