@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { User, Mail, Phone, CreditCard, ShoppingBag, History, Shield, LogOut, Edit3, Save, ChevronRight, BookOpen, Star, X } from 'lucide-react';
+import React, { useState, useMemo, useRef } from 'react';
+import { User, Mail, Phone, CreditCard, ShoppingBag, History, Shield, LogOut, Edit3, Save, ChevronRight, BookOpen, Star, X, Camera } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useBook } from '../context/BookContext';
 import { useNavigate } from 'react-router-dom';
@@ -12,10 +12,12 @@ const MyAccount = () => {
 
     const [isEditing, setIsEditing] = useState(false);
     const [showHistory, setShowHistory] = useState(false);
+    const fileInputRef = useRef(null);
     const [formData, setFormData] = useState({
         name: user?.name || user?.username || '',
         email: user?.email || '',
-        phone: user?.phone || ''
+        phone: user?.phone || '',
+        profileImage: user?.profileImage || ''
     });
 
     // ดึงประวัติหนังสือที่ซื้อจาก purchasedBooks (เรียงจากซื้อล่าสุดก่อน)
@@ -55,7 +57,8 @@ const MyAccount = () => {
                 userId: user?._id || user?.id,
                 username: formData.name,
                 email: formData.email,
-                phone: formData.phone
+                phone: formData.phone,
+                profileImage: formData.profileImage
             };
 
             const result = await updateUserInfo(payload);
@@ -65,7 +68,8 @@ const MyAccount = () => {
                     username: formData.name,
                     name: formData.name,
                     email: formData.email,
-                    phone: formData.phone
+                    phone: formData.phone,
+                    profileImage: formData.profileImage
                 });
 
                 alert("อัปเดตข้อมูลสำเร็จ!");
@@ -82,6 +86,22 @@ const MyAccount = () => {
         navigate('/');
     };
 
+    const handleProfileUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        if (file.size > 5 * 1024 * 1024) {
+            alert("ไฟล์มีขนาดใหญ่เกินไป (จำกัด 5MB)");
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setFormData(prev => ({ ...prev, profileImage: reader.result }));
+        };
+        reader.readAsDataURL(file);
+    };
+
     return (
         <div className="animate-in fade-in duration-700 max-w-5xl mx-auto pb-20">
             {/* Header Section */}
@@ -94,13 +114,33 @@ const MyAccount = () => {
                 {/* Left Column: Profile Summary */}
                 <div className="lg:col-span-1 space-y-8">
                     <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-gray-50 flex flex-col items-center text-center">
-                        <div className="relative mb-6">
-                            <div className="w-24 h-24 bg-gradient-to-tr from-purple-100 to-indigo-100 rounded-3xl flex items-center justify-center text-purple-600 text-3xl font-black">
-                                {user.name?.[0]?.toUpperCase() || user.username?.[0]?.toUpperCase()}
+                        <div className="relative mb-6 group">
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                className="hidden"
+                                accept="image/*"
+                                onChange={handleProfileUpload}
+                            />
+                            <div
+                                onClick={() => isEditing && fileInputRef.current?.click()}
+                                className={`w-32 h-32 rounded-3xl overflow-hidden flex items-center justify-center text-3xl font-black transition-all ${isEditing ? 'cursor-pointer hover:ring-4 hover:ring-purple-100' : ''} ${!formData.profileImage ? 'bg-gradient-to-tr from-purple-100 to-indigo-100 text-purple-600' : ''}`}
+                            >
+                                {formData.profileImage ? (
+                                    <img src={formData.profileImage} alt="Profile" className="w-full h-full object-cover" />
+                                ) : (
+                                    user.name?.[0]?.toUpperCase() || user.username?.[0]?.toUpperCase()
+                                )}
                             </div>
-                            <div className="absolute -bottom-2 -right-2 p-2 bg-white rounded-xl shadow-md border border-gray-50 text-purple-600">
-                                <Edit3 size={14} />
-                            </div>
+
+                            {isEditing && (
+                                <div
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="absolute -bottom-2 -right-2 p-3 bg-purple-600 rounded-2xl shadow-xl text-white cursor-pointer hover:scale-110 active:scale-95 transition-all"
+                                >
+                                    <Camera size={18} />
+                                </div>
+                            )}
                         </div>
                         <h2 className="text-xl font-bold text-gray-900 mb-1">{user.name || user.username}</h2>
                         <p className="text-sm text-gray-400 mb-6">{user.email}</p>

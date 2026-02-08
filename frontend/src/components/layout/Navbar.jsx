@@ -164,8 +164,12 @@ export default function Navbar() {
                                             <p className={`text-xs font-bold ${isAboutUsPage ? "text-white" : "text-gray-900"}`}>{user.name}</p>
                                             <p className={`text-[10px] font-bold ${isAboutUsPage ? "text-purple-300" : "text-purple-600"}`}>฿{user.creditBalance?.toLocaleString() || 0}</p>
                                         </div>
-                                        <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold shadow-sm">
-                                            {user.name.charAt(0).toUpperCase()}
+                                        <div className="h-9 w-9 rounded-full overflow-hidden bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold shadow-sm">
+                                            {user.profileImage ? (
+                                                <img src={user.profileImage} alt="Profile" className="w-full h-full object-cover" />
+                                            ) : (
+                                                user.name?.charAt(0).toUpperCase()
+                                            )}
                                         </div>
                                         <ChevronDown size={14} className={`transition-transform duration-200 ${showUserMenu ? 'rotate-180' : ''} ${isAboutUsPage ? "text-white/50" : "text-gray-400"}`} />
                                     </button>

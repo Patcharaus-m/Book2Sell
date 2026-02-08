@@ -23,14 +23,28 @@ export const getBooksBySellerId = async (sellerId) => {
 
 // ฟังก์ชันลบหนังสือ (ต้องส่ง userId ไปยืนยันตัวตนด้วย)
 export const deleteBookService = async (bookId, userId) => {
-    try {
-        const response = await fetch(`http://localhost:3000/api/book/${bookId}`, {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userId }) 
-        });
-        return await response.json();
-    } catch (error) {
-        return { status: false, message: error.message };
-    }
+  try {
+    const response = await fetch(`http://localhost:3000/api/book/${bookId}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId })
+    });
+    return await response.json();
+  } catch (error) {
+    return { status: false, message: error.message };
+  }
+};
+
+// ฟังก์ชันอัปเดตหนังสือ
+export const updateBookService = async (bookId, bookData, userId) => {
+  try {
+    const response = await fetch(`http://localhost:3000/api/book/${bookId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...bookData, userId })
+    });
+    return await response.json();
+  } catch (error) {
+    return { status: false, message: error.message };
+  }
 };
