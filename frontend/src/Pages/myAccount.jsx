@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { User, Mail, Phone, CreditCard, ShoppingBag, History, Shield, LogOut, Edit3, Save, ChevronRight, BookOpen, Star, X, Camera } from 'lucide-react';
+import { User, Mail, Phone, CreditCard, ShoppingBag, History, Shield, LogOut, Edit3, Save, ChevronRight, BookOpen, Star, X, Camera, ShoppingCart, ImageIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { updateUserInfo } from '../services/editInfoService';
@@ -33,10 +33,10 @@ const MyAccount = () => {
                 console.log('=== FETCHING ORDER HISTORY ===');
                 console.log('User object:', user);
                 console.log('UserId to send:', userId);
-                
+
                 const result = await getOrderHistoryService(userId);
                 console.log('Order history API result:', result);
-                
+
                 if (result.code === 200 || result.code === 201 || result.status === 2001) {
                     console.log('Setting purchaseHistory:', result.payload);
                     setPurchaseHistory(result.payload || []);
@@ -55,14 +55,14 @@ const MyAccount = () => {
     if (!user) {
         return (
             <div className="flex flex-col items-center justify-center py-24 animate-in fade-in duration-700">
-                <div className="bg-purple-50 p-8 rounded-[2rem] mb-8">
-                    <User size={64} className="text-purple-400" />
+                <div className="bg-emerald-50 p-8 rounded-[2rem] mb-8">
+                    <User size={64} className="text-emerald-400" />
                 </div>
                 <h2 className="text-3xl font-black text-gray-900 mb-2 tracking-tight">ไม่พบข้อมูลผู้ใช้</h2>
                 <p className="text-gray-500 mb-8">กรุณาเข้าสู่ระบบเพื่อจัดการบัญชีของคุณ</p>
                 <button
                     onClick={() => navigate('/')}
-                    className="px-8 py-3 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700 transition-all shadow-lg shadow-purple-200"
+                    className="px-8 py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200"
                 >
                     กลับไปหน้าแรก
                 </button>
@@ -144,7 +144,7 @@ const MyAccount = () => {
                             />
                             <div
                                 onClick={() => isEditing && fileInputRef.current?.click()}
-                                className={`w-32 h-32 rounded-3xl overflow-hidden flex items-center justify-center text-3xl font-black transition-all ${isEditing ? 'cursor-pointer hover:ring-4 hover:ring-purple-100' : ''} ${!formData.profileImage ? 'bg-gradient-to-tr from-purple-100 to-indigo-100 text-purple-600' : ''}`}
+                                className={`w-32 h-32 rounded-3xl overflow-hidden flex items-center justify-center text-3xl font-black transition-all ${isEditing ? 'cursor-pointer hover:ring-4 hover:ring-emerald-100' : ''} ${!formData.profileImage ? 'bg-gradient-to-tr from-emerald-100 to-teal-100 text-emerald-600' : ''}`}
                             >
                                 {formData.profileImage ? (
                                     <img src={formData.profileImage} alt="Profile" className="w-full h-full object-cover" />
@@ -156,7 +156,7 @@ const MyAccount = () => {
                             {isEditing && (
                                 <div
                                     onClick={() => fileInputRef.current?.click()}
-                                    className="absolute -bottom-2 -right-2 p-3 bg-purple-600 rounded-2xl shadow-xl text-white cursor-pointer hover:scale-110 active:scale-95 transition-all"
+                                    className="absolute -bottom-2 -right-2 p-3 bg-emerald-600 rounded-2xl shadow-xl text-white cursor-pointer hover:scale-110 active:scale-95 transition-all"
                                 >
                                     <Camera size={18} />
                                 </div>
@@ -165,23 +165,23 @@ const MyAccount = () => {
                         <h2 className="text-xl font-bold text-gray-900 mb-1">{user.name || user.username}</h2>
                         <p className="text-sm text-gray-400 mb-6">{user.email}</p>
 
-                        <div className="w-full pt-6 border-t border-gray-50">
+                        {/* <div className="w-full pt-6 border-t border-gray-50">
                             <button
                                 onClick={handleLogout}
                                 className="w-full py-3 text-red-500 font-bold text-sm bg-red-50 rounded-xl hover:bg-red-100 transition-all flex items-center justify-center gap-2"
                             >
                                 <LogOut size={16} /> ออกจากระบบ
                             </button>
-                        </div>
+                        </div> */}
                     </div>
 
                     {/* Credit Card */}
-                    <div className="bg-gradient-to-br from-purple-600 to-indigo-700 rounded-[2rem] p-8 text-white shadow-xl shadow-purple-100 relative overflow-hidden group">
+                    <div className="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-[2rem] p-8 text-white shadow-xl shadow-emerald-100 relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-8 opacity-10 -mr-4 -mt-4">
                             <CreditCard size={80} />
                         </div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-purple-200 mb-2">ยอดเงินคงเหลือ</p>
-                        <h3 className="text-4xl font-black mb-6">฿{user.creditBalance?.toLocaleString() || 0}</h3>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-emerald-200 mb-2">My Balance</p>
+                        <h3 className="text-4xl font-black mb-6 flex items-center gap-2">{(user.creditBalance || 0).toLocaleString()} <i className="bi bi-coin" style={{ fontSize: '32px' }} /></h3>
                         <button
                             onClick={() => setIsTopUpModalOpen(true)}
                             className="w-full py-3 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
@@ -197,11 +197,11 @@ const MyAccount = () => {
                     <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-gray-50">
                         <div className="flex items-center justify-between mb-8">
                             <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                                <Shield size={18} className="text-purple-600" /> ข้อมูลส่วนตัว
+                                <Shield size={18} className="text-emerald-600" /> ข้อมูลส่วนตัว
                             </h3>
                             <button
                                 onClick={() => isEditing ? handleSave() : setIsEditing(true)}
-                                className={`text-sm font-bold px-4 py-2 rounded-xl transition-all ${isEditing ? 'bg-purple-600 text-white shadow-lg shadow-purple-100' : 'text-purple-600 bg-purple-50'}`}
+                                className={`text-sm font-bold px-4 py-2 rounded-xl transition-all ${isEditing ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-100' : 'text-emerald-600 bg-emerald-50'}`}
                             >
                                 {isEditing ? <div className="flex items-center gap-2"><Save size={14} /> บันทึก</div> : 'แก้ไขข้อมูล'}
                             </button>
@@ -221,7 +221,7 @@ const MyAccount = () => {
                                         </div>
                                         <input
                                             disabled={!isEditing}
-                                            className={`w-full pl-11 pr-4 py-3 bg-gray-50/50 border border-transparent rounded-2xl text-sm font-medium transition-all outline-none ${isEditing ? 'bg-white border-purple-200 ring-4 ring-purple-50' : ''}`}
+                                            className={`w-full pl-11 pr-4 py-3 bg-gray-50/50 border border-transparent rounded-2xl text-sm font-medium transition-all outline-none ${isEditing ? 'bg-white border-emerald-200 ring-4 ring-emerald-50' : ''}`}
                                             value={item.value}
                                             onChange={e => setFormData({ ...formData, [item.key]: e.target.value })}
                                         />
@@ -277,7 +277,7 @@ const MyAccount = () => {
                         {/* Header */}
                         <div className="p-8 pb-6 border-b border-gray-100 flex items-center justify-between">
                             <div>
-                                <h2 className="text-2xl font-black text-gray-900 tracking-tight">ประวัติการสั่งซื้อ</h2>
+                                <span className="text-xl font-black text-gray-900 tracking-tight flex items-center gap-1.5">ประวัติการสั่งซื้อ</span>
                                 <p className="text-sm text-gray-400 mt-1">หนังสือที่คุณซื้อ (ล่าสุดก่อน)</p>
                             </div>
                             <button
@@ -292,7 +292,7 @@ const MyAccount = () => {
                         <div className="p-8 overflow-y-auto max-h-[60vh]">
                             {loadingHistory ? (
                                 <div className="text-center py-16">
-                                    <div className="w-12 h-12 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mx-auto mb-4"></div>
+                                    <div className="w-12 h-12 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin mx-auto mb-4"></div>
                                     <p className="text-gray-500">กำลังโหลดประวัติการสั่งซื้อ...</p>
                                 </div>
                             ) : purchaseHistory.length > 0 ? (
@@ -307,7 +307,7 @@ const MyAccount = () => {
                                                     setShowHistory(false);
                                                     navigate(`/book/${book._id || book.id}`);
                                                 }}
-                                                className="flex items-center gap-4 p-4 bg-gray-50 hover:bg-purple-50 rounded-2xl cursor-pointer transition-all group"
+                                                className="flex items-center gap-4 p-4 bg-gray-50 hover:bg-emerald-50 rounded-2xl cursor-pointer transition-all group"
                                             >
                                                 {/* Book Cover */}
                                                 <div className="w-16 h-20 bg-white rounded-xl overflow-hidden shadow-sm flex-shrink-0">
@@ -318,25 +318,24 @@ const MyAccount = () => {
                                                             className="w-full h-full object-cover"
                                                         />
                                                     ) : (
-                                                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-100 to-indigo-100">
-                                                            <BookOpen size={24} className="text-purple-400" />
+                                                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-emerald-100 to-teal-100">
+                                                            <BookOpen size={24} className="text-emerald-400" />
                                                         </div>
                                                     )}
                                                 </div>
 
                                                 {/* Book Info */}
                                                 <div className="flex-1 min-w-0">
-                                                    <h4 className="font-bold text-gray-900 truncate group-hover:text-purple-600 transition-colors">
+                                                    <h4 className="font-bold text-gray-900 truncate group-hover:text-emerald-600 transition-colors">
                                                         {book.title}
                                                     </h4>
                                                     <p className="text-sm text-gray-400 truncate">{book.author}</p>
                                                     <div className="flex items-center gap-2 mt-1">
-                                                        <span className="text-xs font-bold text-purple-600">฿{book.sellingPrice?.toLocaleString()}</span>
-                                                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                                                            order.shippingStatus === 'shipped' 
-                                                                ? 'bg-emerald-50 text-emerald-600' 
-                                                                : 'bg-amber-50 text-amber-600'
-                                                        }`}>
+                                                        <span className="text-xs font-bold text-emerald-600 flex items-center gap-1">{(book.sellingPrice || 0).toLocaleString()} <i className="bi bi-coin" /></span>
+                                                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${order.shippingStatus === 'shipped'
+                                                            ? 'bg-emerald-50 text-emerald-600'
+                                                            : 'bg-orange-50 text-orange-600'
+                                                            }`}>
                                                             {order.shippingStatus === 'shipped' ? 'ส่งแล้ว' : 'กำลังเตรียมส่ง'}
                                                         </span>
                                                     </div>
@@ -364,7 +363,7 @@ const MyAccount = () => {
                                             setShowHistory(false);
                                             navigate('/');
                                         }}
-                                        className="mt-6 px-6 py-3 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700 transition-all"
+                                        className="mt-6 px-6 py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-all"
                                     >
                                         เริ่มช้อปปิ้ง
                                     </button>

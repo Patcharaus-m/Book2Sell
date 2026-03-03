@@ -42,7 +42,7 @@ const BookFormModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-all overflow-y-auto">
             <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden my-8 animate-in fade-in zoom-in duration-300">
                 {/* Header */}
-                <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white flex justify-between items-center">
+                <div className="bg-gradient-to-r from-emerald-600 to-teal-600 p-6 text-white flex justify-between items-center">
                     <h2 className="text-xl font-bold flex items-center gap-2">
                         {initialData ? <Save size={24} /> : <Plus size={24} />}
                         {initialData ? "แก้ไขข้อมูลหนังสือ" : "ลงขายหนังสือ"}
@@ -57,12 +57,12 @@ const BookFormModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                         {/* Left Side: Image Upload & Preview */}
                         <div className="space-y-4">
                             <label className="block text-sm font-bold text-gray-700">รูปปกหนังสือ</label>
-                            <div className="relative group aspect-[3/4] bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl flex flex-col items-center justify-center overflow-hidden transition-all hover:border-blue-400">
+                            <div className="relative group aspect-[3/4] bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl flex flex-col items-center justify-center overflow-hidden transition-all hover:border-emerald-400">
                                 {formData.imageUrl ? (
                                     <img src={formData.imageUrl} alt="Preview" className="w-full h-full object-cover" />
                                 ) : (
                                     <div className="text-center p-6">
-                                        <Upload className="mx-auto h-12 w-12 text-gray-400 mb-2 group-hover:text-blue-500 transition-colors" />
+                                        <Upload className="mx-auto h-12 w-12 text-gray-400 mb-2 group-hover:text-emerald-500 transition-colors" />
                                         <p className="text-xs text-gray-500">วางรูปภาพที่นี่ หรือใส่ URL ด้านล่าง</p>
                                     </div>
                                 )}
@@ -73,7 +73,7 @@ const BookFormModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                             <input
                                 type="text"
                                 placeholder="URL รูปภาพหนังสือ"
-                                className="w-full px-4 py-2 border border-gray-100 bg-gray-50 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm"
+                                className="w-full px-4 py-2 border border-gray-100 bg-gray-50 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all text-sm"
                                 value={formData.imageUrl}
                                 onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
                             />
@@ -83,13 +83,13 @@ const BookFormModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                         <div className="space-y-5">
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-1.5 flex items-center gap-1.5">
-                                    <Book size={16} className="text-blue-500" /> ชื่อหนังสือ
+                                    <Book size={16} className="text-emerald-500" /> ชื่อหนังสือ
                                 </label>
                                 <input
                                     type="text"
                                     required
                                     placeholder="เช่น มหาศึกคนชนเทพ"
-                                    className="w-full px-4 py-2.5 border border-gray-100 bg-gray-50 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                                    className="w-full px-4 py-2.5 border border-gray-100 bg-gray-50 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
                                     value={formData.title}
                                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                                 />
@@ -97,13 +97,13 @@ const BookFormModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
 
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-1.5 flex items-center gap-1.5">
-                                    <User size={16} className="text-blue-500" /> ผู้แต่ง
+                                    <User size={16} className="text-emerald-500" /> ผู้แต่ง
                                 </label>
                                 <input
                                     type="text"
                                     required
                                     placeholder="ชื่อผู้เขียน"
-                                    className="w-full px-4 py-2.5 border border-gray-100 bg-gray-50 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                                    className="w-full px-4 py-2.5 border border-gray-100 bg-gray-50 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
                                     value={formData.author}
                                     onChange={(e) => setFormData({ ...formData, author: e.target.value })}
                                 />
@@ -112,15 +112,15 @@ const BookFormModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-bold text-gray-700 mb-1.5 flex items-center gap-1.5">
-                                        <DollarSign size={16} className="text-purple-500" /> ราคา (บาท)
+                                        <DollarSign size={16} className="text-emerald-500" /> ราคา (Credit)
                                     </label>
                                     <div className="relative">
-                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">฿</span>
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-emerald-500 uppercase">Credit</span>
                                         <input
                                             type="number"
                                             required
                                             placeholder="0.00"
-                                            className="w-full pl-8 pr-4 py-2.5 border border-gray-100 bg-gray-50 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                                            className="w-full pl-8 pr-4 py-2.5 border border-gray-100 bg-gray-50 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
                                             value={formData.price}
                                             onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                                         />
@@ -128,10 +128,10 @@ const BookFormModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                                 </div>
                                 <div>
                                     <label className="block text-sm font-bold text-gray-700 mb-1.5 flex items-center gap-1.5">
-                                        <Tag size={16} className="text-purple-500" /> หมวดหมู่
+                                        <Tag size={16} className="text-emerald-500" /> หมวดหมู่
                                     </label>
                                     <select
-                                        className="w-full px-4 py-2.5 border border-gray-100 bg-gray-50 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all appearance-none cursor-pointer"
+                                        className="w-full px-4 py-2.5 border border-gray-100 bg-gray-50 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all appearance-none cursor-pointer"
                                         value={formData.category}
                                         onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                                     >
@@ -149,7 +149,7 @@ const BookFormModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                                 <textarea
                                     placeholder="เล่ารายละเอียดหนังสือ เช่น สภาพหนังสือ หรือตำหนิต่างๆ"
                                     rows="4"
-                                    className="w-full px-4 py-2.5 border border-gray-100 bg-gray-50 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all resize-none"
+                                    className="w-full px-4 py-2.5 border border-gray-100 bg-gray-50 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all resize-none"
                                     value={formData.description}
                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                 />
@@ -167,7 +167,7 @@ const BookFormModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                         </button>
                         <button
                             type="submit"
-                            className="flex-[2] py-3.5 px-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-2xl shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
+                            className="flex-[2] py-3.5 px-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold rounded-2xl shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
                         >
                             {initialData ? "บันทึก" : "ลงขาย"}
                         </button>

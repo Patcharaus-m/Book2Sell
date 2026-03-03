@@ -34,7 +34,7 @@ import SettingNavbar from "./Pages/pageComponent/settingNavbar";
 function MainLayout({ onBookClick }) {
   const { setFilters } = useBook();
   return (
-    <div className="min-h-screen bg-slate-50/50">
+    <div className="min-h-screen bg-emerald-50/30">
       <Navbar />
       <CartDrawer />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -48,7 +48,7 @@ function MainLayout({ onBookClick }) {
 }
 function SettingsLayout() {
   return (
-    <div className="bg-gray-50/50 min-h-screen">
+    <div className="bg-emerald-50/30 min-h-screen">
       <SettingNavbar />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
         <Outlet />
@@ -78,7 +78,7 @@ function SettingsLayout() {
  */
 function FullWidthLayout({ onBookClick }) {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-emerald-50/30">
       <Navbar />
       <CartDrawer />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -89,7 +89,7 @@ function FullWidthLayout({ onBookClick }) {
 }
 function CleanLayout({ onBookClick }) {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-emerald-50/30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <Outlet context={{ onBookClick }} />
       </div>

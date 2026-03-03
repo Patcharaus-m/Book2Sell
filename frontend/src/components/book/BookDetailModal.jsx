@@ -25,25 +25,25 @@ const BookDetailModal = ({ isOpen, onClose, book }) => {
         const fetchReviews = async () => {
             // 1. ดึง ID คนขายแบบครอบคลุม (ทั้งแบบเป็น object และ string)
             const sellerId = book?.sellerId?._id || book?.sellerId;
-            
+
             // Debug: ดูค่า ID ที่ได้
-            console.log("🔍 Debug SellerID:", sellerId); 
+            console.log("🔍 Debug SellerID:", sellerId);
 
             // 2. ปรับเงื่อนไขตรวจสอบ (ไม่ต้องเช็ค length == 24 เป๊ะๆ ก็ได้ ขอแค่มีค่า)
-            if (sellerId) { 
+            if (sellerId) {
                 setLoadingReviews(true);
                 try {
                     console.log(`🚀 Fetching reviews for: ${sellerId}`);
                     const res = await getReviewsBySeller(sellerId);
-                    
+
                     console.log("📦 API Response:", res); // ดูสิ่งที่ API ตอบกลับมา
 
                     // 3. ตรวจสอบ response ให้ครอบคลุมโครงสร้างที่ Backend ส่งมา
                     // Backend returns { code: 201, status: 2001, payload: [...] }
                     if (res && (res.code === 201 || res.code === 200 || res.status === 2001)) {
                         // Handle both nested { payload: { payload: [...] } } and direct { payload: [...] }
-                        const reviewsData = Array.isArray(res.payload) 
-                            ? res.payload 
+                        const reviewsData = Array.isArray(res.payload)
+                            ? res.payload
                             : (res.payload?.payload || []);
                         setReviews(reviewsData);
                         console.log("✅ Set Reviews:", reviewsData);
@@ -62,9 +62,9 @@ const BookDetailModal = ({ isOpen, onClose, book }) => {
                 setReviews([]);
             }
         }
-        
+
         fetchReviews();
-        
+
     }, [book, isOpen]);
 
     if (!isOpen || !book) return null;
@@ -126,7 +126,7 @@ const BookDetailModal = ({ isOpen, onClose, book }) => {
                                 <button
                                     key={idx}
                                     onClick={() => setActiveImage(img)}
-                                    className={`shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${activeImage === img ? 'border-purple-500 ring-2 ring-purple-500/20 shadow-md scale-95' : 'border-white hover:border-gray-200'}`}
+                                    className={`shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${activeImage === img ? 'border-emerald-500 ring-2 ring-emerald-500/20 shadow-md scale-95' : 'border-white hover:border-gray-200'}`}
                                 >
                                     <img src={img} alt={`thumb-${idx}`} className="w-full h-full object-cover" />
                                 </button>
@@ -140,7 +140,7 @@ const BookDetailModal = ({ isOpen, onClose, book }) => {
                     <div className="mb-4">
                         <div className="flex items-center gap-2 mb-2">
                             {book.categories?.map((cat, i) => (
-                                <span key={i} className="px-2 py-0.5 bg-purple-50 text-purple-600 text-[9px] font-black rounded-lg uppercase tracking-widest border border-purple-100/50">
+                                <span key={i} className="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[9px] font-black rounded-lg uppercase tracking-widest border border-emerald-100/50">
                                     {cat}
                                 </span>
                             ))}
@@ -149,7 +149,7 @@ const BookDetailModal = ({ isOpen, onClose, book }) => {
                             {book.title}
                         </h2>
                         <p className="text-sm text-gray-500 font-bold flex items-center gap-1">
-                            โดย <span className="text-purple-600">{book.author}</span>
+                            โดย <span className="text-emerald-600">{book.author}</span>
                         </p>
                     </div>
 
@@ -158,12 +158,12 @@ const BookDetailModal = ({ isOpen, onClose, book }) => {
                         <div className="p-3 bg-gray-50/50 rounded-xl border border-gray-100">
                             <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">ราคาขาย</p>
                             <div className="flex items-baseline gap-1">
-                                <span className="text-2xl font-black text-gray-900">฿{book.sellingPrice || book.price}</span>
-                                {(hasDiscount || book.coverPrice) && (
-                                    <span className="text-sm font-bold text-gray-300 line-through">
-                                        ฿{book.originalPrice || book.coverPrice}
+                                <span className="text-2xl font-black text-gray-900 flex items-center gap-1.5">{(book.sellingPrice || book.price || 0).toLocaleString()} <i className="bi bi-coin" style={{ fontSize: '20px' }} /></span>
+                                {(hasDiscount || book.coverPrice) &&
+                                    <span className="text-sm font-bold text-gray-300 line-through flex items-center gap-1">
+                                        {(book.originalPrice || book.coverPrice || 0).toLocaleString()} <i className="bi bi-coin" style={{ fontSize: '12px' }} />
                                     </span>
-                                )}
+                                }
                             </div>
                         </div>
                         <div className="p-3 bg-gray-50/50 rounded-xl border border-gray-100">
@@ -173,7 +173,7 @@ const BookDetailModal = ({ isOpen, onClose, book }) => {
                                     <CheckCircle size={14} />
                                     <span>{book.condition}</span>
                                 </div>
-                                <p className="text-[10px] font-black text-purple-600 mt-0.5">คงเหลือ {book.stock || 0} เล่ม</p>
+                                <p className="text-[10px] font-black text-emerald-600 mt-0.5">คงเหลือ {book.stock || 0} เล่ม</p>
                             </div>
                         </div>
                     </div>
@@ -192,21 +192,21 @@ const BookDetailModal = ({ isOpen, onClose, book }) => {
                     </div>
 
                     {/* Seller Info - ผู้ที่ลงขายหนังสือ */}
-                    <div className="mb-4 p-4 bg-gradient-to-br from-purple-100/50 to-purple-50/30 rounded-2xl border border-purple-200/50">
+                    <div className="mb-4 p-4 bg-gradient-to-br from-emerald-100/50 to-emerald-50/30 rounded-2xl border border-emerald-200/50">
                         <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-purple-500 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-md overflow-hidden">
+                            <div className="w-12 h-12 bg-gradient-to-br from-emerald-600 to-emerald-500 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-md overflow-hidden">
                                 {(book.sellerId?.profileImage) ? (
-                                    <img 
-                                        src={book.sellerId.profileImage} 
-                                        alt="Seller" 
-                                        className="w-full h-full object-cover" 
+                                    <img
+                                        src={book.sellerId.profileImage}
+                                        alt="Seller"
+                                        className="w-full h-full object-cover"
                                     />
                                 ) : (
                                     (book.sellerId?.username || book.sellerId?.name || book.sellerName)?.charAt(0)?.toUpperCase() || 'U'
                                 )}
                             </div>
                             <div className="flex-1">
-                                <p className="text-[9px] font-black text-purple-600 uppercase tracking-wider">ลงขายโดย</p>
+                                <p className="text-[9px] font-black text-emerald-600 uppercase tracking-wider">ลงขายโดย</p>
                                 <p className="text-base font-black text-gray-900">
                                     {book.sellerId?.username || book.sellerId?.name || book.sellerName || 'ไม่ระบุผู้ขาย'}
                                 </p>
@@ -214,7 +214,7 @@ const BookDetailModal = ({ isOpen, onClose, book }) => {
                                     <p className="text-[10px] text-gray-400 truncate">{book.sellerId.email}</p>
                                 )}
                             </div>
-                            <button className="p-2 text-purple-600 hover:bg-white/80 rounded-xl transition-all" title="ติดต่อผู้ขาย">
+                            <button className="p-2 text-emerald-600 hover:bg-white/80 rounded-xl transition-all" title="ติดต่อผู้ขาย">
                                 <MessageCircle size={20} />
                             </button>
                         </div>
@@ -226,7 +226,7 @@ const BookDetailModal = ({ isOpen, onClose, book }) => {
                             disabled={Number(book.stock) === 0}
                             className={`w-full py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-lg transition-all flex items-center justify-center gap-2 ${Number(book.stock) === 0
                                 ? 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none'
-                                : 'bg-gray-900 text-white shadow-gray-200 hover:bg-purple-600 hover:scale-[1.02] active:scale-95'
+                                : 'bg-gray-900 text-white shadow-gray-200 hover:bg-emerald-600 hover:scale-[1.02] active:scale-95'
                                 }`}
                         >
                             <ShoppingCart size={14} />
@@ -236,7 +236,7 @@ const BookDetailModal = ({ isOpen, onClose, book }) => {
                 </div>
 
                 {/* Right: Reviews Section */}
-                <div className="w-full md:w-1/4 p-6 pt-14 bg-gradient-to-b from-purple-50/30 to-white flex flex-col overflow-y-auto custom-scrollbar">
+                <div className="w-full md:w-1/4 p-6 pt-14 bg-gradient-to-b from-emerald-50/30 to-white flex flex-col overflow-y-auto custom-scrollbar">
                     {/* Reviews Header */}
                     <div className="mb-4">
                         <div className="flex items-center gap-2 mb-2">
@@ -269,7 +269,7 @@ const BookDetailModal = ({ isOpen, onClose, book }) => {
                     <div className="flex-1 space-y-3 overflow-y-auto">
                         {loadingReviews ? (
                             <div className="flex justify-center items-center py-8">
-                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
                             </div>
                         ) : reviews.length > 0 ? (
                             reviews.slice(0, 5).map((review, idx) => (
@@ -278,9 +278,9 @@ const BookDetailModal = ({ isOpen, onClose, book }) => {
                                     className="p-3 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all"
                                 >
                                     <div className="flex items-start gap-2 mb-2">
-                                        <div className="w-8 h-8 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-full flex items-center justify-center text-purple-500 flex-shrink-0 overflow-hidden">
+                                        <div className="w-8 h-8 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-full flex items-center justify-center text-emerald-500 flex-shrink-0 overflow-hidden">
                                             {review.reviewerId?.profileImage ? (
-                                                <img 
+                                                <img
                                                     src={review.reviewerId.profileImage}
                                                     alt="Reviewer"
                                                     className="w-full h-full object-cover"
@@ -325,7 +325,7 @@ const BookDetailModal = ({ isOpen, onClose, book }) => {
 
                     {/* View All Reviews */}
                     {reviews.length > 5 && (
-                        <button className="mt-3 w-full py-2 text-[10px] font-black text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-xl transition-all uppercase tracking-widest">
+                        <button className="mt-3 w-full py-2 text-[10px] font-black text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-all uppercase tracking-widest">
                             ดูทั้งหมด ({reviews.length})
                         </button>
                     )}

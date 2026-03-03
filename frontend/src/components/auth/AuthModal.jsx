@@ -74,10 +74,10 @@ const AuthModal = ({ isOpen, onClose }) => {
                 <div className="p-10 overflow-y-auto custom-scrollbar">
                     {/* Header/Logo */}
                     <div className="flex flex-col items-center mb-8">
-                        <div className="w-16 h-16 bg-purple-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-purple-500/20 mb-4">
+                        <div className="w-16 h-16 bg-amber-800 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-amber-900/20 mb-4">
                             <ShoppingBag size={32} />
                         </div>
-                        <h2 className="text-3xl font-black bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                        <h2 className="text-3xl font-black bg-gradient-to-r from-amber-800 to-orange-950 bg-clip-text text-transparent">
                             {isLogin ? 'ยินดีต้อนรับ' : 'ร่วมเป็นส่วนหนึ่ง'}
                         </h2>
                         <p className="text-gray-400 font-bold text-xs uppercase tracking-widest mt-2">
@@ -103,7 +103,7 @@ const AuthModal = ({ isOpen, onClose }) => {
                                     <input
                                         type="tel"
                                         placeholder="0812345678"
-                                        className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/5 transition-all text-sm font-bold"
+                                        className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-amber-700 focus:ring-4 focus:ring-amber-700/5 transition-all text-sm font-bold"
                                         value={formData.phone}
                                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                     />
@@ -120,7 +120,7 @@ const AuthModal = ({ isOpen, onClose }) => {
                                 <input
                                     type="text"
                                     required
-                                    className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/5 transition-all text-sm font-bold"
+                                    className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-amber-700 focus:ring-4 focus:ring-amber-700/5 transition-all text-sm font-bold"
                                     placeholder="username123"
                                     value={formData.username}
                                     onChange={(e) => setFormData({ ...formData, username: e.target.value })}
@@ -138,7 +138,7 @@ const AuthModal = ({ isOpen, onClose }) => {
                                     <input
                                         type="email"
                                         required
-                                        className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/5 transition-all text-sm font-bold"
+                                        className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-amber-700 focus:ring-4 focus:ring-amber-700/5 transition-all text-sm font-bold"
                                         placeholder="your@email.com"
                                         value={formData.email}
                                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -156,7 +156,7 @@ const AuthModal = ({ isOpen, onClose }) => {
                                 <input
                                     type="password"
                                     required
-                                    className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/5 transition-all text-sm font-bold"
+                                    className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-amber-700 focus:ring-4 focus:ring-amber-700/5 transition-all text-sm font-bold"
                                     placeholder="••••••••"
                                     value={formData.password}
                                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -166,9 +166,9 @@ const AuthModal = ({ isOpen, onClose }) => {
 
                         <button
                             type="submit"
-                            className="relative group w-full py-5 bg-gray-900 text-white rounded-2xl font-black text-sm uppercase tracking-[0.2em] shadow-xl hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 overflow-hidden"
+                            className="relative group w-full py-5 bg-gray-900 text-white rounded-2xl font-black text-sm uppercase tracking-[0.2em] shadow-xl hover:shadow-emerald-500/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 overflow-hidden"
                         >
-                            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-250" />
+                            <div className="absolute inset-0 bg-gradient-to-r from-amber-800 to-orange-950 opacity-0 group-hover:opacity-100 transition-opacity duration-250" />
                             <div className="relative z-10 flex items-center justify-center gap-3">
                                 <span>{isLogin ? 'เข้าสู่ระบบเลยตอนนี้' : 'สมัครสมาชิกทันที'}</span>
                                 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
@@ -179,7 +179,7 @@ const AuthModal = ({ isOpen, onClose }) => {
                     <div className="mt-8 flex flex-col items-center gap-4">
                         <button
                             onClick={toggleMode}
-                            className="text-xs font-black text-purple-600 hover:text-pink-600 transition-colors uppercase tracking-widest"
+                            className="text-xs font-black text-amber-800 hover:text-orange-950 transition-colors uppercase tracking-widest"
                         >
                             {isLogin ? 'ยังไม่มีบัญชี? สมัครที่นี่' : 'มีบัญชีอยู่แล้ว? เข้าสู่ระบบ'}
                         </button>

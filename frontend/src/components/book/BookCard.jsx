@@ -22,7 +22,7 @@ export default function BookCard({ book, onBookClick }) {
     return (
         <div
             onClick={handleCardClick}
-            className="bg-white rounded-3xl border border-purple-50 p-4 hover:shadow-2xl hover:shadow-purple-500/10 transition-all group relative flex flex-col h-full cursor-pointer hover:border-purple-200"
+            className="bg-white rounded-3xl border border-emerald-50 p-4 hover:shadow-2xl hover:shadow-emerald-500/10 transition-all group relative flex flex-col h-full cursor-pointer hover:border-emerald-200"
         >
             {/* Image Wrapper */}
             <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-gray-50 mb-5 border border-gray-50">
@@ -52,7 +52,7 @@ export default function BookCard({ book, onBookClick }) {
             {/* Content */}
             <div className="flex flex-col flex-1">
                 <div className="flex items-center gap-2 mb-3">
-                    <span className="px-2 py-1 bg-purple-50 text-purple-600 text-[10px] font-bold rounded-lg uppercase tracking-wider">
+                    <span className="px-2 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-lg uppercase tracking-wider">
                         {book.category}
                     </span>
                     <span className={`px-2 py-1 text-[10px] font-bold rounded-lg uppercase tracking-wider ${book.condition.includes('9') || book.condition === 'มือหนึ่ง' ? 'bg-green-50 text-green-600' : 'bg-orange-50 text-orange-600'}`}>
@@ -61,7 +61,7 @@ export default function BookCard({ book, onBookClick }) {
                 </div>
 
                 <div className="block group/title">
-                    <h3 className="font-bold text-gray-900 line-clamp-2 mb-1 group-hover/title:text-purple-600 transition-colors h-10">{book.title}</h3>
+                    <h3 className="font-bold text-gray-900 line-clamp-2 mb-1 group-hover/title:text-emerald-600 transition-colors h-10">{book.title}</h3>
                 </div>
                 <p className="text-sm text-gray-400 mb-4 font-medium">{book.author}</p>
 
@@ -69,15 +69,15 @@ export default function BookCard({ book, onBookClick }) {
                     <div className="flex flex-col">
                         <div className="flex items-center gap-2 mb-0.5">
                             {hasDiscount && (
-                                <span className="text-[10px] font-bold text-gray-300 line-through decoration-rose-300/50">฿{book.coverPrice}</span>
+                                <span className="text-[10px] font-bold text-gray-300 line-through decoration-rose-300/50 flex items-center gap-1">{(book.coverPrice || 0).toLocaleString()} <i className="bi bi-coin" style={{ fontSize: '8px' }} /></span>
                             )}
-                            <span className="text-[9px] font-black text-purple-400 bg-purple-50 px-2 py-0.5 rounded-md uppercase tracking-tighter">Stock: {book.stock || 0}</span>
+                            <span className="text-[9px] font-black text-emerald-400 bg-emerald-50 px-2 py-0.5 rounded-md uppercase tracking-tighter">Stock: {(book.stock || 0).toLocaleString()}</span>
                         </div>
-                        <span className="text-xl font-black text-gray-900 tracking-tight">฿{book.sellingPrice}</span>
+                        <span className="text-xl font-black text-gray-900 tracking-tight flex items-center gap-1.5">{(book.sellingPrice || 0).toLocaleString()} <i className="bi bi-coin" style={{ fontSize: '16px' }} /></span>
                     </div>
                     <button
                         onClick={handleAddToCart}
-                        className="bg-gradient-to-br from-pink-500 to-purple-600 text-white p-2.5 rounded-xl hover:shadow-lg hover:shadow-purple-500/30 transition-all active:scale-95 group/btn border border-white/20"
+                        className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white p-2.5 rounded-xl hover:shadow-lg hover:shadow-emerald-500/30 transition-all active:scale-95 group/btn border border-white/20"
                         title="เพิ่มลงในรถเข็น"
                     >
                         <ShoppingCart className="h-5 w-5 group-hover/btn:scale-110 transition-transform" />

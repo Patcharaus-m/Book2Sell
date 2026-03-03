@@ -74,15 +74,15 @@ export default function Checkout() {
         for (const item of orderItems) {
             // Debug: ดูค่า address state
             console.log('Address state:', address);
-            
+
             // รวม address จากฟอร์มเป็น string
             let fullAddress = `${address.houseNo || ''} ${address.soi ? 'ซอย ' + address.soi : ''} ${address.road ? 'ถนน ' + address.road : ''} ${address.subDistrict || ''} ${address.district || ''} ${address.province || ''} ${address.postalCode || ''} ${address.note ? '(' + address.note + ')' : ''}`.trim();
-            
+
             // ถ้าไม่มีที่อยู่ ให้ใช้ค่า default
             if (!fullAddress || fullAddress.length < 5) {
                 fullAddress = "ที่อยู่เริ่มต้น (กรุณาแก้ไขในโปรไฟล์)";
             }
-            
+
             // Debug: ดูข้อมูลที่ส่งไป API
             const orderData = {
                 bookId: item.id || item._id,
@@ -92,7 +92,7 @@ export default function Checkout() {
             console.log('Order Data being sent:', orderData);
             console.log('shippingAddress value:', orderData.shippingAddress);
             console.log('shippingAddress length:', orderData.shippingAddress.length);
-            
+
             const result = await createOrderService(orderData);
 
             // Debug: ดู response structure จาก order API
@@ -106,24 +106,24 @@ export default function Checkout() {
                 console.log('Order creation FAILED:', lastError);
                 break;
             }
-            
+
             // Debug: ดู response structure จาก order API
             console.log('Order API Result:', result);
             console.log('Order payload:', result.payload);
-            
+
             // เก็บข้อมูล order พร้อมกับ book info สำหรับใช้ตอน review
             // ลองหลายๆ path เพื่อหา orderId ที่ถูกต้อง
-            const orderId = result.payload?.order?._id || 
-                           result.payload?.order?.id || 
-                           result.payload?._id || 
-                           result.payload?.id;
-            
+            const orderId = result.payload?.order?._id ||
+                result.payload?.order?.id ||
+                result.payload?._id ||
+                result.payload?.id;
+
             // ดึง newBalance จาก Backend
             const newBalance = result.payload?.newBalance;
-            
+
             console.log('Extracted orderId:', orderId);
             console.log('New balance from backend:', newBalance);
-            
+
             createdOrders.push({
                 ...item,
                 orderId: orderId,
@@ -139,11 +139,11 @@ export default function Checkout() {
 
         // สำเร็จทั้งหมด - อัปเดต local state ด้วยค่าจาก Backend (ใช้ค่าล่าสุดจาก order สุดท้าย)
         const lastOrderResult = createdOrders.length > 0 ? createdOrders[createdOrders.length - 1] : null;
-        
+
         console.log('=== UPDATING CREDIT BALANCE ===');
         console.log('lastOrderResult:', lastOrderResult);
         console.log('lastOrderResult.newBalance:', lastOrderResult?.newBalance);
-        
+
         if (lastOrderResult && lastOrderResult.newBalance !== undefined) {
             // ใช้ค่า newBalance จาก Backend เพื่อ sync กับ Database
             console.log('Updating user credit balance to:', lastOrderResult.newBalance);
@@ -153,10 +153,10 @@ export default function Checkout() {
             console.log('FALLBACK: Using processPayment instead');
             processPayment(totalAmount);
         }
-        
+
         setItemsToReview(createdOrders);  // ใช้ createdOrders ที่มี orderId แล้ว
         addPurchasedBooks(orderItems.map(item => item.id || item._id));
-        
+
         // รีเฟรชรายการหนังสือให้หนังสือที่ซื้อไปหายจากหน้าร้าน
         refreshBooks();
 
@@ -216,7 +216,7 @@ export default function Checkout() {
         return (
             <div className="min-h-[80vh] flex items-center justify-center p-4">
                 <div className="relative w-full max-w-md bg-white/80 backdrop-blur-2xl border border-white/50 rounded-[3.5rem] p-12 shadow-3xl animate-in zoom-in-95 spring-bounce-20 duration-500 flex flex-col items-center text-center">
-                    <div className="w-24 h-24 bg-pink-50 rounded-[2.5rem] flex items-center justify-center text-pink-500 mb-8 shadow-sm border border-pink-100 animate-bounce">
+                    <div className="w-24 h-24 bg-emerald-50 rounded-[2.5rem] flex items-center justify-center text-emerald-500 mb-8 shadow-sm border border-emerald-100 animate-bounce">
                         <CheckCircle size={54} strokeWidth={2.5} />
                     </div>
                     <h2 className="text-4xl font-black text-gray-900 mb-3 tracking-tight">สั่งซื้อสำเร็จ!</h2>
@@ -226,7 +226,7 @@ export default function Checkout() {
                     </p>
 
                     <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-gradient-to-r from-pink-400 to-purple-600 animate-[progress_3s_linear]" />
+                        <div className="h-full bg-gradient-to-r from-emerald-400 to-teal-600 animate-[progress_3s_linear]" />
                     </div>
                     <p className="mt-4 text-[10px] font-black uppercase tracking-widest text-gray-300">เตรียมรับของขวัญพิเศษสักครู่...</p>
                 </div>
@@ -271,9 +271,9 @@ export default function Checkout() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
                 <div className="lg:col-span-2 space-y-10">
                     <div className="bg-white/60 backdrop-blur-xl border border-white/50 rounded-[3rem] p-8 shadow-xl shadow-gray-200/20 overflow-hidden relative">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-pink-100/20 rounded-full blur-3xl -mr-32 -mt-32" />
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-100/20 rounded-full blur-3xl -mr-32 -mt-32" />
                         <div className="relative flex items-center gap-4 mb-10">
-                            <div className="w-12 h-12 bg-pink-100 rounded-2xl flex items-center justify-center text-pink-600 shadow-inner">
+                            <div className="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600 shadow-inner">
                                 <ShoppingBag size={24} />
                             </div>
                             <h2 className="text-2xl font-black text-gray-900 tracking-tight">รายการสินค้า</h2>
@@ -293,8 +293,8 @@ export default function Checkout() {
                                         <p className="text-sm text-gray-400 font-medium italic">โดย {item.author || 'ไม่ระบุผู้แต่ง'}</p>
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-2xl font-black text-gray-900">
-                                            ฿{((item.sellingPrice || item.price) * (item.quantity || 1)).toLocaleString()}
+                                        <p className="text-2xl font-black text-gray-900 flex items-center gap-2">
+                                            {((item.sellingPrice || item.price || 0) * (item.quantity || 1)).toLocaleString()} <i className="bi bi-coin" style={{ fontSize: '20px' }} />
                                         </p>
                                         <p className="text-xs font-black text-gray-400 uppercase italic">x {item.quantity || 1} เล่ม</p>
                                     </div>
@@ -323,7 +323,7 @@ export default function Checkout() {
                                     type="text"
                                     value={address.houseNo}
                                     onChange={(e) => setAddress({ ...address, houseNo: e.target.value })}
-                                    className="w-full bg-white/50 border border-gray-200 rounded-2xl px-5 py-4 font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                                    className="w-full bg-white/50 border border-gray-200 rounded-2xl px-5 py-4 font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                                     placeholder="ระบุบ้านเลขที่..."
                                 />
                             </div>
@@ -335,7 +335,7 @@ export default function Checkout() {
                                     type="text"
                                     value={address.road}
                                     onChange={(e) => setAddress({ ...address, road: e.target.value })}
-                                    className="w-full bg-white/50 border border-gray-200 rounded-2xl px-5 py-4 font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                                    className="w-full bg-white/50 border border-gray-200 rounded-2xl px-5 py-4 font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                                     placeholder="ถนน..."
                                 />
                             </div>
@@ -345,7 +345,7 @@ export default function Checkout() {
                                     type="text"
                                     value={address.soi}
                                     onChange={(e) => setAddress({ ...address, soi: e.target.value })}
-                                    className="w-full bg-white/50 border border-gray-200 rounded-2xl px-5 py-4 font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                                    className="w-full bg-white/50 border border-gray-200 rounded-2xl px-5 py-4 font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                                     placeholder="ซอย..."
                                 />
                             </div>
@@ -357,7 +357,7 @@ export default function Checkout() {
                                     type="text"
                                     value={address.subDistrict}
                                     onChange={(e) => setAddress({ ...address, subDistrict: e.target.value })}
-                                    className="w-full bg-white/50 border border-gray-200 rounded-2xl px-5 py-4 font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                                    className="w-full bg-white/50 border border-gray-200 rounded-2xl px-5 py-4 font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                                     placeholder="ตำบล/แขวง..."
                                 />
                             </div>
@@ -367,7 +367,7 @@ export default function Checkout() {
                                     type="text"
                                     value={address.district}
                                     onChange={(e) => setAddress({ ...address, district: e.target.value })}
-                                    className="w-full bg-white/50 border border-gray-200 rounded-2xl px-5 py-4 font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                                    className="w-full bg-white/50 border border-gray-200 rounded-2xl px-5 py-4 font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                                     placeholder="อำเภอ/เขต..."
                                 />
                             </div>
@@ -379,7 +379,7 @@ export default function Checkout() {
                                     type="text"
                                     value={address.province}
                                     onChange={(e) => setAddress({ ...address, province: e.target.value })}
-                                    className="w-full bg-white/50 border border-gray-200 rounded-2xl px-5 py-4 font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                                    className="w-full bg-white/50 border border-gray-200 rounded-2xl px-5 py-4 font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                                     placeholder="จังหวัด..."
                                 />
                             </div>
@@ -389,7 +389,7 @@ export default function Checkout() {
                                     type="text"
                                     value={address.postalCode}
                                     onChange={(e) => setAddress({ ...address, postalCode: e.target.value })}
-                                    className="w-full bg-white/50 border border-gray-200 rounded-2xl px-5 py-4 font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                                    className="w-full bg-white/50 border border-gray-200 rounded-2xl px-5 py-4 font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                                     placeholder="รหัสไปรษณีย์..."
                                 />
                             </div>
@@ -400,7 +400,7 @@ export default function Checkout() {
                                 <textarea
                                     value={address.note}
                                     onChange={(e) => setAddress({ ...address, note: e.target.value })}
-                                    className="w-full bg-white/50 border border-gray-200 rounded-2xl px-5 py-4 font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all h-24 resize-none"
+                                    className="w-full bg-white/50 border border-gray-200 rounded-2xl px-5 py-4 font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all h-24 resize-none"
                                     placeholder="รายละเอียดเพิ่มเติม (จุดสังเกต, เบอร์โทรสำรอง)..."
                                 />
                             </div>
@@ -411,7 +411,7 @@ export default function Checkout() {
                     <div className="bg-white/60 backdrop-blur-xl border border-white/50 rounded-[3rem] p-8 shadow-xl shadow-gray-200/20 overflow-hidden relative">
                         <div className="relative flex items-center justify-between mb-8">
                             <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center text-purple-600 shadow-inner">
+                                <div className="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600 shadow-inner">
                                     <Wallet size={24} />
                                 </div>
                                 <h2 className="text-2xl font-black text-gray-900 tracking-tight">ชำระด้วยเครดิตร้านค้า</h2>
@@ -419,12 +419,12 @@ export default function Checkout() {
                         </div>
                         <div className="relative bg-white/40 p-10 rounded-[2.5rem] border border-white/60 shadow-inner flex flex-col sm:flex-row items-center justify-between gap-6">
                             <div className="flex items-center gap-6">
-                                <div className="w-16 h-16 bg-purple-600 text-white rounded-[1.5rem] flex items-center justify-center shadow-lg">
+                                <div className="w-16 h-16 bg-emerald-600 text-white rounded-[1.5rem] flex items-center justify-center shadow-lg">
                                     <Wallet size={32} />
                                 </div>
                                 <div>
                                     <p className="text-sm font-black text-gray-400 uppercase tracking-widest mb-1">Your Balance</p>
-                                    <p className="text-3xl font-black text-gray-900 tracking-tight">฿{(user?.creditBalance || 0).toLocaleString()}</p>
+                                    <p className="text-3xl font-black text-gray-900 tracking-tight flex items-center gap-2">{(user?.creditBalance || 0).toLocaleString()} <i className="bi bi-coin" style={{ fontSize: '24px' }} /></p>
                                 </div>
                             </div>
                         </div>
@@ -432,13 +432,13 @@ export default function Checkout() {
                 </div>
 
                 <div className="space-y-6">
-                    <div className="bg-gradient-to-br from-gray-900 via-purple-950 to-pink-950 rounded-[3rem] p-10 text-white shadow-2xl relative overflow-hidden">
+                    <div className="bg-gradient-to-br from-gray-900 via-emerald-950 to-teal-950 rounded-[3rem] p-10 text-white shadow-2xl relative overflow-hidden">
                         <div className="relative">
-                            <h3 className="text-xs font-black text-pink-400 uppercase tracking-[0.3em] mb-10 pb-4 border-b border-white/5">Order Summary</h3>
+                            <h3 className="text-xs font-black text-emerald-400 uppercase tracking-[0.3em] mb-10 pb-4 border-b border-white/5">Order Summary</h3>
                             <div className="space-y-6 mb-12">
                                 <div className="flex justify-between items-center">
-                                    <span className="text-sm font-bold text-slate-400">ยอดรวม</span>
-                                    <span className="text-2xl font-black tracking-tight">฿{totalAmount.toLocaleString()}</span>
+                                    <span className="text-sm font-bold text-slate-400">Total Amount</span>
+                                    <span className="text-2xl font-black tracking-tight flex items-center gap-2">{(totalAmount || 0).toLocaleString()} <i className="bi bi-coin" style={{ fontSize: '20px' }} /></span>
                                 </div>
                             </div>
                             {error && (
@@ -448,7 +448,7 @@ export default function Checkout() {
                             )}
                             <button
                                 onClick={handlePlaceOrder}
-                                className="w-full py-6 bg-white text-gray-900 font-black text-xl rounded-[2rem] hover:bg-pink-50 transition-all active:scale-95 shadow-2xl flex items-center justify-center gap-3"
+                                className="w-full py-6 bg-white text-gray-900 font-black text-xl rounded-[2rem] hover:bg-emerald-50 transition-all active:scale-95 shadow-2xl flex items-center justify-center gap-3"
                             >
                                 <span>สั่งซื้อทันที</span>
                                 <ArrowLeft size={18} className="rotate-180" />
@@ -466,17 +466,17 @@ export default function Checkout() {
                         <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onClick={() => setShowConfirmModal(false)} />
                         <div className="relative w-full max-w-md bg-white/90 backdrop-blur-2xl border border-white rounded-[3.5rem] p-10 shadow-3xl">
                             <div className="flex flex-col items-center text-center">
-                                <div className="w-20 h-20 bg-purple-50 rounded-[2rem] flex items-center justify-center text-purple-600 mb-6">
+                                <div className="w-20 h-20 bg-emerald-50 rounded-[2rem] flex items-center justify-center text-emerald-600 mb-6">
                                     <Wallet size={36} />
                                 </div>
                                 <h3 className="text-3xl font-black text-gray-900 mb-2">ยืนยันการชำระเงิน?</h3>
                                 <p className="text-gray-500 font-medium mb-8">
-                                    ยอดเงิน <span className="text-purple-600 font-black">฿{totalAmount.toLocaleString()}</span> จะถูกหักจากเครดิตของคุณ
+                                    Amount <span className="text-emerald-600 font-black flex items-center gap-1.5 justify-center mt-1">{(totalAmount || 0).toLocaleString()} <i className="bi bi-coin" style={{ fontSize: '18px' }} /></span> will be deducted from your balance.
                                 </p>
                                 <div className="w-full space-y-4">
                                     <button
                                         onClick={handleConfirmPayment}
-                                        className="w-full py-5 bg-gray-900 text-white font-black rounded-2xl hover:bg-purple-600 transition-all"
+                                        className="w-full py-5 bg-gray-900 text-white font-black rounded-2xl hover:bg-emerald-600 transition-all"
                                     >
                                         ยืนยันและสั่งซื้อ
                                     </button>
@@ -499,7 +499,7 @@ export default function Checkout() {
                         <div className="relative w-full max-w-2xl bg-white/80 backdrop-blur-2xl border border-white/50 rounded-[3.5rem] p-12 shadow-3xl overflow-hidden">
                             <div className="relative">
                                 <div className="flex flex-col items-center text-center mb-10">
-                                    <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center text-purple-600 mb-4">
+                                    <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600 mb-4">
                                         <MessageSquare size={32} />
                                     </div>
                                     <h3 className="text-3xl font-black text-gray-900 tracking-tight">Review Your Records</h3>
@@ -523,7 +523,7 @@ export default function Checkout() {
                                                         <Star size={28} className={star <= rating ? "text-amber-400 fill-amber-400" : "text-gray-200"} />
                                                     </button>
                                                 ))}
-                                                <span className="ml-2 text-2xl font-black text-purple-600">{(rating || 0).toFixed(2)}</span>
+                                                <span className="ml-2 text-2xl font-black text-emerald-600">{(rating || 0).toFixed(2)}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -542,7 +542,7 @@ export default function Checkout() {
                                         <button
                                             type="submit"
                                             disabled={isSubmittingReview || !(comment || '').trim()}
-                                            className="px-10 py-4 bg-gray-900 text-white font-black rounded-2xl hover:bg-purple-600 transition-all flex items-center gap-2"
+                                            className="px-10 py-4 bg-gray-900 text-white font-black rounded-2xl hover:bg-emerald-600 transition-all flex items-center gap-2"
                                         >
                                             {isSubmittingReview ? "Submitting..." : <><Send size={20} /> Submit</>}
                                         </button>
