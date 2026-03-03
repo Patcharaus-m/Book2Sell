@@ -8,5 +8,6 @@ routers.post("/register", resFunc.register);
 routers.post("/login", resFunc.login);
 routers.post("/editInfo", resFunc.editInfo);
 routers.post("/topUp", resFunc.topUp);
+routers.get("/check-username", resFunc.checkUsername);
 
 export default routers;

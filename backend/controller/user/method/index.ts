@@ -2,6 +2,7 @@ import login from "./login";
 import register from "./register";
 import editInfo from "./editInfo";
 import topUp from "./topUp";
+import checkUsername from "./checkUsername";
 
 
 export default {
@@ -9,4 +10,5 @@ export default {
   register,
   editInfo,
   topUp,
+  checkUsername,
 };

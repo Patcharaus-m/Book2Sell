@@ -38,9 +38,16 @@ async function topUp(req: Request, res: Response) {
     return res.status(data.code).json(data);
 }
 
+async function checkUsername(req: Request, res: Response) {
+    const username = req.query.username as string;
+    const data = await controller.checkUsername(username);
+    return res.status(data.code).json(data);
+}
+
 export default {
   register,
   login,
   editInfo,
-  topUp
+  topUp,
+  checkUsername
 };

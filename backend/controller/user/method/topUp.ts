@@ -36,7 +36,7 @@ export default async function topUp(data: { userId: string, amount: number }) {
 
     return successRes({
       message: `เติมเครดิตสำเร็จ ${amount} บาท = ${totalCredits} เครดิต`,
-      payload: { creditBalance: updatedUser.creditBalance }
+      creditBalance: updatedUser.creditBalance
     });
 
   } catch (error: any) {
