@@ -1,6 +1,26 @@
 import React, { useState } from 'react';
-import { X, Mail, Lock, User, ArrowRight, Github, ShoppingBag, Phone } from 'lucide-react';
+import { X, Mail, Lock, User, ArrowRight, Github, ShoppingBag, Phone, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+
+// Regex helpers
+const ENGLISH_ONLY_RE = /^[A-Za-z0-9!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]*$/;
+const EMOJI_RE = /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u;
+
+/**
+ * Sanitise a value to: English-only, no spaces, no emoji
+ */
+const sanitiseEnglish = (value) => {
+    // Strip emoji
+    let clean = value.replace(
+        /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu,
+        ''
+    );
+    // Strip spaces
+    clean = clean.replace(/\s/g, '');
+    // Strip non-English characters (keep only ASCII printable minus spaces)
+    clean = clean.replace(/[^\x21-\x7E]/g, '');
+    return clean;
+};
 
 /**
  * RegisterModal - Modal สำหรับสมัครสมาชิก (แยกจาก Login)
@@ -9,10 +29,13 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
     const { register } = useAuth();
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [formData, setFormData] = useState({
         username: '',
         email: '',
         password: '',
+        confirmPassword: '',
         phone: '',
     });
 
@@ -24,37 +47,75 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
         }
     };
 
+    /**
+     * Generic handler for English-sanitised fields
+     */
+    const handleEnglishField = (field, value) => {
+        setFormData({ ...formData, [field]: sanitiseEnglish(value) });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         setIsLoading(true);
 
-        // Client-side Validation
-        if (!formData.username || !formData.email || !formData.password || !formData.phone) {
-            setError('กรุณากรอกข้อมูลให้ครบทุกช่อง');
+        // --- Validation ---
+        if (!formData.username || !formData.email || !formData.password || !formData.confirmPassword || !formData.phone) {
+            setError('Please fill in all fields / กรุณากรอกข้อมูลให้ครบทุกช่อง');
             setIsLoading(false);
             return;
         }
 
+        // Username: English only, no spaces, 6–16 chars
+        if (formData.username.length < 6) {
+            setError('ชื่อผู้ใช้ต้องมีอย่างน้อย 6 ตัวอักษร');
+            setIsLoading(false);
+            return;
+        }
+        if (formData.username.length > 16) {
+            setError('ชื่อผู้ใช้ต้องไม่เกิน 16 ตัวอักษร');
+            setIsLoading(false);
+            return;
+        }
+
+        // Password: English only, no spaces, at least 6 chars + 1 uppercase
+        if (formData.password.length < 6) {
+            setError('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร');
+            setIsLoading(false);
+            return;
+        }
+        if (!/[A-Z]/.test(formData.password)) {
+            setError('รหัสผ่านต้องมีตัวพิมพ์ใหญ่อย่างน้อย 1 ตัว');
+            setIsLoading(false);
+            return;
+        }
+
+        // Confirm password
+        if (formData.password !== formData.confirmPassword) {
+            setError('รหัสผ่านไม่ตรงกัน');
+            setIsLoading(false);
+            return;
+        }
+
+        // Phone: digits only, max 10
         if (!/^\d+$/.test(formData.phone)) {
-            setError('เบอร์โทรศัพท์ต้องเป็นตัวเลขเท่านั้น (0-9)');
+            setError('เบอร์โทรศัพท์ต้องเป็นตัวเลขเท่านั้น');
             setIsLoading(false);
             return;
         }
-
         if (formData.phone.length > 10) {
-            setError('เบอร์โทรศัพท์ต้องมีความยาวไม่เกิน 10 ตัวเลข');
+            setError('เบอร์โทรศัพท์ต้องไม่เกิน 10 ตัว');
             setIsLoading(false);
             return;
         }
 
         try {
             const result = await register(formData.username, formData.email, formData.password, formData.phone);
-            console.log('Register result:', result); // Debug log
-            
+            console.log('Register result:', result);
+
             if (result.success) {
                 onClose();
-                setFormData({ username: '', email: '', password: '', phone: '' });
+                setFormData({ username: '', email: '', password: '', confirmPassword: '', phone: '' });
             } else {
                 setError(result.message || 'เกิดข้อผิดพลาดในการสมัครสมาชิก');
             }
@@ -68,9 +129,12 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
 
     const handleSwitchToLogin = () => {
         setError('');
-        setFormData({ username: '', email: '', password: '', phone: '' });
+        setFormData({ username: '', email: '', password: '', confirmPassword: '', phone: '' });
         onSwitchToLogin();
     };
+
+    const inputClass =
+        'w-full pl-12 pr-12 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-amber-700 focus:ring-4 focus:ring-amber-700/5 transition-all text-sm font-bold placeholder:text-gray-300';
 
     return (
         <div
@@ -81,21 +145,22 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
                 className="relative w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl animate-in zoom-in duration-300 border border-gray-100 flex flex-col max-h-[90vh] overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
             >
-                {/* ปุ่มปิด */}
+                {/* Close button */}
                 <button
                     onClick={onClose}
-                    name='register-close-btn' className="absolute top-6 right-6 p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all z-20"
+                    name="register-close-btn"
+                    className="absolute top-6 right-6 p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all z-20"
                 >
                     <X size={20} />
                 </button>
 
                 <div className="p-10 overflow-y-auto custom-scrollbar">
-                    {/* Header/Logo */}
-                    <div name='register-header' className="flex flex-col items-center mb-8">
-                        <div className="w-16 h-16 bg-purple-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-purple-500/20 mb-4">
+                    {/* Header */}
+                    <div name="register-header" className="flex flex-col items-center mb-8">
+                        <div className="w-16 h-16 bg-emerald-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-emerald-700/20 mb-4">
                             <ShoppingBag size={32} />
                         </div>
-                        <h2 className="text-3xl font-black bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                        <h2 className="text-3xl font-black bg-gradient-to-r from-emerald-600 to-emerald-800 bg-clip-text text-transparent">
                             ร่วมเป็นส่วนหนึ่ง
                         </h2>
                         <p className="text-gray-400 font-bold text-xs uppercase tracking-widest mt-2">
@@ -103,33 +168,24 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
                         </p>
                     </div>
 
+                    {/* Error */}
                     {error && (
-                        <div name='register-error-message' className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl text-red-500 text-sm font-bold flex items-center gap-2 animate-pulse">
-                            <span className="w-2 h-2 bg-red-500 rounded-full" />
+                        <div
+                            name="register-error-message"
+                            className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl text-red-500 text-sm font-bold flex items-center gap-2"
+                        >
+                            <span className="w-2 h-2 bg-red-500 rounded-full shrink-0" />
                             {error}
                         </div>
                     )}
 
-                    <form name='register-form' onSubmit={handleSubmit} className="space-y-4">
-                        <div className="space-y-1.5">
-                            <label name='register-phone-label' className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">เบอร์โทรศัพท์</label>
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-gray-300">
-                                    <Phone size={18} />
-                                </div>
-                                <input
-                                    type="tel"
-                                    placeholder="0812345678"
-                                    className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/5 transition-all text-sm font-bold"
-                                    value={formData.phone}
-                                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                    disabled={isLoading}
-                                />
-                            </div>
-                        </div>
+                    <form name="register-form" onSubmit={handleSubmit} className="space-y-4">
 
+                        {/* Username */}
                         <div className="space-y-1.5">
-                            <label name='register-username-label' className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">ชื่อผู้ใช้งาน</label>
+                            <label name="register-username-label" className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
+                                ชื่อผู้ใช้งาน
+                            </label>
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-gray-300">
                                     <User size={18} />
@@ -137,17 +193,33 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
                                 <input
                                     type="text"
                                     required
-                                    className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/5 transition-all text-sm font-bold"
-                                    placeholder="username123"
+                                    name="register-username-input"
+                                    className={inputClass}
+                                    placeholder="myUsername7"
                                     value={formData.username}
-                                    onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                                    onChange={(e) => handleEnglishField('username', e.target.value)}
+                                    onKeyDown={(e) => {
+                                        // Block space key
+                                        if (e.key === ' ') e.preventDefault();
+                                    }}
                                     disabled={isLoading}
+                                    maxLength={16}
+                                    autoComplete="username"
                                 />
                             </div>
+                            <p className="text-[10px] text-gray-400 ml-1 flex justify-between">
+                                <span>ภาษาอังกฤษเท่านั้น · ห้ามเว้นวรรค · 6–16 ตัวอักษร</span>
+                                <span className={formData.username.length > 16 ? 'text-red-400' : 'text-gray-300'}>
+                                    {formData.username.length}/16
+                                </span>
+                            </p>
                         </div>
 
+                        {/* Email */}
                         <div className="space-y-1.5">
-                            <label name='register-email-label' className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">อีเมล</label>
+                            <label name="register-email-label" className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
+                                อีเมล
+                            </label>
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-gray-300">
                                     <Mail size={18} />
@@ -155,53 +227,148 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
                                 <input
                                     type="email"
                                     required
-                                    className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/5 transition-all text-sm font-bold"
+                                    name="register-email-input"
+                                    className={inputClass}
                                     placeholder="your@email.com"
                                     value={formData.email}
-                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                    onChange={(e) => setFormData({ ...formData, email: e.target.value.replace(/\s/g, '') })}
+                                    onKeyDown={(e) => { if (e.key === ' ') e.preventDefault(); }}
                                     disabled={isLoading}
+                                    autoComplete="email"
                                 />
                             </div>
                         </div>
 
+                        {/* Phone */}
                         <div className="space-y-1.5">
-                            <label name='register-password-label' className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">รหัสผ่าน</label>
+                            <label name="register-phone-label" className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
+                                เบอร์โทรศัพท์
+                            </label>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-gray-300">
+                                    <Phone size={18} />
+                                </div>
+                                <input
+                                    type="tel"
+                                    name="register-phone-input"
+                                    placeholder="0812345678"
+                                    className={inputClass}
+                                    value={formData.phone}
+                                    onChange={(e) => {
+                                        // Digits only, max 10
+                                        const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                                        setFormData({ ...formData, phone: val });
+                                    }}
+                                    onKeyDown={(e) => { if (e.key === ' ') e.preventDefault(); }}
+                                    disabled={isLoading}
+                                    maxLength={10}
+                                    autoComplete="tel"
+                                />
+                            </div>
+                            <p className="text-[10px] text-gray-400 ml-1">ตัวเลขเท่านั้น · ไม่เกิน 10 ตัว</p>
+                        </div>
+
+                        {/* Password */}
+                        <div className="space-y-1.5">
+                            <label name="register-password-label" className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
+                                รหัสผ่าน
+                            </label>
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-gray-300">
                                     <Lock size={18} />
                                 </div>
                                 <input
-                                    type="password"
+                                    type={showPassword ? 'text' : 'password'}
                                     required
-                                    className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/5 transition-all text-sm font-bold"
+                                    name="register-password-input"
+                                    className={inputClass}
                                     placeholder="••••••••"
                                     value={formData.password}
-                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                    onChange={(e) => handleEnglishField('password', e.target.value)}
+                                    onKeyDown={(e) => { if (e.key === ' ') e.preventDefault(); }}
                                     disabled={isLoading}
+                                    autoComplete="new-password"
                                 />
+                                <button
+                                    type="button"
+                                    className="absolute inset-y-0 right-4 flex items-center text-gray-300 hover:text-amber-700 transition-colors"
+                                    onClick={() => setShowPassword((v) => !v)}
+                                    tabIndex={-1}
+                                >
+                                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                </button>
                             </div>
-                            <p className="text-[10px] text-gray-400 ml-1">อย่างน้อย 6 ตัวอักษร และมีตัวพิมพ์ใหญ่ 1 ตัว</p>
+                            <p className="text-[10px] text-gray-400 ml-1">
+                                ภาษาอังกฤษเท่านั้น · ห้ามเว้นวรรค · อย่างน้อย 6 ตัวอักษร · ตัวพิมพ์ใหญ่ 1 ตัว
+                            </p>
                         </div>
 
+                        {/* Confirm Password */}
+                        <div className="space-y-1.5">
+                            <label name="register-confirm-password-label" className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
+                                ยืนยันรหัสผ่าน
+                            </label>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-gray-300">
+                                    <Lock size={18} />
+                                </div>
+                                <input
+                                    type={showConfirmPassword ? 'text' : 'password'}
+                                    required
+                                    name="register-confirm-password-input"
+                                    className={`${inputClass} ${formData.confirmPassword && formData.password !== formData.confirmPassword
+                                        ? 'border-red-300 focus:border-red-400 focus:ring-red-400/10'
+                                        : formData.confirmPassword && formData.password === formData.confirmPassword
+                                            ? 'border-green-300 focus:border-green-400 focus:ring-green-400/10'
+                                            : ''
+                                        }`}
+                                    placeholder="••••••••"
+                                    value={formData.confirmPassword}
+                                    onChange={(e) => handleEnglishField('confirmPassword', e.target.value)}
+                                    onKeyDown={(e) => { if (e.key === ' ') e.preventDefault(); }}
+                                    disabled={isLoading}
+                                    autoComplete="new-password"
+                                />
+                                <button
+                                    type="button"
+                                    className="absolute inset-y-0 right-4 flex items-center text-gray-300 hover:text-amber-700 transition-colors"
+                                    onClick={() => setShowConfirmPassword((v) => !v)}
+                                    tabIndex={-1}
+                                >
+                                    {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                </button>
+                            </div>
+                            {formData.confirmPassword && (
+                                <p className={`text-[10px] ml-1 font-bold ${formData.password === formData.confirmPassword ? 'text-green-500' : 'text-red-400'
+                                    }`}>
+                                    {formData.password === formData.confirmPassword
+                                        ? '✓ Passwords match'
+                                        : '✗ Passwords do not match'}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Submit */}
                         <button
                             type="submit"
                             disabled={isLoading}
-                            name='register-submit-btn'
-                            className="relative group w-full py-5 bg-gray-900 text-white rounded-2xl font-black text-sm uppercase tracking-[0.2em] shadow-xl hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
+                            name="register-submit-btn"
+                            className="relative group w-full py-5 bg-gray-900 text-white rounded-2xl font-black text-sm uppercase tracking-[0.2em] shadow-xl hover:shadow-amber-900/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed mt-2"
                         >
-                            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-250" />
+                            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-emerald-700 opacity-0 group-hover:opacity-100 transition-opacity duration-250" />
                             <div className="relative z-10 flex items-center justify-center gap-3">
-                                <span>{isLoading ? 'กำลังสมัครสมาชิก...' : 'สมัครสมาชิกทันที'}</span>
+                                <span>{isLoading ? 'Creating account...' : 'สมัครสมาชิกทันที'}</span>
                                 {!isLoading && <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />}
                             </div>
                         </button>
                     </form>
 
+                    {/* Footer */}
                     <div className="mt-8 flex flex-col items-center gap-4">
                         <button
                             onClick={handleSwitchToLogin}
-                            name='register-switch-to-login-btn'
-                            className="text-xs font-black text-purple-600 hover:text-pink-600 transition-colors uppercase tracking-widest"
+                            name="register-switch-to-login-btn"
+                            className="text-xs font-black text-emerald-700 hover:text-emerald-900 transition-colors uppercase tracking-widest"
                         >
                             มีบัญชีอยู่แล้ว? เข้าสู่ระบบ
                         </button>
@@ -213,10 +380,10 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
                         </div>
 
                         <div className="flex gap-4 w-full">
-                            <button name='register-github-btn' className="flex-1 flex justify-center py-3 border border-gray-100 rounded-xl hover:bg-gray-50 transition-all font-bold text-sm text-gray-600 gap-2">
+                            <button name="register-github-btn" className="flex-1 flex justify-center py-3 border border-gray-100 rounded-xl hover:bg-gray-50 transition-all font-bold text-sm text-gray-600 gap-2">
                                 <Github size={18} /> GitHub
                             </button>
-                            <button name='register-google-btn' className="flex-1 flex justify-center py-3 border border-gray-100 rounded-xl hover:bg-gray-50 transition-all font-bold text-sm text-gray-600 gap-2">
+                            <button name="register-google-btn" className="flex-1 flex justify-center py-3 border border-gray-100 rounded-xl hover:bg-gray-50 transition-all font-bold text-sm text-gray-600 gap-2">
                                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
                                     <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />

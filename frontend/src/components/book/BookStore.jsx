@@ -94,11 +94,11 @@ const BookCard = ({ book, onEdit, onDelete }) => {
                     <div className="flex flex-col">
                         {hasDiscount && (
                             <span className="text-xs text-slate-500 line-through font-medium">
-                                ราคาปก ฿{book.originalPrice}
+                                Original {(book.originalPrice || 0).toLocaleString()} <i className="bi bi-coin" style={{ fontSize: '10px' }} />
                             </span>
                         )}
-                        <span className="text-2xl font-black text-white">
-                            ฿{book.sellingPrice}
+                        <span className="text-2xl font-black text-white flex items-center gap-2">
+                            {(book.sellingPrice || 0).toLocaleString()} <i className="bi bi-coin" style={{ fontSize: '18px' }} />
                         </span>
                     </div>
                     <button className="p-3 rounded-2xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-all">
@@ -183,7 +183,7 @@ const EditModal = ({ isOpen, onClose, onSave, book }) => {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">ราคาปก (฿)</label>
+                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Original Price (Credit)</label>
                                 <input
                                     type="number"
                                     required
@@ -193,7 +193,7 @@ const EditModal = ({ isOpen, onClose, onSave, book }) => {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">ราคาขาย (฿)</label>
+                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Selling Price (Credit)</label>
                                 <input
                                     type="number"
                                     required

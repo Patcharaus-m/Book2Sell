@@ -13,20 +13,20 @@ const CustomDropdown = ({ options, value, onChange, placeholder, icon, className
             <button
                 onClick={onToggle}
                 className={`w-full pl-6 pr-10 py-4 flex items-center justify-between rounded-full outline-none transition-all duration-[250ms] font-black text-xs uppercase tracking-widest border border-transparent ${isOpen
-                    ? 'bg-purple-600 text-white shadow-lg shadow-purple-200'
-                    : 'bg-transparent hover:bg-purple-50/50 text-gray-600 hover:border-purple-100 focus:border-purple-200'
+                    ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200'
+                    : 'bg-transparent hover:bg-emerald-50/50 text-gray-600 hover:border-emerald-100 focus:border-emerald-200'
                     }`}
             >
                 <div className="flex items-center gap-2">
-                    {icon && <span className={isOpen ? 'text-white' : 'text-purple-500'}>{icon}</span>}
+                    {icon && <span className={isOpen ? 'text-white' : 'text-emerald-500'}>{icon}</span>}
                     <span>{selectedOption ? selectedOption.label : placeholder}</span>
                 </div>
-                <ChevronDown className={`transition-transform duration-[250ms] ${isOpen ? 'rotate-180 text-white' : 'text-purple-400'}`} size={16} />
+                <ChevronDown className={`transition-transform duration-[250ms] ${isOpen ? 'rotate-180 text-white' : 'text-emerald-400'}`} size={16} />
             </button>
 
             {/* Dropdown Menu with 0.25s transition */}
             <div
-                className={`absolute top-full left-0 mt-3 w-full min-w-[240px] bg-gradient-to-br from-purple-600 to-indigo-700 rounded-2xl shadow-2xl border border-purple-400/20 py-2 z-40 transition-all duration-[250ms] ease-out origin-top ${isOpen
+                className={`absolute top-full left-0 mt-3 w-full min-w-[240px] bg-gradient-to-br from-emerald-600 to-teal-700 rounded-2xl shadow-2xl border border-emerald-400/20 py-2 z-40 transition-all duration-[250ms] ease-out origin-top ${isOpen
                     ? 'opacity-100 scale-100 translate-y-0 visible'
                     : 'opacity-0 scale-95 -translate-y-2 invisible pointer-events-none'
                     }`}
@@ -43,7 +43,7 @@ const CustomDropdown = ({ options, value, onChange, placeholder, icon, className
                             : 'text-purple-50 hover:bg-white/10 hover:text-white'
                             } ${itemClassName}`}
                     >
-                        {opt.icon && <span className="text-purple-200">{opt.icon}</span>}
+                        {opt.icon && <span className="text-emerald-200">{opt.icon}</span>}
                         {opt.label}
                     </button>
                 ))}
@@ -129,25 +129,25 @@ const BookFilterBar = ({ onFilterChange }) => {
                 <div className="h-8 w-px bg-gray-100 hidden md:block" />
 
                 {/* ช่วงราคา (Price Range Inputs) */}
-                <div className="flex items-center gap-2 px-6 py-2 rounded-full hover:bg-purple-50/50 transition-all border border-transparent hover:border-purple-100 group/price">
-                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2 group-hover/price:text-purple-500 transition-colors">งบประมาณ</span>
-                    <div className="flex items-center bg-white px-3 py-1.5 rounded-xl border border-purple-50 shadow-sm focus-within:border-purple-300 transition-all">
-                        <span className="text-purple-300 text-[10px] mr-1">฿</span>
+                <div className="flex items-center gap-2 px-6 py-2 rounded-full hover:bg-emerald-50/50 transition-all border border-transparent hover:border-emerald-100 group/price">
+                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2 group-hover/price:text-emerald-500 transition-colors">งบประมาณ</span>
+                    <div className="flex items-center bg-white px-3 py-1.5 rounded-xl border border-emerald-50 shadow-sm focus-within:border-emerald-300 transition-all">
+                        <i className="bi bi-coin text-emerald-300" style={{ fontSize: '10px' }} />
                         <input
                             type="number"
                             placeholder="ต่ำสุด"
-                            className="w-16 bg-transparent outline-none font-bold text-xs text-gray-700 placeholder:text-gray-200"
+                            className="w-16 bg-transparent outline-none font-bold text-xs text-gray-700 placeholder:text-gray-200 ml-1"
                             value={filters.minPrice}
                             onChange={(e) => setFilters({ ...filters, minPrice: e.target.value })}
                         />
                     </div>
                     <span className="text-gray-200">—</span>
-                    <div className="flex items-center bg-white px-3 py-1.5 rounded-xl border border-purple-50 shadow-sm focus-within:border-purple-300 transition-all">
-                        <span className="text-purple-300 text-[10px] mr-1">฿</span>
+                    <div className="flex items-center bg-white px-3 py-1.5 rounded-xl border border-emerald-50 shadow-sm focus-within:border-emerald-300 transition-all">
+                        <i className="bi bi-coin text-emerald-300" style={{ fontSize: '10px' }} />
                         <input
                             type="number"
                             placeholder="สูงสุด"
-                            className="w-16 bg-transparent outline-none font-bold text-xs text-gray-700 placeholder:text-gray-200"
+                            className="w-16 bg-transparent outline-none font-bold text-xs text-gray-700 placeholder:text-gray-200 ml-1"
                             value={filters.maxPrice}
                             onChange={(e) => setFilters({ ...filters, maxPrice: e.target.value })}
                         />
@@ -194,7 +194,7 @@ const BookFilterBar = ({ onFilterChange }) => {
 
             <div className="px-6 flex items-center gap-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
                 <div className="flex items-center gap-1.5">
-                    <SlidersHorizontal size={10} className="text-purple-500" />
+                    <SlidersHorizontal size={10} className="text-emerald-500" />
                     <span>ตัวกรองเสริมที่เลือก: {hasActiveFilters ? "เปิดการใช้งาน" : "ค่าเริ่มต้น"}</span>
                 </div>
             </div>

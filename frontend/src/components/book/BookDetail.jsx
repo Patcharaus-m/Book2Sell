@@ -63,7 +63,7 @@ export default function BookDetail() {
 
                 {/* 1. Image Section (lg:col-span-4) */}
                 <div className="lg:col-span-4 space-y-6">
-                    <div className="relative aspect-[3/4] rounded-[2.5rem] overflow-hidden bg-white shadow-2xl border border-white shadow-purple-500/5">
+                    <div className="relative aspect-[3/4] rounded-[2.5rem] overflow-hidden bg-white shadow-2xl border border-white shadow-emerald-500/5">
                         <img
                             src={images[activeImage]}
                             alt={book.title}
@@ -83,7 +83,7 @@ export default function BookDetail() {
                                 <button
                                     key={idx}
                                     onClick={() => setActiveImage(idx)}
-                                    className={`relative w-24 h-32 rounded-2xl overflow-hidden flex-shrink-0 border-4 transition-all duration-300 ${activeImage === idx ? 'border-purple-500 scale-105 shadow-lg shadow-purple-200' : 'border-white opacity-60 hover:opacity-100 hover:border-purple-200'}`}
+                                    className={`relative w-24 h-32 rounded-2xl overflow-hidden flex-shrink-0 border-4 transition-all duration-300 ${activeImage === idx ? 'border-emerald-500 scale-105 shadow-lg shadow-emerald-200' : 'border-white opacity-60 hover:opacity-100 hover:border-emerald-200'}`}
                                 >
                                     <img src={img} alt="" className="w-full h-full object-cover" />
                                 </button>
@@ -96,7 +96,7 @@ export default function BookDetail() {
                 <div className="lg:col-span-4 space-y-8">
                     <div className="space-y-4">
                         <div className="flex flex-wrap items-center gap-3">
-                            <span className="px-4 py-1.5 bg-purple-50 text-purple-600 text-[10px] font-black rounded-full uppercase tracking-[0.2em] border border-purple-100">
+                            <span className="px-4 py-1.5 bg-emerald-50 text-emerald-600 text-[10px] font-black rounded-full uppercase tracking-[0.2em] border border-emerald-100">
                                 {book.category}
                             </span>
                             <span className={`px-4 py-1.5 text-[10px] font-black rounded-full uppercase tracking-[0.2em] border ${book.condition.includes('9') || book.condition === 'มือหนึ่ง' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
@@ -105,7 +105,7 @@ export default function BookDetail() {
                         </div>
                         <h1 className="text-4xl sm:text-5xl font-black text-gray-900 leading-[1.1] tracking-tight">{book.title}</h1>
                         <p className="text-lg text-gray-400 font-bold uppercase tracking-widest">
-                            Author <span className="text-purple-600 underline decoration-purple-100 underline-offset-8 decoration-4">{book.author}</span>
+                            Author <span className="text-emerald-600 underline decoration-emerald-100 underline-offset-8 decoration-4">{book.author}</span>
                         </p>
                     </div>
 
@@ -114,14 +114,14 @@ export default function BookDetail() {
                             <div>
                                 <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] block mb-2">Price Value</span>
                                 <div className="flex items-baseline gap-4">
-                                    <span className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-br from-gray-900 to-gray-600">฿{book.sellingPrice}</span>
+                                    <span className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-br from-gray-900 to-gray-600 flex items-center gap-3">{(book.sellingPrice || 0).toLocaleString()} <i className="bi bi-coin text-amber-400" style={{ fontSize: '40px' }} /></span>
                                     {hasDiscount && (
-                                        <span className="text-xl font-bold text-gray-300 line-through decoration-rose-400/50">฿{book.coverPrice}</span>
+                                        <span className="text-xl font-bold text-gray-300 line-through decoration-rose-400/50 flex items-center gap-1.5">{(book.coverPrice || 0).toLocaleString()} <i className="bi bi-coin" style={{ fontSize: '16px' }} /></span>
                                     )}
                                 </div>
                             </div>
                             <div className="text-right">
-                                <div className={`px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest ${book.stock > 0 ? 'bg-purple-100/50 text-purple-600 border border-purple-200/50' : 'bg-rose-100/50 text-rose-600 border border-rose-200/50'}`}>
+                                <div className={`px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest ${book.stock > 0 ? 'bg-emerald-100/50 text-emerald-600 border border-emerald-200/50' : 'bg-rose-100/50 text-rose-600 border border-rose-200/50'}`}>
                                     {book.stock > 0 ? `Stock: ${book.stock}` : 'OUT OF STOCK'}
                                 </div>
                             </div>
@@ -131,7 +131,7 @@ export default function BookDetail() {
                             onClick={() => addToCart(book)}
                             disabled={book.stock <= 0}
                             className={`w-full py-5 px-8 font-black text-lg rounded-[2.2rem] shadow-2xl transition-all transform active:scale-[0.98] flex items-center justify-center gap-3 ${book.stock > 0
-                                ? 'bg-gray-900 text-white hover:bg-purple-600 hover:shadow-purple-500/40 translate-y-0 hover:-translate-y-1'
+                                ? 'bg-gray-900 text-white hover:bg-emerald-600 hover:shadow-emerald-500/40 translate-y-0 hover:-translate-y-1'
                                 : 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none border border-gray-200'}`}
                         >
                             <ShoppingBag className="h-6 w-6" />
@@ -158,7 +158,7 @@ export default function BookDetail() {
                             { icon: RefreshCcw, text: "Authentic" }
                         ].map((item, idx) => (
                             <div key={idx} className="flex flex-col items-center gap-2 text-[9px] font-black text-gray-400 uppercase tracking-widest text-center">
-                                <div className="p-3 bg-purple-50 rounded-2xl text-purple-500 mb-1">
+                                <div className="p-3 bg-emerald-50 rounded-2xl text-emerald-500 mb-1">
                                     <item.icon size={18} />
                                 </div>
                                 <span>{item.text}</span>
@@ -169,12 +169,12 @@ export default function BookDetail() {
 
                 {/* 3. Review Section (lg:col-span-4) - RIGHT SIDE FUNCTION */}
                 <div className="lg:col-span-4 space-y-8">
-                    <div className="bg-white/40 backdrop-blur-xl p-8 rounded-[3rem] border border-white shadow-2xl shadow-purple-500/5 h-[800px] flex flex-col sticky top-24">
+                    <div className="bg-white/40 backdrop-blur-xl p-8 rounded-[3rem] border border-white shadow-2xl shadow-emerald-500/5 h-[800px] flex flex-col sticky top-24">
                         <div className="flex items-center justify-between mb-8">
                             <h2 className="text-2xl font-black text-gray-900 tracking-tight flex items-center gap-3">
-                                <MessageSquare className="text-purple-500" /> Reviews
+                                <MessageSquare className="text-emerald-500" /> Reviews
                             </h2>
-                            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 text-amber-600 rounded-xl border border-amber-100">
+                            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-xl border border-emerald-100">
                                 <Star size={14} fill="currentColor" />
                                 <span className="text-sm font-black">
                                     {reviews.length > 0
@@ -191,7 +191,7 @@ export default function BookDetail() {
                                     <div key={rev.id} className="bg-white/80 p-6 rounded-[2rem] border border-white shadow-sm transition-all hover:shadow-md group">
                                         <div className="flex justify-between items-start mb-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-full flex items-center justify-center text-purple-500">
+                                                <div className="w-10 h-10 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-full flex items-center justify-center text-emerald-500">
                                                     <User size={20} />
                                                 </div>
                                                 <div>
@@ -255,12 +255,12 @@ export default function BookDetail() {
                                     placeholder="Share your experience..."
                                     value={reviewComment || ''}
                                     onChange={(e) => setReviewComment(e.target.value)}
-                                    className="w-full bg-white/60 backdrop-blur-md border border-white focus:border-purple-300 rounded-[2rem] px-6 py-5 h-28 outline-none transition-all text-sm font-medium placeholder:text-gray-300 resize-none shadow-sm focus:shadow-purple-500/5 focus:bg-white"
+                                    className="w-full bg-white/60 backdrop-blur-md border border-white focus:border-emerald-300 rounded-[2rem] px-6 py-5 h-28 outline-none transition-all text-sm font-medium placeholder:text-gray-300 resize-none shadow-sm focus:shadow-emerald-500/5 focus:bg-white"
                                 />
                                 <button
                                     type="submit"
                                     disabled={isSubmitting || !reviewComment.trim()}
-                                    className={`absolute bottom-4 right-4 p-3 rounded-2xl transition-all ${isSubmitting || !reviewComment.trim() ? 'bg-gray-100 text-gray-300' : 'bg-purple-600 text-white hover:bg-purple-700 shadow-lg shadow-purple-500/20 active:scale-90'}`}
+                                    className={`absolute bottom-4 right-4 p-3 rounded-2xl transition-all ${isSubmitting || !reviewComment.trim() ? 'bg-gray-100 text-gray-300' : 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg shadow-emerald-500/20 active:scale-90'}`}
                                 >
                                     <Send size={18} className={isSubmitting ? 'animate-pulse' : ''} />
                                 </button>

@@ -1,5 +1,6 @@
 import { useBook } from "../../context/BookContext";
 
+
 export default function SidebarFilters() {
     const { filters, setFilters } = useBook();
 
@@ -19,7 +20,7 @@ export default function SidebarFilters() {
                         <li>
                             <button
                                 onClick={() => setFilters({ ...filters, category: "" })}
-                                className={`w-full text-left px-3 py-2 rounded-xl text-sm transition-all ${!filters.category ? 'bg-blue-50 text-blue-600 font-bold' : 'text-gray-500 hover:bg-gray-50'}`}
+                                className={`w-full text-left px-3 py-2 rounded-xl text-sm transition-all ${!filters.category ? 'bg-emerald-50 text-emerald-600 font-bold' : 'text-gray-500 hover:bg-gray-50'}`}
                             >
                                 ทั้งหมด
                             </button>
@@ -28,7 +29,7 @@ export default function SidebarFilters() {
                             <li key={cat}>
                                 <button
                                     onClick={() => setFilters({ ...filters, category: cat })}
-                                    className={`w-full text-left px-3 py-2 rounded-xl text-sm transition-all ${filters.category === cat ? 'bg-blue-50 text-blue-600 font-bold' : 'text-gray-500 hover:bg-gray-50'}`}
+                                    className={`w-full text-left px-3 py-2 rounded-xl text-sm transition-all ${filters.category === cat ? 'bg-emerald-50 text-emerald-600 font-bold' : 'text-gray-500 hover:bg-gray-50'}`}
                                 >
                                     {cat}
                                 </button>
@@ -41,7 +42,7 @@ export default function SidebarFilters() {
                 <div>
                     <div className="flex justify-between items-center mb-4">
                         <h3 className="text-sm font-black text-gray-900 uppercase tracking-wider">ช่วงราคา</h3>
-                        <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-lg">฿{filters.maxPrice}</span>
+                        <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg flex items-center gap-1">{(filters.maxPrice || 0).toLocaleString()} <i className="bi bi-coin" style={{ fontSize: '12px' }} /></span>
                     </div>
                     <input
                         type="range"
@@ -50,11 +51,11 @@ export default function SidebarFilters() {
                         step="50"
                         value={filters.maxPrice}
                         onChange={handlePriceChange}
-                        className="w-full h-1.5 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                        className="w-full h-1.5 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-emerald-600"
                     />
                     <div className="flex justify-between mt-2 text-[10px] font-bold text-gray-400">
-                        <span>฿0</span>
-                        <span>฿1,000+</span>
+                        <span className="flex items-center gap-1">0 <i className="bi bi-coin" style={{ fontSize: '8px' }} /></span>
+                        <span className="flex items-center gap-1">1,000+ <i className="bi bi-coin" style={{ fontSize: '8px' }} /></span>
                     </div>
                 </div>
 
@@ -77,11 +78,11 @@ export default function SidebarFilters() {
                                         onChange={() => setFilters({ ...filters, minCondition: cond.value })}
                                         className="sr-only"
                                     />
-                                    <div className={`w-5 h-5 rounded-full border-2 transition-all flex items-center justify-center ${filters.minCondition === cond.value ? 'border-blue-600 bg-blue-600' : 'border-gray-200 group-hover:border-blue-400'}`}>
+                                    <div className={`w-5 h-5 rounded-full border-2 transition-all flex items-center justify-center ${filters.minCondition === cond.value ? 'border-emerald-600 bg-emerald-600' : 'border-gray-200 group-hover:border-emerald-400'}`}>
                                         <div className={`w-2 h-2 rounded-full bg-white transition-all ${filters.minCondition === cond.value ? 'scale-100' : 'scale-0'}`} />
                                     </div>
                                 </div>
-                                <span className={`ml-3 text-sm transition-colors ${filters.minCondition === cond.value ? 'text-blue-600 font-bold' : 'text-gray-500 group-hover:text-gray-900'}`}>
+                                <span className={`ml-3 text-sm transition-colors ${filters.minCondition === cond.value ? 'text-emerald-600 font-bold' : 'text-gray-500 group-hover:text-gray-900'}`}>
                                     {cond.label}
                                 </span>
                             </label>

@@ -68,8 +68,8 @@ export default function AdminDashboard() {
         switch (status) {
             case 'available': return 'bg-green-100 text-green-700';
             case 'waiting': return 'bg-yellow-100 text-yellow-700';
-            case 'shipping': return 'bg-blue-100 text-blue-700';
-            case 'shipped': return 'bg-purple-100 text-purple-700';
+            case 'shipping': return 'bg-emerald-50 text-emerald-700';
+            case 'shipped': return 'bg-teal-100 text-teal-700';
             case 'sold_out': return 'bg-gray-100 text-gray-700';
             default: return 'bg-gray-100 text-gray-600';
         }
@@ -92,7 +92,7 @@ export default function AdminDashboard() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
                 <div>
                     <h1 className="text-4xl font-black text-gray-900 flex items-center gap-3">
-                        <Package className="h-10 w-10 text-blue-600" />
+                        <Package className="h-10 w-10 text-emerald-600" />
                         แผงควบคุมผู้ขาย
                     </h1>
                     <p className="text-gray-500 font-medium mt-2">จัดการรายละเอียดหนังสือและติดตามสถานะการจัดส่ง</p>
@@ -107,7 +107,7 @@ export default function AdminDashboard() {
                     </button>
                     <button
                         onClick={() => { setSelectedBook(null); setIsFormOpen(true); }}
-                        className="flex-[2] md:flex-none px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-black rounded-2xl shadow-xl shadow-blue-500/20 hover:shadow-blue-500/40 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
+                        className="flex-[2] md:flex-none px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-black rounded-2xl shadow-xl shadow-emerald-500/20 hover:shadow-emerald-500/40 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
                     >
                         <Plus className="h-5 w-5" /> ลงขายหนังสือใหม่
                     </button>
@@ -117,11 +117,11 @@ export default function AdminDashboard() {
             {/* toolbar */}
             <div className="mb-6 flex flex-col sm:flex-row gap-4">
                 <div className="relative flex-1 group">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={20} />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-emerald-500 transition-colors" size={20} />
                     <input
                         type="text"
                         placeholder="ค้นหาตามชื่อหนังสือ หรือผู้แต่ง..."
-                        className="w-full pl-12 pr-4 py-3 bg-white border border-gray-100 rounded-2xl shadow-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-medium"
+                        className="w-full pl-12 pr-4 py-3 bg-white border border-gray-100 rounded-2xl shadow-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all font-medium"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -135,7 +135,7 @@ export default function AdminDashboard() {
                         <thead className="bg-gray-50/50">
                             <tr>
                                 <th className="px-8 py-5 text-left text-xs font-black text-gray-400 uppercase tracking-[0.2em]">ข้อมูลหนังสือ</th>
-                                <th className="px-8 py-5 text-left text-xs font-black text-gray-400 uppercase tracking-[0.2em]">ราคา (ลดจาก)</th>
+                                <th className="px-8 py-5 text-left text-xs font-black text-gray-400 uppercase tracking-[0.2em] flex items-center gap-1">ราคา (<i className="bi bi-coin" style={{ fontSize: '8px' }} />)</th>
                                 <th className="px-8 py-5 text-left text-xs font-black text-gray-400 uppercase tracking-[0.2em]">คลัง</th>
                                 <th className="px-8 py-5 text-left text-xs font-black text-gray-400 uppercase tracking-[0.2em]">สถานะ</th>
                                 <th className="px-8 py-5 text-right text-xs font-black text-gray-400 uppercase tracking-[0.2em]">จัดการ</th>
@@ -168,15 +168,15 @@ export default function AdminDashboard() {
                                                 <div className="min-w-0">
                                                     <div className="text-sm font-black text-gray-900 truncate w-48">{book.title}</div>
                                                     <div className="text-xs font-bold text-gray-400 mt-0.5">{book.author} · {book.category}</div>
-                                                    <div className="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tight">{book.condition}</div>
+                                                    <div className="text-[10px] text-emerald-500 font-bold mt-1 uppercase tracking-tight">{book.condition}</div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="px-8 py-6 whitespace-nowrap">
                                             <div className="flex flex-col">
-                                                <span className="text-sm font-black text-gray-900">฿{book.price}</span>
+                                                <span className="text-sm font-black text-gray-900 flex items-center gap-1">{(book.price || 0).toLocaleString()} <i className="bi bi-coin" style={{ fontSize: '14px' }} /></span>
                                                 {book.originalPrice > book.price && (
-                                                    <span className="text-[10px] text-gray-300 line-through">฿{book.originalPrice}</span>
+                                                    <span className="text-[10px] text-gray-300 line-through flex items-center gap-1">{(book.originalPrice || 0).toLocaleString()} <i className="bi bi-coin" style={{ fontSize: '10px' }} /></span>
                                                 )}
                                             </div>
                                         </td>
@@ -194,7 +194,7 @@ export default function AdminDashboard() {
                                             <div className="flex justify-end gap-2">
                                                 <button
                                                     onClick={() => handleEdit(book)}
-                                                    className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
+                                                    className="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all"
                                                 >
                                                     <Edit size={18} />
                                                 </button>

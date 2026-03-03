@@ -167,14 +167,14 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header: ลด Padding */}
-                <div className="px-6 py-4 bg-gradient-to-br from-pink-600 to-purple-900 to-indigo-600 text-white flex justify-between items-center shrink-0 shadow-md z-10">
+                <div className="px-6 py-4 bg-gradient-to-br from-emerald-600 to-teal-700 to-teal-900 text-white flex justify-between items-center shrink-0 shadow-md z-10">
                     <div className="flex items-center gap-3">
                         <div className="bg-white/20 p-2 rounded-xl backdrop-blur-sm border border-white/20 shadow-inner">
                             <Plus size={20} />
                         </div>
                         <div>
                             <h2 className="text-lg font-bold tracking-tight">{initialData ? 'แก้ไขข้อมูล' : 'ลงขายหนังสือ'}</h2>
-                            <p className="text-[10px] font-medium text-pink-100 opacity-80 uppercase tracking-widest">Book Selling System</p>
+                            <p className="text-[10px] font-medium text-emerald-100 opacity-80 uppercase tracking-widest">Book Selling System</p>
                         </div>
                     </div>
                     <button
@@ -192,7 +192,7 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
                     <div className="space-y-2">
                         <div className="flex items-center justify-between">
                             <label className="flex items-center gap-2 text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-                                <ImageIcon size={14} className="text-purple-500" /> รูปภาพ ({formData.images.length}/5)
+                                <ImageIcon size={14} className="text-emerald-500" /> รูปภาพ ({formData.images.length}/5)
                             </label>
                         </div>
 
@@ -201,17 +201,17 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
                             {/* Upload Button */}
                             <div
                                 onClick={() => fileInputRef.current?.click()}
-                                className="w-24 h-full border-2 border-dashed border-pink-200 rounded-xl hover:border-purple-400 hover:scale-102   hover:bg-gradient-to-br hover:from-pink-50 hover:to-purple-50 transition-all duration-300 cursor-pointer flex flex-col items-center justify-center gap-1 bg-white shrink-0 group/upload"
+                                className="w-24 h-full border-2 border-dashed border-emerald-200 rounded-xl hover:border-emerald-400 hover:scale-102   hover:bg-gradient-to-br hover:from-emerald-50 hover:to-teal-50 transition-all duration-300 cursor-pointer flex flex-col items-center justify-center gap-1 bg-white shrink-0 group/upload"
                             >
-                                <UploadCloud size={20} className="text-pink-300 group-hover/upload:text-purple-500 transition-colors duration-300" />
-                                <span className="text-[10px] font-bold text-gray-400 group-hover/upload:text-purple-600 transition-colors duration-300">เลือกไฟล์</span>
+                                <UploadCloud size={20} className="text-emerald-300 group-hover/upload:text-emerald-500 transition-colors duration-300" />
+                                <span className="text-[10px] font-bold text-gray-400 group-hover/upload:text-emerald-600 transition-colors duration-300">เลือกไฟล์</span>
                                 <input type="file" ref={fileInputRef} className="hidden" onChange={handleImageUpload} accept="image/*" multiple />
                             </div>
 
                             {/* Preview List (Horizontal Scroll) */}
                             <div className="flex-1 flex gap-2 overflow-x-auto items-center pr-2 custom-scrollbar">
                                 {formData.images.map((url, index) => (
-                                    <div key={index} className="relative w-20 h-full flex-shrink-0 rounded-xl overflow-hidden group border border-purple-100 shadow-sm">
+                                    <div key={index} className="relative w-20 h-full flex-shrink-0 rounded-xl overflow-hidden group border border-emerald-100 shadow-sm">
                                         <img src={url} alt="Preview" className="w-full h-full object-cover" />
                                         <button
                                             type="button"
@@ -220,7 +220,7 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
                                         >
                                             <Trash2 size={10} />
                                         </button>
-                                        {index === 0 && <div className="absolute bottom-0 inset-x-0 bg-purple-600/80 text-[8px] text-white text-center py-0.5">ปก</div>}
+                                        {index === 0 && <div className="absolute bottom-0 inset-x-0 bg-emerald-600/80 text-[8px] text-white text-center py-0.5">ปก</div>}
                                     </div>
                                 ))}
                                 {/* URL Input (ถ้าไม่มีรูป ให้โชว์ช่องนี้ใหญ่หน่อย แต่ถ้ามีรูปแล้วให้ต่อท้าย) */}
@@ -229,11 +229,11 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
                                         <input
                                             type="url"
                                             placeholder="หรือ URL..."
-                                            className="w-full px-3 py-1.5 bg-white border border-purple-200 rounded-lg text-xs outline-none focus:border-purple-500"
+                                            className="w-full px-3 py-1.5 bg-white border border-emerald-200 rounded-lg text-xs outline-none focus:border-emerald-500"
                                             value={imageUrlInput}
                                             onChange={(e) => setImageUrlInput(e.target.value)}
                                         />
-                                        <button type="button" onClick={handleAddImage} className="bg-purple-100 text-purple-600 p-1.5 rounded-lg hover:bg-purple-200">
+                                        <button type="button" onClick={handleAddImage} className="bg-emerald-100 text-emerald-600 p-1.5 rounded-lg hover:bg-emerald-200">
                                             <Plus size={14} />
                                         </button>
                                     </div>
@@ -249,7 +249,7 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
                             <input
                                 required
                                 type="text"
-                                className="w-full px-4 py-2.5 bg-white border border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-700/15 focus:border-purple-700 outline-none transition-all text-sm font-semibold text-gray-700"
+                                className="w-full px-4 py-2.5 bg-white border border-emerald-200 rounded-xl focus:ring-2 focus:ring-emerald-700/15 focus:border-emerald-700 outline-none transition-all text-sm font-semibold text-gray-700"
                                 placeholder="ระบุชื่อ..."
                                 value={formData.title}
                                 onChange={e => setFormData({ ...formData, title: e.target.value })}
@@ -260,7 +260,7 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
                             <input
                                 required
                                 type="text"
-                                className="w-full px-4 py-2.5 bg-white border border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-700/15 focus:border-purple-700 outline-none transition-all text-sm font-semibold text-gray-700"
+                                className="w-full px-4 py-2.5 bg-white border border-emerald-200 rounded-xl focus:ring-2 focus:ring-emerald-700/15 focus:border-emerald-700 outline-none transition-all text-sm font-semibold text-gray-700"
                                 placeholder="ระบุผู้แต่ง..."
                                 value={formData.author}
                                 onChange={e => setFormData({ ...formData, author: e.target.value })}
@@ -270,7 +270,7 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
                             <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider ml-1">ISBN</label>
                             <input
                                 type="text"
-                                className="w-full px-4 py-2.5 bg-white border border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-700/15 focus:border-purple-700 outline-none transition-all text-sm font-semibold text-gray-700"
+                                className="w-full px-4 py-2.5 bg-white border border-emerald-200 rounded-xl focus:ring-2 focus:ring-emerald-700/15 focus:border-emerald-700 outline-none transition-all text-sm font-semibold text-gray-700"
                                 placeholder="เลข ISBN..."
                                 value={formData.isbn}
                                 onChange={e => setFormData({ ...formData, isbn: e.target.value })}
@@ -288,8 +288,8 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
                                     type="button"
                                     onClick={() => selectCategory(cat)}
                                     className={`px-3 py-1.5 text-[11px] font-bold rounded-lg border transition-all flex items-center gap-1.5 ${formData.category === cat
-                                        ? 'bg-purple-600 border-purple-600 text-white shadow-md shadow-purple-500/20'
-                                        : 'bg-white border-gray-200 text-gray-500 hover:border-purple-300 hover:bg-purple-50'
+                                        ? 'bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-500/20'
+                                        : 'bg-white border-gray-200 text-gray-500 hover:border-emerald-300 hover:bg-emerald-50'
                                         }`}
                                 >
                                     {formData.category === cat && <Check size={10} />}
@@ -302,21 +302,21 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
                     {/* Price & Condition */}
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1.5">
-                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider ml-1">ราคาปก (บาท)</label>
+                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider ml-1 flex items-center gap-1">ราคาปก (<i className="bi bi-coin" style={{ fontSize: '8px' }} />)</label>
                             <input
                                 type="number"
-                                className="w-full px-4 py-2.5 bg-white border border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-700/15 focus:border-purple-700 outline-none transition-all text-sm font-bold text-gray-500 line-through"
+                                className="w-full px-4 py-2.5 bg-white border border-emerald-200 rounded-xl focus:ring-2 focus:ring-emerald-700/15 focus:border-emerald-700 outline-none transition-all text-sm font-bold text-gray-500 line-through"
                                 placeholder="0"
                                 value={formData.coverPrice}
                                 onChange={e => setFormData({ ...formData, coverPrice: Number(e.target.value) })}
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider ml-1">ราคาขาย (บาท) *</label>
+                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider ml-1 flex items-center gap-1">ราคาขาย (<i className="bi bi-coin" style={{ fontSize: '8px' }} />) *</label>
                             <input
                                 required
                                 type="number"
-                                className="w-full px-4 py-2.5 bg-white border border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-700/15 focus:border-purple-700 outline-none transition-all text-sm font-bold text-purple-600"
+                                className="w-full px-4 py-2.5 bg-white border border-emerald-200 rounded-xl focus:ring-2 focus:ring-emerald-700/15 focus:border-emerald-700 outline-none transition-all text-sm font-bold text-emerald-600"
                                 placeholder="0"
                                 value={formData.sellingPrice}
                                 onChange={e => setFormData({ ...formData, sellingPrice: Number(e.target.value) })}
@@ -332,14 +332,14 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
                                 <button
                                     type="button"
                                     onClick={() => setShowConditionMenu(!showConditionMenu)}
-                                    className="w-full px-4 py-2.5 bg-white border border-purple-200 rounded-xl flex items-center justify-between focus:ring-2 focus:ring-purple-700/15 focus:border-purple-700 outline-none transition-all text-sm font-semibold text-gray-700"
+                                    className="w-full px-4 py-2.5 bg-white border border-emerald-200 rounded-xl flex items-center justify-between focus:ring-2 focus:ring-emerald-700/15 focus:border-emerald-700 outline-none transition-all text-sm font-semibold text-gray-700"
                                 >
                                     <span>{formData.condition}</span>
-                                    <ChevronDown className={`transition-transform duration-300 ${showConditionMenu ? 'rotate-180' : ''} text-purple-400`} size={14} />
+                                    <ChevronDown className={`transition-transform duration-300 ${showConditionMenu ? 'rotate-180' : ''} text-emerald-400`} size={14} />
                                 </button>
 
                                 {showConditionMenu && (
-                                    <div className="absolute top-full left-0 mt-2 w-full bg-gradient-to-br from-purple-600 to-indigo-700 rounded-2xl shadow-2xl border border-purple-400/20 py-2 z-[110] animate-popup overflow-hidden">
+                                    <div className="absolute top-full left-0 mt-2 w-full bg-gradient-to-br from-emerald-600 to-teal-700 rounded-2xl shadow-2xl border border-emerald-400/20 py-2 z-[110] animate-popup overflow-hidden">
                                         {conditions.map(cond => (
                                             <button
                                                 key={cond}
@@ -350,7 +350,7 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
                                                 }}
                                                 className={`w-full text-left px-6 py-3 text-[11px] font-bold uppercase tracking-widest transition-all ${formData.condition === cond
                                                     ? 'bg-white/20 text-white'
-                                                    : 'text-purple-50 hover:bg-white/10 hover:text-white'
+                                                    : 'text-emerald-50 hover:bg-white/10 hover:text-white'
                                                     }`}
                                             >
                                                 {cond}
@@ -370,7 +370,7 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
                                 required
                                 type="number"
                                 min="1"
-                                className="w-full px-2 py-2.5 text-center bg-white border border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-700/15 focus:border-purple-700 outline-none transition-all text-sm font-bold text-gray-700"
+                                className="w-full px-2 py-2.5 text-center bg-white border border-emerald-200 rounded-xl focus:ring-2 focus:ring-emerald-700/15 focus:border-emerald-700 outline-none transition-all text-sm font-bold text-gray-700"
                                 value={formData.stock}
                                 onChange={e => setFormData({ ...formData, stock: Number(e.target.value) })}
                             />
@@ -378,7 +378,7 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
                         <div className="space-y-1.5 col-span-3">
                             <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider ml-1">รายละเอียด/ตำหนิ</label>
                             <textarea
-                                className="w-full px-4 py-2.5 bg-white border border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-700/15 focus:border-purple-700 outline-none transition-all min-h-[60px] text-sm text-gray-600 resize-none"
+                                className="w-full px-4 py-2.5 bg-white border border-emerald-200 rounded-xl focus:ring-2 focus:ring-emerald-700/15 focus:border-emerald-700 outline-none transition-all min-h-[60px] text-sm text-gray-600 resize-none"
                                 placeholder="เช่น มีรอยพับที่ปกหลัง..."
                                 value={formData.description}
                                 onChange={e => setFormData({ ...formData, description: e.target.value })}
@@ -388,9 +388,9 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
 
                     {/* Submit Button */}
                     <button
-                        className="relative group w-full py-3.5 bg-purple-900 text-white font-bold text-sm uppercase tracking-widest rounded-xl hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-250 flex items-center justify-center gap-2 mt-2 overflow-hidden"
+                        className="relative group w-full py-3.5 bg-emerald-900 text-white font-bold text-sm uppercase tracking-widest rounded-xl hover:shadow-lg hover:shadow-emerald-500/30 transition-all duration-250 flex items-center justify-center gap-2 mt-2 overflow-hidden"
                     >
-                        <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-250" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-teal-600 opacity-0 group-hover:opacity-100 transition-opacity duration-250" />
                         <div className="relative z-10 flex items-center justify-center gap-2">
                             <span>{initialData ? 'บันทึกการแก้ไข' : 'ลงขาย'}</span>
                             <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform duration-300" />

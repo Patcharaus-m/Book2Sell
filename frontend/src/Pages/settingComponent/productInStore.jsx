@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { BookOpen, Edit2, Trash2, X, AlertOctagon, Save, Image, DollarSign, Package, FileText, Tag, Loader2, Upload } from "lucide-react";
+import { BookOpen, Edit2, Trash2, X, AlertOctagon, Save, Image, DollarSign, Package, FileText, Tag, Loader2, Upload, ShoppingCart, Info, CheckCircle, MessageCircle, Star, User } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useBook } from "../../context/BookContext";
 import { getBooksBySellerId, updateBookService } from "../../services/bookService";
@@ -13,6 +13,7 @@ export default function ProductInStore() {
     const [itemToEdit, setItemToEdit] = useState(null);
     const [editForm, setEditForm] = useState({});
     const [isSaving, setIsSaving] = useState(false);
+    const [statusFilter, setStatusFilter] = useState('all'); // 'all' | 'available' | 'sold' | 'closed'
     const fileInputRef = useRef(null);
 
     // ดึงหนังสือของ user นี้จาก API
@@ -66,7 +67,7 @@ export default function ProductInStore() {
         if (result.code === 200 || result.code === 201 || result.status === 2001) {
             // Refetch ข้อมูลล่าสุดจาก Backend เพื่อความชัวร์ (สำหรับหน้านี้)
             await fetchMyBooks();
-            
+
             // อัปเดตข้อมูล Global Context (สำหรับหน้าหลัก)
             if (refreshBooks) {
                 refreshBooks();
@@ -116,104 +117,142 @@ export default function ProductInStore() {
 
     const conditionOptions = ['มือหนึ่ง', 'สภาพ 90%', 'สภาพ 80%', 'สภาพดี', 'มีตำหนิเล็กน้อย'];
 
+    // Status helpers
+    const getStatusInfo = (product) => {
+        const s = product.status || (product.stock > 0 ? 'available' : 'sold');
+        if (s === 'sold') return { label: 'ขายแล้ว', color: 'bg-red-500 text-white', dot: 'bg-red-400' };
+        if (s === 'closed') return { label: 'ปิดการขาย', color: 'bg-gray-400 text-white', dot: 'bg-gray-300' };
+        return { label: 'ขายอยู่', color: 'bg-emerald-500 text-white', dot: 'bg-emerald-400' };
+    };
+
+    const counts = {
+        all: userProducts.length,
+        available: userProducts.filter(p => (p.status || 'available') === 'available').length,
+        sold: userProducts.filter(p => p.status === 'sold').length,
+        closed: userProducts.filter(p => p.status === 'closed').length,
+    };
+
+    const filteredProducts = statusFilter === 'all'
+        ? userProducts
+        : userProducts.filter(p => (p.status || 'available') === statusFilter);
+
     return (
         <div className="relative min-h-screen">
-            <div className="mb-10 animate-in slide-in-from-top-4 duration-700 fade-in">
-                <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500 tracking-tight mb-2">สินค้าในร้าน</h1>
+            <div className="mb-8 animate-in slide-in-from-top-4 duration-700 fade-in">
+                <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500 tracking-tight mb-2">สินค้าในร้าน</h1>
                 <p className="text-gray-500 italic flex items-center gap-2">
-                    <span className="w-8 h-1 bg-gradient-to-r from-purple-400 to-pink-300 rounded-full"></span>
+                    <span className="w-8 h-1 bg-gradient-to-r from-emerald-400 to-teal-300 rounded-full"></span>
                     จัดการหนังสือที่คุณลงขาย
                 </p>
+                {!loading && userProducts.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-5">
+                        {[
+                            ['all', 'ทั้งหมด', 'bg-gray-900 text-white'],
+                            ['available', 'ขายอยู่', 'bg-emerald-500 text-white'],
+                            ['sold', 'ขายแล้ว', 'bg-red-500 text-white'],
+                            ['closed', 'ปิดการขาย', 'bg-gray-400 text-white'],
+                        ].map(([key, label, activeClass]) => (
+                            <button key={key}
+                                onClick={() => setStatusFilter(key)}
+                                className={`px-4 py-2 rounded-2xl text-xs font-black transition-all duration-300 flex items-center gap-2 ${statusFilter === key
+                                        ? activeClass + ' shadow-lg scale-105'
+                                        : 'bg-white/60 text-gray-500 border border-gray-100 hover:border-emerald-200 hover:text-emerald-600'
+                                    }`}>
+                                {label}
+                                <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-black ${statusFilter === key ? 'bg-white/25' : 'bg-gray-100'}`}>
+                                    {counts[key]}
+                                </span>
+                            </button>
+                        ))}
+                    </div>
+                )}
             </div>
+
 
             {loading ? (
                 <div className="text-center py-20 animate-pulse">
-                    <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
+                    <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
                     </div>
                     <p className="text-gray-400 font-medium">กำลังโหลดข้อมูล...</p>
                 </div>
-            ) : userProducts.length > 0 ? (
+            ) : filteredProducts.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                    {userProducts.map((product, idx) => (
-                        <div
-                            key={product._id || product.id}
-                            style={{ animationDelay: `${idx * 100}ms` }}
-                            className="group relative bg-white/40 backdrop-blur-xl border border-white/60 rounded-[2.5rem] p-5 shadow-xl shadow-purple-100/20 hover:shadow-2xl hover:shadow-purple-200/50 hover:-translate-y-2 transition-all duration-500 overflow-hidden animate-in fade-in zoom-in-95 fill-mode-backwards"
-                        >
-                            {/* Glass background decoration */}
-                            <div className="absolute -top-20 -right-20 w-40 h-40 bg-purple-200/30 rounded-full blur-3xl group-hover:bg-purple-300/40 transition-all duration-700" />
-                            <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-pink-200/30 rounded-full blur-3xl group-hover:bg-pink-300/40 transition-all duration-700" />
+                    {filteredProducts.map((product, idx) => {
+                        const statusInfo = getStatusInfo(product);
+                        const isSold = product.status === 'sold';
+                        const isClosed = product.status === 'closed';
+                        const isDimmed = isSold || isClosed;
+                        return (
+                            <div
+                                key={product._id || product.id}
+                                style={{ animationDelay: `${idx * 100}ms` }}
+                                className={`group relative bg-white/40 backdrop-blur-xl border border-white/60 rounded-[2.5rem] p-5 shadow-xl shadow-emerald-100/20 hover:shadow-2xl hover:shadow-emerald-200/50 hover:-translate-y-2 transition-all duration-500 overflow-hidden animate-in fade-in zoom-in-95 fill-mode-backwards ${isDimmed ? 'opacity-70 saturate-50 hover:opacity-90 hover:saturate-75' : ''
+                                    }`}
+                            >
+                                {/* Glass background decoration */}
+                                <div className="absolute -top-20 -right-20 w-40 h-40 bg-emerald-200/30 rounded-full blur-3xl group-hover:bg-emerald-300/40 transition-all duration-700" />
+                                <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-teal-200/30 rounded-full blur-3xl group-hover:bg-teal-300/40 transition-all duration-700" />
 
-                            <div className="relative z-10">
-                                <div className="aspect-[3/4] overflow-hidden rounded-[2rem] mb-5 bg-gray-50 border border-white/40 shadow-inner group-hover:shadow-lg transition-all duration-500 relative">
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
-                                    <img
-                                        src={product.image || (product.images && product.images[0])}
-                                        alt={product.title}
-                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                    />
-                                    {/* Quick Status Tag */}
-                                    <div className="absolute top-3 left-3 z-20">
-                                        <span className={`px-3 py-1 backdrop-blur-md rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${
-                                            product.status === 'sold' 
-                                                ? 'bg-red-500/90 text-white' 
-                                                : product.status === 'closed'
-                                                    ? 'bg-gray-500/90 text-white'
-                                                    : 'bg-white/90 text-purple-600'
-                                        }`}>
-                                            {product.status === 'sold' 
-                                                ? 'ขายแล้ว' 
-                                                : product.status === 'closed'
-                                                    ? 'ปิดการขาย'
-                                                    : product.stock > 0 ? 'Available' : 'Out of Stock'}
-                                        </span>
-                                    </div>
-                                    {/* Sold overlay */}
-                                    {product.status === 'sold' && (
-                                        <div className="absolute inset-0 bg-black/30 z-10 flex items-center justify-center">
-                                            <span className="text-white font-black text-lg bg-red-500/80 px-4 py-2 rounded-xl shadow-lg">ขายแล้ว</span>
+                                <div className="relative z-10">
+                                    <div className="aspect-[3/4] overflow-hidden rounded-[2rem] mb-5 bg-gray-50 border border-white/40 shadow-inner group-hover:shadow-lg transition-all duration-500 relative">
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
+                                        <img
+                                            src={product.image || (product.images && product.images[0])}
+                                            alt={product.title}
+                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                        />
+                                        {/* Rich Status Badge */}
+                                        <div className="absolute top-3 left-3 z-20">
+                                            <span className={`flex items-center gap-1.5 px-3 py-1.5 ${statusInfo.color} backdrop-blur-md rounded-full text-[10px] font-black uppercase tracking-widest shadow-md`}>
+                                                <span className={`w-1.5 h-1.5 rounded-full ${statusInfo.dot} bg-white/50 animate-pulse`} />
+                                                {statusInfo.label}
+                                            </span>
                                         </div>
-                                    )}
-                                </div>
-                                <h3 className="font-black text-gray-900 truncate mb-1 text-lg px-2 group-hover:text-purple-600 transition-colors">{product.title}</h3>
-                                <p className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500 font-black text-xl mb-6 px-2">฿{product.sellingPrice?.toLocaleString()}</p>
-
-                                {product.status === 'sold' ? (
-                                    <div className="flex gap-3">
-                                        <div className="flex-1 py-3 bg-gray-100/60 backdrop-blur-md text-gray-400 font-bold rounded-2xl border border-gray-200 flex items-center justify-center gap-2 cursor-not-allowed">
-                                            <span>ขายแล้ว - ไม่สามารถแก้ไขได้</span>
+                                        {/* Stock count - top right */}
+                                        <div className="absolute top-3 right-3 z-20">
+                                            <span className="flex items-center gap-1 px-2.5 py-1 bg-black/40 backdrop-blur-md rounded-full text-[10px] font-black text-white/90">
+                                                <Package size={9} /> {product.stock || 0}
+                                            </span>
                                         </div>
                                     </div>
-                                ) : (
+                                    <h3 className="font-black text-gray-900 truncate mb-0.5 text-lg px-2 group-hover:text-emerald-600 transition-colors">{product.title}</h3>
+                                    <p className="text-xs text-gray-400 font-bold px-2 mb-1 truncate">{product.author}</p>
+                                    <p className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500 font-black text-xl mb-4 px-2 flex items-center gap-2">{(product.sellingPrice || 0).toLocaleString()} <i className="bi bi-coin text-emerald-500" /></p>
+
                                     <div className="flex gap-3">
                                         <button
-                                            onClick={() => handleOpenEdit(product)}
-                                            className="flex-1 py-3 bg-white/60 backdrop-blur-md text-gray-600 font-bold rounded-2xl border border-white/60 hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 hover:text-white hover:border-transparent transition-all shadow-sm hover:shadow-purple-200 hover:shadow-lg flex items-center justify-center gap-2 group/edit relative overflow-hidden
-                                            active:scale-75 hover:scale-95 transition-all duration-300"
+                                            onClick={() => !isDimmed && handleOpenEdit(product)}
+                                            disabled={isDimmed}
+                                            className={`flex-1 py-3 font-bold rounded-2xl border flex items-center justify-center gap-2 relative overflow-hidden transition-all duration-300 ${isDimmed
+                                                ? 'bg-gray-100 text-gray-300 border-gray-100 cursor-not-allowed'
+                                                : 'bg-white/60 backdrop-blur-md text-gray-600 border-white/60 hover:bg-gradient-to-r hover:from-emerald-500 hover:to-teal-500 hover:text-white hover:border-transparent shadow-sm hover:shadow-emerald-200 hover:shadow-lg active:scale-75 hover:scale-95'
+                                                }`}
                                         >
-                                            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-                                            <Edit2 size={16} className="relative z-10 group-hover:text-white transition-colors" />
-                                            <span className="relative z-10">แก้ไข</span>
+                                            <Edit2 size={16} />
+                                            <span>แก้ไข</span>
                                         </button>
                                         <button
                                             onClick={() => setItemToDelete(product)}
                                             className="w-14 h-14 bg-red-50/50 backdrop-blur-sm text-red-500 font-bold rounded-2xl border border-red-100 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all flex items-center justify-center shadow-sm hover:shadow-red-200 group/btn"
                                         >
-                                            <Trash2 size={20} className="group-hover/btn:scale-110 group-hover/btn:rotate-12 transition-all duration-300 active:rotate-360" />
+                                            <Trash2 size={20} className="group-hover/btn:scale-110 group-hover/btn:rotate-12 transition-all duration-300" />
                                         </button>
                                     </div>
-                                )}
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             ) : (
-                <div className="text-center py-32 bg-white/40 backdrop-blur-lg rounded-[3rem] border border-white/50 shadow-sm border-dashed border-purple-100/50 animate-in fade-in zoom-in-95 duration-500">
-                    <div className="w-24 h-24 bg-gradient-to-br from-purple-100 to-pink-50 rounded-full flex items-center justify-center mx-auto mb-6 shadow-purple-100/50 shadow-lg">
-                        <BookOpen size={40} className="text-purple-300" />
+                // Empty state
+                <div className="text-center py-32 bg-white/40 backdrop-blur-lg rounded-[3rem] border border-white/50 shadow-sm border-dashed border-emerald-100/50 animate-in fade-in zoom-in-95 duration-500">
+                    <div className="w-24 h-24 bg-gradient-to-br from-emerald-100 to-teal-50 rounded-full flex items-center justify-center mx-auto mb-6 shadow-emerald-100/50 shadow-lg">
+                        <BookOpen size={40} className="text-emerald-300" />
                     </div>
-                    <h3 className="text-2xl font-black text-gray-900 mb-2">ยังไม่มีหนังสือในชั้น</h3>
+                    <h3 className="text-2xl font-black text-gray-900 mb-2">
+                        {statusFilter === 'all' ? 'ยังไม่มีหนังสือในชั้น' : `ไม่มีหนังสือในสถานะ "${statusFilter === 'available' ? 'ขายอยู่' : statusFilter === 'sold' ? 'ขายแล้ว' : 'ปิดการขาย'}"`}
+                    </h3>
                     <p className="text-gray-500 max-w-xs mx-auto mb-8">เริ่มลงขายหนังสือเล่มแรกของคุณและสร้างรายได้!</p>
                 </div>
             )}
@@ -222,14 +261,14 @@ export default function ProductInStore() {
             {itemToEdit && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
                     <div
-                        className="absolute inset-0 bg-purple-900/20 backdrop-blur-sm animate-in fade-in duration-500"
+                        className="absolute inset-0 bg-emerald-900/20 backdrop-blur-sm animate-in fade-in duration-500"
                         onClick={() => setItemToEdit(null)}
                     />
 
-                    <div className="relative w-full max-w-3xl bg-white/95 backdrop-blur-3xl border border-white/60 rounded-[2.5rem] p-6 shadow-2xl shadow-purple-500/20 animate-in zoom-in-95 spring-bounce-30 duration-500">
+                    <div className="relative w-full max-w-3xl bg-white/95 backdrop-blur-3xl border border-white/60 rounded-[2.5rem] p-6 shadow-2xl shadow-emerald-500/20 animate-in zoom-in-95 spring-bounce-30 duration-500">
                         {/* Decorative Blob */}
-                        <div className="absolute -top-10 -right-10 w-48 h-48 bg-purple-200/20 rounded-full blur-3xl pointer-events-none" />
-                        <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-pink-200/20 rounded-full blur-3xl pointer-events-none" />
+                        <div className="absolute -top-10 -right-10 w-48 h-48 bg-emerald-200/20 rounded-full blur-3xl pointer-events-none" />
+                        <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-teal-200/20 rounded-full blur-3xl pointer-events-none" />
 
                         <button
                             onClick={() => setItemToEdit(null)}
@@ -241,21 +280,21 @@ export default function ProductInStore() {
                         </button>
 
                         <div className="mb-6 relative z-10 text-center md:text-left">
-                            <h2 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500 tracking-tight">แก้ไขข้อมูลหนังสือ</h2>
+                            <h2 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500 tracking-tight">แก้ไขข้อมูลหนังสือ</h2>
                             <p className="text-gray-400 text-xs font-bold mt-0.5 uppercase tracking-wider">Product Update</p>
                         </div>
 
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-4 relative z-10">
                             {/* Title */}
                             <div className="col-span-2 md:col-span-3 group">
-                                <label className="text-[9px] font-black text-purple-400 uppercase tracking-widest mb-1.5 block group-focus-within:text-purple-600 transition-colors">ชื่อหนังสือ</label>
+                                <label className="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-1.5 block group-focus-within:text-emerald-600 transition-colors">ชื่อหนังสือ</label>
                                 <div className="relative transform transition-all duration-300 group-focus-within:scale-[1.005]">
-                                    <BookOpen size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-purple-500 transition-colors" />
+                                    <BookOpen size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-emerald-500 transition-colors" />
                                     <input
                                         type="text"
                                         value={editForm.title}
                                         onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
-                                        className="w-full pl-10 pr-4 py-3 bg-white/50 border-2 border-purple-50 rounded-xl text-sm font-bold text-gray-800 focus:outline-none focus:border-purple-200 focus:bg-white focus:shadow-md focus:shadow-purple-100/30 transition-all placeholder:text-gray-200"
+                                        className="w-full pl-10 pr-4 py-3 bg-white/50 border-2 border-emerald-50 rounded-xl text-sm font-bold text-gray-800 focus:outline-none focus:border-emerald-200 focus:bg-white focus:shadow-md focus:shadow-emerald-100/30 transition-all placeholder:text-gray-200"
                                         placeholder="ชื่อหนังสือ"
                                     />
                                 </div>
@@ -263,26 +302,26 @@ export default function ProductInStore() {
 
                             {/* Author */}
                             <div className="col-span-1 group">
-                                <label className="text-[9px] font-black text-purple-400 uppercase tracking-widest mb-1.5 block group-focus-within:text-purple-600 transition-colors">ผู้แต่ง</label>
+                                <label className="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-1.5 block group-focus-within:text-emerald-600 transition-colors">ผู้แต่ง</label>
                                 <input
                                     type="text"
                                     value={editForm.author}
                                     onChange={(e) => setEditForm({ ...editForm, author: e.target.value })}
-                                    className="w-full px-4 py-3 bg-white/50 border-2 border-purple-50 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:border-purple-200 focus:bg-white focus:shadow-md focus:shadow-purple-100/30 transition-all placeholder:text-gray-200 transform group-focus-within:scale-[1.005]"
+                                    className="w-full px-4 py-3 bg-white/50 border-2 border-emerald-50 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:border-emerald-200 focus:bg-white focus:shadow-md focus:shadow-emerald-100/30 transition-all placeholder:text-gray-200 transform group-focus-within:scale-[1.005]"
                                     placeholder="ชื่อผู้แต่ง"
                                 />
                             </div>
 
                             {/* Category */}
                             <div className="col-span-1 group">
-                                <label className="text-[9px] font-black text-purple-400 uppercase tracking-widest mb-1.5 block group-focus-within:text-purple-600 transition-colors">หมวดหมู่</label>
+                                <label className="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-1.5 block group-focus-within:text-emerald-600 transition-colors">หมวดหมู่</label>
                                 <div className="relative transform transition-all duration-300 group-focus-within:scale-[1.005]">
-                                    <Tag size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-purple-500 transition-colors" />
+                                    <Tag size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-emerald-500 transition-colors" />
                                     <input
                                         type="text"
                                         value={editForm.category}
                                         onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
-                                        className="w-full pl-10 pr-4 py-3 bg-white/50 border-2 border-purple-50 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:border-purple-200 focus:bg-white focus:shadow-md focus:shadow-purple-100/30 transition-all placeholder:text-gray-200"
+                                        className="w-full pl-10 pr-4 py-3 bg-white/50 border-2 border-emerald-50 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:border-emerald-200 focus:bg-white focus:shadow-md focus:shadow-emerald-100/30 transition-all placeholder:text-gray-200"
                                         placeholder="หมวดหมู่"
                                     />
                                 </div>
@@ -290,18 +329,18 @@ export default function ProductInStore() {
 
                             {/* Condition */}
                             <div className="col-span-1 group">
-                                <label className="text-[9px] font-black text-purple-400 uppercase tracking-widest mb-1.5 block group-focus-within:text-purple-600 transition-colors">สภาพสินค้า</label>
+                                <label className="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-1.5 block group-focus-within:text-emerald-600 transition-colors">สภาพสินค้า</label>
                                 <div className="relative transform transition-all duration-300 group-focus-within:scale-[1.005]">
                                     <select
                                         value={editForm.condition}
                                         onChange={(e) => setEditForm({ ...editForm, condition: e.target.value })}
-                                        className="w-full px-4 py-3 bg-white/50 border-2 border-purple-50 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:border-purple-200 focus:bg-white appearance-none cursor-pointer"
+                                        className="w-full px-4 py-3 bg-white/50 border-2 border-emerald-50 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:border-emerald-200 focus:bg-white appearance-none cursor-pointer"
                                     >
                                         {conditionOptions.map(opt => (
                                             <option key={opt} value={opt}>{opt}</option>
                                         ))}
                                     </select>
-                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-purple-300">
+                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-emerald-300">
                                         <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
                                             <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                         </svg>
@@ -311,14 +350,14 @@ export default function ProductInStore() {
 
                             {/* Cover Price */}
                             <div className="group">
-                                <label className="text-[9px] font-black text-purple-400 uppercase tracking-widest mb-1.5 block group-focus-within:text-purple-600 transition-colors">ราคาปก</label>
+                                <label className="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-1.5 block group-focus-within:text-emerald-600 transition-colors flex items-center gap-1">ราคาปก (<i className="bi bi-coin" style={{ fontSize: '8px' }} />)</label>
                                 <div className="relative transform transition-all duration-300 group-focus-within:scale-[1.005]">
-                                    <DollarSign size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-purple-500 transition-colors" />
+                                    <DollarSign size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-emerald-500 transition-colors" />
                                     <input
                                         type="number"
                                         value={editForm.coverPrice}
                                         onChange={(e) => setEditForm({ ...editForm, coverPrice: Number(e.target.value) })}
-                                        className="w-full pl-10 pr-4 py-3 bg-white/50 border-2 border-purple-50 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:border-purple-200 focus:bg-white transition-all"
+                                        className="w-full pl-10 pr-4 py-3 bg-white/50 border-2 border-emerald-50 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:border-emerald-200 focus:bg-white transition-all"
                                         placeholder="0"
                                     />
                                 </div>
@@ -326,14 +365,14 @@ export default function ProductInStore() {
 
                             {/* Selling Price */}
                             <div className="group">
-                                <label className="text-[9px] font-black text-pink-500 uppercase tracking-widest mb-1.5 block group-focus-within:text-pink-600 transition-colors">ราคาขายจริง</label>
+                                <label className="text-[9px] font-black text-teal-500 uppercase tracking-widest mb-1.5 block group-focus-within:text-teal-600 transition-colors flex items-center gap-1">ราคาขายจริง (<i className="bi bi-coin" style={{ fontSize: '8px' }} />)</label>
                                 <div className="relative transform transition-all duration-300 group-focus-within:scale-[1.005]">
-                                    <DollarSign size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-pink-500" />
+                                    <DollarSign size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-teal-500" />
                                     <input
                                         type="number"
                                         value={editForm.sellingPrice}
                                         onChange={(e) => setEditForm({ ...editForm, sellingPrice: Number(e.target.value) })}
-                                        className="w-full pl-10 pr-4 py-3 bg-pink-50/30 border-2 border-pink-100 rounded-xl text-sm font-black text-pink-600 focus:outline-none focus:border-pink-200 focus:bg-white transition-all shadow-sm"
+                                        className="w-full pl-10 pr-4 py-3 bg-teal-50/30 border-2 border-teal-100 rounded-xl text-sm font-black text-teal-600 focus:outline-none focus:border-teal-200 focus:bg-white transition-all shadow-sm"
                                         placeholder="0"
                                     />
                                 </div>
@@ -341,14 +380,14 @@ export default function ProductInStore() {
 
                             {/* Stock */}
                             <div className="group">
-                                <label className="text-[9px] font-black text-purple-400 uppercase tracking-widest mb-1.5 block group-focus-within:text-purple-600 transition-colors">สต็อก</label>
+                                <label className="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-1.5 block group-focus-within:text-emerald-600 transition-colors">สต็อก</label>
                                 <div className="relative transform transition-all duration-300 group-focus-within:scale-[1.005]">
-                                    <Package size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-purple-500 transition-colors" />
+                                    <Package size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-emerald-500 transition-colors" />
                                     <input
                                         type="number"
                                         value={editForm.stock}
                                         onChange={(e) => setEditForm({ ...editForm, stock: Number(e.target.value) })}
-                                        className="w-full pl-10 pr-4 py-3 bg-white/50 border-2 border-purple-50 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:border-purple-200 focus:bg-white transition-all"
+                                        className="w-full pl-10 pr-4 py-3 bg-white/50 border-2 border-emerald-50 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:border-emerald-200 focus:bg-white transition-all"
                                         placeholder="1"
                                         min="0"
                                     />
@@ -357,13 +396,13 @@ export default function ProductInStore() {
 
                             {/* Description */}
                             <div className="col-span-2 md:col-span-3 group">
-                                <label className="text-[9px] font-black text-purple-400 uppercase tracking-widest mb-1.5 block group-focus-within:text-purple-600 transition-colors">รายละเอียด / ตำหนิ</label>
+                                <label className="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-1.5 block group-focus-within:text-emerald-600 transition-colors">รายละเอียด / ตำหนิ</label>
                                 <div className="relative transform transition-all duration-300 group-focus-within:scale-[1.005]">
-                                    <FileText size={16} className="absolute left-4 top-3 text-gray-300 group-focus-within:text-purple-500 transition-colors" />
+                                    <FileText size={16} className="absolute left-4 top-3 text-gray-300 group-focus-within:text-emerald-500 transition-colors" />
                                     <textarea
                                         value={editForm.description}
                                         onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                                        className="w-full pl-10 pr-4 py-3 bg-white/50 border-2 border-purple-50 rounded-xl text-xs font-medium text-gray-600 focus:outline-none focus:border-purple-200 focus:bg-white transition-all min-h-[60px] max-h-[80px] resize-none leading-relaxed"
+                                        className="w-full pl-10 pr-4 py-3 bg-white/50 border-2 border-emerald-50 rounded-xl text-xs font-medium text-gray-600 focus:outline-none focus:border-emerald-200 focus:bg-white transition-all min-h-[60px] max-h-[80px] resize-none leading-relaxed"
                                         placeholder="รายละเอียดเพิ่มเติม หรือตำหนิของหนังสือ..."
                                     />
                                 </div>
@@ -371,16 +410,16 @@ export default function ProductInStore() {
 
                             {/* Image URL & Preview */}
                             <div className="col-span-2 md:col-span-3">
-                                <label className="text-[9px] font-black text-purple-400 uppercase tracking-widest mb-1.5 block group-focus-within:text-purple-600 transition-colors">รูปภาพประกอบ</label>
+                                <label className="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-1.5 block group-focus-within:text-emerald-600 transition-colors">รูปภาพประกอบ</label>
                                 <div className="flex items-start gap-4">
                                     <div className="flex-1 group">
                                         <div className="relative transform transition-all duration-300 group-focus-within:scale-[1.005]">
-                                            <Image size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-purple-500 transition-colors" />
+                                            <Image size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-emerald-500 transition-colors" />
                                             <input
                                                 type="text"
                                                 value={editForm.images?.[0] || ''}
                                                 onChange={(e) => setEditForm({ ...editForm, images: [e.target.value, ...(editForm.images?.slice(1) || [])] })}
-                                                className="w-full pl-10 pr-4 py-3 bg-white/50 border-2 border-purple-50 rounded-xl text-xs font-medium text-gray-500 focus:outline-none focus:border-purple-200 focus:bg-white"
+                                                className="w-full pl-10 pr-4 py-3 bg-white/50 border-2 border-emerald-50 rounded-xl text-xs font-medium text-gray-500 focus:outline-none focus:border-emerald-200 focus:bg-white"
                                                 placeholder="ชื่อไฟล์ หรือ URL รูปภาพ"
                                             />
                                         </div>
@@ -396,14 +435,14 @@ export default function ProductInStore() {
 
                                     <button
                                         onClick={() => fileInputRef.current?.click()}
-                                        className="py-3 px-4 bg-purple-50 hover:bg-purple-100 text-purple-600 font-bold rounded-xl text-xs transition-all flex items-center gap-2 border-2 border-purple-100"
+                                        className="py-3 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 font-bold rounded-xl text-xs transition-all flex items-center gap-2 border-2 border-emerald-100"
                                     >
                                         <Upload size={14} />
                                         <span>อัปโหลดรูป</span>
                                     </button>
 
                                     {editForm.images?.[0] && (
-                                        <div className="p-1 bg-white rounded-lg border border-purple-50 shadow-sm shrink-0">
+                                        <div className="p-1 bg-white rounded-lg border border-emerald-50 shadow-sm shrink-0">
                                             <img
                                                 src={editForm.images[0].startsWith('data:') ? editForm.images[0] : editForm.images[0]}
                                                 alt="Preview"
@@ -426,7 +465,7 @@ export default function ProductInStore() {
                             <button
                                 onClick={handleSaveEdit}
                                 disabled={isSaving}
-                                className="flex-[2] py-3 bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white font-black rounded-xl text-sm shadow-lg shadow-purple-100 transition-all hover:scale-[1.01] active:scale-98 disabled:opacity-50 flex items-center justify-center gap-2 group"
+                                className="flex-[2] py-3 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-700 hover:to-teal-600 text-white font-black rounded-xl text-sm shadow-lg shadow-emerald-100 transition-all hover:scale-[1.01] active:scale-98 disabled:opacity-50 flex items-center justify-center gap-2 group"
                             >
                                 {isSaving ? (
                                     <>

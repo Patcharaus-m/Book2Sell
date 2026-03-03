@@ -21,9 +21,9 @@ export default function CartDrawer() {
                         {/* Header */}
                         <div className="px-6 py-6 border-b border-gray-100 flex items-center justify-between bg-white/50 backdrop-blur-sm">
                             <h2 className="text-xl font-black text-gray-900 flex items-center gap-2">
-                                <ShoppingBag className="h-6 w-6 text-purple-600" />
+                                <ShoppingBag className="h-6 w-6 text-emerald-600" />
                                 <span>รถเข็นของคุณ</span>
-                                <span className="ml-2 bg-purple-50 text-purple-600 text-xs px-2 py-1 rounded-lg border border-purple-100/50">
+                                <span className="ml-2 bg-emerald-50 text-emerald-600 text-xs px-2 py-1 rounded-lg border border-emerald-100/50">
                                     {cart.length} รายการ
                                 </span>
                             </h2>
@@ -46,7 +46,7 @@ export default function CartDrawer() {
                                     <Link
                                         to="/"
                                         onClick={() => setIsDrawerOpen(false)}
-                                        className="text-purple-600 font-bold hover:text-pink-600 transition-colors"
+                                        className="text-emerald-600 font-bold hover:text-teal-600 transition-colors"
                                     >
                                         ไปเลือกช้อปเลย!
                                     </Link>
@@ -64,7 +64,7 @@ export default function CartDrawer() {
                                                 <div className="flex items-center bg-gray-50 rounded-xl p-1 border border-gray-100">
                                                     <button
                                                         onClick={() => updateQuantity(item.id, -1)}
-                                                        className="p-1.5 hover:bg-white rounded-lg transition-colors text-gray-400 hover:text-purple-600 disabled:opacity-30"
+                                                        className="p-1.5 hover:bg-white rounded-lg transition-colors text-gray-400 hover:text-emerald-600 disabled:opacity-30"
                                                         disabled={item.quantity <= 1}
                                                     >
                                                         <Minus size={14} />
@@ -72,14 +72,14 @@ export default function CartDrawer() {
                                                     <span className="w-10 text-center font-black text-base">{item.quantity}</span>
                                                     <button
                                                         onClick={() => updateQuantity(item.id, 1)}
-                                                        className="p-1.5 hover:bg-white rounded-lg transition-colors text-gray-400 hover:text-purple-600 disabled:opacity-30"
+                                                        className="p-1.5 hover:bg-white rounded-lg transition-colors text-gray-400 hover:text-emerald-600 disabled:opacity-30"
                                                         disabled={item.quantity >= (item.stock || 1)}
                                                     >
                                                         <Plus size={14} />
                                                     </button>
                                                 </div>
                                                 <div className="flex flex-col items-end">
-                                                    <span className="font-black text-lg">฿{(item.sellingPrice || item.price) * item.quantity}</span>
+                                                    <span className="font-black text-lg flex items-center gap-1">{((item.sellingPrice || item.price || 0) * item.quantity).toLocaleString()} <i className="bi bi-coin" style={{ fontSize: '14px' }} /></span>
                                                     {item.quantity >= item.stock && (
                                                         <span className="text-[10px] font-black text-rose-500 uppercase tracking-tighter mt-1 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-100">ขีดจำกัดสต็อก</span>
                                                     )}
@@ -101,13 +101,13 @@ export default function CartDrawer() {
                         {cart.length > 0 && (
                             <div className="px-6 py-8 bg-gray-50 border-t border-gray-100 space-y-6">
                                 <div className="flex justify-between items-center text-gray-900">
-                                    <span className="text-sm font-bold text-gray-500 uppercase tracking-wider">ราคารวมทั้งหมด</span>
-                                    <span className="text-3xl font-black">฿{totalAmount}</span>
+                                    <span className="text-sm font-bold text-gray-500 uppercase tracking-wider">Total</span>
+                                    <span className="text-3xl font-black flex items-center gap-2">{(totalAmount || 0).toLocaleString()} <i className="bi bi-coin" style={{ fontSize: '28px' }} /></span>
                                 </div>
                                 <Link
                                     to="/checkout"
                                     onClick={() => setIsDrawerOpen(false)}
-                                    className="w-full py-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-black text-center rounded-2xl shadow-xl shadow-purple-500/20 hover:shadow-purple-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 group border border-white/20 overflow-hidden"
+                                    className="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-black text-center rounded-2xl shadow-xl shadow-emerald-500/20 hover:shadow-emerald-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 group border border-white/20 overflow-hidden"
                                 >
                                     <span>ไปที่หน้าชำระเงิน</span>
                                     <ArrowRight className="h-5 w-5 transition-all duration-300 group-hover:translate-x-1 group-active:translate-x-12 group-active:opacity-0" />

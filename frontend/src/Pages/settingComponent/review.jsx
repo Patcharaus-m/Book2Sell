@@ -6,9 +6,9 @@ import { getReviewsBySellerService, getReviewsByReviewerService } from "../../se
 export default function Review() {
     const { user } = useAuth();
     const [activeTab, setActiveTab] = useState("received"); // "received" | "written"
-    
+
     // ✅ สร้าง State มารับข้อมูลรีวิว
-    const [receivedReviews, setReceivedReviews] = useState([]); 
+    const [receivedReviews, setReceivedReviews] = useState([]);
     const [writtenReviews, setWrittenReviews] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -18,31 +18,31 @@ export default function Review() {
             if (user?.id) {
                 console.log("🔍 Fetching reviews for user ID:", user.id);
                 setLoading(true);
-                
+
                 try {
                     // ดึงรีวิวที่ได้รับ (เราเป็นคนขาย)
                     const receivedRes = await getReviewsBySellerService(user.id);
                     console.log("📥 Received Reviews API Response:", receivedRes);
-                    
-                    const receivedData = Array.isArray(receivedRes?.payload) 
-                        ? receivedRes.payload 
+
+                    const receivedData = Array.isArray(receivedRes?.payload)
+                        ? receivedRes.payload
                         : (receivedRes?.payload?.payload || []);
                     console.log("✅ Received Reviews Data:", receivedData);
                     setReceivedReviews(receivedData);
-                    
+
                     // ดึงรีวิวที่เราเขียน (เราเป็นคนรีวิว)
                     const writtenRes = await getReviewsByReviewerService(user.id);
                     console.log("📤 Written Reviews API Response:", writtenRes);
-                    
-                    const writtenData = Array.isArray(writtenRes?.payload) 
-                        ? writtenRes.payload 
+
+                    const writtenData = Array.isArray(writtenRes?.payload)
+                        ? writtenRes.payload
                         : (writtenRes?.payload?.payload || []);
                     console.log("✅ Written Reviews Data:", writtenData);
                     setWrittenReviews(writtenData);
                 } catch (error) {
                     console.error("❌ Error fetching reviews:", error);
                 }
-                
+
                 setLoading(false);
             } else {
                 console.log("⚠️ No user.id available:", user);
@@ -81,8 +81,8 @@ export default function Review() {
                 </div>
                 <div className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm">
                     <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2 bg-purple-50 rounded-xl">
-                            <MessageSquare size={20} className="text-purple-500" />
+                        <div className="p-2 bg-emerald-50 rounded-xl">
+                            <MessageSquare size={20} className="text-emerald-500" />
                         </div>
                         <span className="text-sm font-bold text-gray-500">รีวิวที่ได้รับ</span>
                     </div>
@@ -90,8 +90,8 @@ export default function Review() {
                 </div>
                 <div className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm">
                     <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2 bg-indigo-50 rounded-xl">
-                            <PenLine size={20} className="text-indigo-500" />
+                        <div className="p-2 bg-teal-50 rounded-xl">
+                            <PenLine size={20} className="text-teal-500" />
                         </div>
                         <span className="text-sm font-bold text-gray-500">รีวิวที่เขียน</span>
                     </div>
@@ -104,8 +104,8 @@ export default function Review() {
                 <button
                     onClick={() => setActiveTab("received")}
                     className={`px-6 py-3 rounded-2xl font-black text-sm transition-all duration-300 ${activeTab === "received"
-                        ? "bg-gradient-to-r from-purple-600 to-pink-500 text-white shadow-lg shadow-purple-200 transform scale-105"
-                        : "text-gray-500 hover:bg-white/50 hover:text-purple-600"
+                        ? "bg-gradient-to-r from-emerald-600 to-teal-500 text-white shadow-lg shadow-emerald-200 transform scale-105"
+                        : "text-gray-500 hover:bg-white/50 hover:text-emerald-600"
                         }`}
                 >
                     <MessageSquare size={16} className="inline mr-2" />
@@ -114,8 +114,8 @@ export default function Review() {
                 <button
                     onClick={() => setActiveTab("written")}
                     className={`px-6 py-3 rounded-2xl font-black text-sm transition-all duration-300 ${activeTab === "written"
-                        ? "bg-gradient-to-r from-purple-600 to-pink-500 text-white shadow-lg shadow-purple-200 transform scale-105"
-                        : "text-gray-500 hover:bg-white/50 hover:text-purple-600"
+                        ? "bg-gradient-to-r from-emerald-600 to-teal-500 text-white shadow-lg shadow-emerald-200 transform scale-105"
+                        : "text-gray-500 hover:bg-white/50 hover:text-emerald-600"
                         }`}
                 >
                     <PenLine size={16} className="inline mr-2" />
@@ -124,17 +124,17 @@ export default function Review() {
             </div>
 
             {loading ? (
-                 <div className="text-center py-10 text-gray-400">กำลังโหลดข้อมูล...</div>
+                <div className="text-center py-10 text-gray-400">กำลังโหลดข้อมูล...</div>
             ) : reviews.length > 0 ? (
                 <div className="space-y-4">
                     {reviews.map((review) => (
                         <div
                             key={review._id || review.id}
-                            className="group bg-white/60 backdrop-blur-xl p-6 rounded-[2rem] border border-white/50 shadow-sm hover:shadow-lg hover:shadow-purple-100/50 hover:-translate-y-1 transition-all duration-300"
+                            className="group bg-white/60 backdrop-blur-xl p-6 rounded-[2rem] border border-white/50 shadow-sm hover:shadow-lg hover:shadow-emerald-100/50 hover:-translate-y-1 transition-all duration-300"
                         >
                             <div className="flex justify-between items-start mb-4">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl flex items-center justify-center text-purple-500 overflow-hidden shadow-inner flex-shrink-0">
+                                    <div className="w-12 h-12 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-2xl flex items-center justify-center text-emerald-500 overflow-hidden shadow-inner flex-shrink-0">
                                         {review.reviewerId?.profileImage ? (
                                             <img
                                                 src={review.reviewerId.profileImage}
@@ -146,12 +146,12 @@ export default function Review() {
                                         )}
                                     </div>
                                     <div>
-                                        <h4 className="font-black text-gray-900 group-hover:text-purple-700 transition-colors">
+                                        <h4 className="font-black text-gray-900 group-hover:text-emerald-700 transition-colors">
                                             {activeTab === "received" ? (review.reviewerId?.username || review.userName) : "คุณ"}
                                         </h4>
                                         <p className="text-xs text-gray-400 font-bold">
                                             {activeTab === "received" ? "รีวิว: " : "รีวิวหนังสือ: "}
-                                            <span className="text-pink-500">{review.bookTitle}</span>
+                                            <span className="text-teal-500">{review.bookTitle}</span>
                                         </p>
                                     </div>
                                 </div>
@@ -167,7 +167,7 @@ export default function Review() {
                                             />
                                         ))}
                                     </div>
-                                    <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest group-hover:text-purple-300 transition-colors">
+                                    <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest group-hover:text-emerald-300 transition-colors">
                                         {review.createdAt ? new Date(review.createdAt).toLocaleDateString('th-TH', {
                                             year: 'numeric',
                                             month: 'short',
@@ -178,8 +178,8 @@ export default function Review() {
                             </div>
                             {review.comment && (
                                 <div className="relative">
-                                    <div className="absolute -left-2 -top-2 text-4xl text-purple-100 font-serif">"</div>
-                                    <p className="text-gray-600 leading-relaxed font-medium pl-4 italic bg-purple-50/50 p-4 rounded-2xl border border-purple-100/30 group-hover:bg-purple-50 transition-colors">
+                                    <div className="absolute -left-2 -top-2 text-4xl text-emerald-100 font-serif">"</div>
+                                    <p className="text-gray-600 leading-relaxed font-medium pl-4 italic bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100/30 group-hover:bg-emerald-50 transition-colors">
                                         {review.comment}
                                     </p>
                                 </div>

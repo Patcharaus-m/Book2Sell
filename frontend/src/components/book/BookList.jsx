@@ -25,7 +25,7 @@ export default function BookList() {
                 <p className="text-gray-500 font-medium">ไม่พบหนังสือที่คุณกำลังค้นหา</p>
                 <button
                     onClick={() => setFilters({ keyword: "", category: "", minPrice: 0, maxPrice: 1000, minCondition: 0 })}
-                    className="mt-4 text-purple-600 font-bold hover:underline"
+                    className="mt-4 text-emerald-600 font-bold hover:underline"
                 >
                     ล้างตัวกรองทั้งหมด
                 </button>
@@ -55,7 +55,7 @@ export default function BookList() {
                         <button
                             key={i}
                             onClick={() => setCurrentPage(i + 1)}
-                            className={`w-10 h-10 rounded-xl font-bold transition-all ${currentPage === i + 1 ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' : 'text-gray-500 hover:bg-gray-50'}`}
+                            className={`w-10 h-10 rounded-xl font-bold transition-all ${currentPage === i + 1 ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/30' : 'text-gray-500 hover:bg-gray-50'}`}
                         >
                             {i + 1}
                         </button>

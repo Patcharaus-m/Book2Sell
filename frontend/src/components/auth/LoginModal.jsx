@@ -68,10 +68,10 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
                 <div className="p-10 overflow-y-auto custom-scrollbar">
                     {/* Header/Logo */}
                     <div className="flex flex-col items-center mb-8">
-                        <div className="w-16 h-16 bg-purple-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-purple-500/20 mb-4">
+                        <div className="w-16 h-16 bg-emerald-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-emerald-700/20 mb-4">
                             <ShoppingBag size={32} />
                         </div>
-                        <h2 className="text-3xl font-black bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                        <h2 className="text-3xl font-black bg-gradient-to-r from-emerald-600 to-emerald-800 bg-clip-text text-transparent">
                             ยินดีต้อนรับ
                         </h2>
                         <p className="text-gray-400 font-bold text-xs uppercase tracking-widest mt-2">
@@ -94,9 +94,9 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
                                     <User size={18} />
                                 </div>
                                 <input
-                                    type="text" 
+                                    type="text"
                                     required
-                                    name='login-username-input' className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/5 transition-all text-sm font-bold"
+                                    name='login-username-input' className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all text-sm font-bold"
                                     placeholder="username123"
                                     value={formData.username}
                                     onChange={(e) => setFormData({ ...formData, username: e.target.value })}
@@ -114,7 +114,7 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
                                 <input
                                     type="password"
                                     required
-                                    name='login-password-input' className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/5 transition-all text-sm font-bold"
+                                    name='login-password-input' className="w-full pl-12 pr-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all text-sm font-bold"
                                     placeholder="••••••••"
                                     value={formData.password}
                                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -128,7 +128,7 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
                             disabled={isLoading}
                             name='login-btn' className="relative group w-full py-5 bg-gray-900 text-white rounded-2xl font-black text-sm uppercase tracking-[0.2em] shadow-xl hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-250" />
+                            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-emerald-700 opacity-0 group-hover:opacity-100 transition-opacity duration-250" />
                             <div className="relative z-10 flex items-center justify-center gap-3">
                                 <span>{isLoading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบเลยตอนนี้'}</span>
                                 {!isLoading && <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />}
@@ -139,7 +139,7 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
                     <div className="mt-8 flex flex-col items-center gap-4">
                         <button
                             onClick={handleSwitchToRegister}
-                            name='register-goto-btn' className="text-xs font-black text-purple-600 hover:text-pink-600 transition-colors uppercase tracking-widest"
+                            name='register-goto-btn' className="text-xs font-black text-emerald-700 hover:text-emerald-900 transition-colors uppercase tracking-widest"
                         >
                             ยังไม่มีบัญชี? สมัครที่นี่
                         </button>
