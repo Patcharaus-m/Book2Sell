@@ -155,31 +155,55 @@ export default function ProductInStore() {
                                     />
                                     {/* Quick Status Tag */}
                                     <div className="absolute top-3 left-3 z-20">
-                                        <span className="px-3 py-1 bg-white/90 backdrop-blur-md rounded-full text-[10px] font-black text-purple-600 uppercase tracking-widest shadow-sm">
-                                            {product.stock > 0 ? 'Available' : 'Out of Stock'}
+                                        <span className={`px-3 py-1 backdrop-blur-md rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${
+                                            product.status === 'sold' 
+                                                ? 'bg-red-500/90 text-white' 
+                                                : product.status === 'closed'
+                                                    ? 'bg-gray-500/90 text-white'
+                                                    : 'bg-white/90 text-purple-600'
+                                        }`}>
+                                            {product.status === 'sold' 
+                                                ? 'ขายแล้ว' 
+                                                : product.status === 'closed'
+                                                    ? 'ปิดการขาย'
+                                                    : product.stock > 0 ? 'Available' : 'Out of Stock'}
                                         </span>
                                     </div>
+                                    {/* Sold overlay */}
+                                    {product.status === 'sold' && (
+                                        <div className="absolute inset-0 bg-black/30 z-10 flex items-center justify-center">
+                                            <span className="text-white font-black text-lg bg-red-500/80 px-4 py-2 rounded-xl shadow-lg">ขายแล้ว</span>
+                                        </div>
+                                    )}
                                 </div>
                                 <h3 className="font-black text-gray-900 truncate mb-1 text-lg px-2 group-hover:text-purple-600 transition-colors">{product.title}</h3>
                                 <p className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500 font-black text-xl mb-6 px-2">฿{product.sellingPrice?.toLocaleString()}</p>
 
-                                <div className="flex gap-3">
-                                    <button
-                                        onClick={() => handleOpenEdit(product)}
-                                        className="flex-1 py-3 bg-white/60 backdrop-blur-md text-gray-600 font-bold rounded-2xl border border-white/60 hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 hover:text-white hover:border-transparent transition-all shadow-sm hover:shadow-purple-200 hover:shadow-lg flex items-center justify-center gap-2 group/edit relative overflow-hidden
-                                        active:scale-75 hover:scale-95 transition-all duration-300"
-                                    >
-                                        <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-                                        <Edit2 size={16} className="relative z-10 group-hover:text-white transition-colors" />
-                                        <span className="relative z-10">แก้ไข</span>
-                                    </button>
-                                    <button
-                                        onClick={() => setItemToDelete(product)}
-                                        className="w-14 h-14 bg-red-50/50 backdrop-blur-sm text-red-500 font-bold rounded-2xl border border-red-100 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all flex items-center justify-center shadow-sm hover:shadow-red-200 group/btn"
-                                    >
-                                        <Trash2 size={20} className="group-hover/btn:scale-110 group-hover/btn:rotate-12 transition-all duration-300 active:rotate-360" />
-                                    </button>
-                                </div>
+                                {product.status === 'sold' ? (
+                                    <div className="flex gap-3">
+                                        <div className="flex-1 py-3 bg-gray-100/60 backdrop-blur-md text-gray-400 font-bold rounded-2xl border border-gray-200 flex items-center justify-center gap-2 cursor-not-allowed">
+                                            <span>ขายแล้ว - ไม่สามารถแก้ไขได้</span>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="flex gap-3">
+                                        <button
+                                            onClick={() => handleOpenEdit(product)}
+                                            className="flex-1 py-3 bg-white/60 backdrop-blur-md text-gray-600 font-bold rounded-2xl border border-white/60 hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 hover:text-white hover:border-transparent transition-all shadow-sm hover:shadow-purple-200 hover:shadow-lg flex items-center justify-center gap-2 group/edit relative overflow-hidden
+                                            active:scale-75 hover:scale-95 transition-all duration-300"
+                                        >
+                                            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                                            <Edit2 size={16} className="relative z-10 group-hover:text-white transition-colors" />
+                                            <span className="relative z-10">แก้ไข</span>
+                                        </button>
+                                        <button
+                                            onClick={() => setItemToDelete(product)}
+                                            className="w-14 h-14 bg-red-50/50 backdrop-blur-sm text-red-500 font-bold rounded-2xl border border-red-100 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all flex items-center justify-center shadow-sm hover:shadow-red-200 group/btn"
+                                        >
+                                            <Trash2 size={20} className="group-hover/btn:scale-110 group-hover/btn:rotate-12 transition-all duration-300 active:rotate-360" />
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     ))}
