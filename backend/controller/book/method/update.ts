@@ -42,6 +42,11 @@ export default async function updateBook(payload: UpdateBookPayload) {
       return errRes.FORBIDDEN({ message: "คุณไม่มีสิทธิ์แก้ไขหนังสือนี้" });
     }
 
+    // ตรวจสอบ ISBN ถ้ามีความพยายามอัปเดต
+    if (updateData.isbn && updateData.isbn.length !== 13) {
+      return errRes.BAD_REQUEST({ message: "ISBN ต้องมี 13 หลัก" });
+    }
+
     // อัปเดตข้อมูล
     const updatedBook = await book.findByIdAndUpdate(
       bookId,

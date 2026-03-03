@@ -13,6 +13,7 @@ export default function ProductInStore() {
     const [itemToEdit, setItemToEdit] = useState(null);
     const [editForm, setEditForm] = useState({});
     const [isSaving, setIsSaving] = useState(false);
+    const [imageInputMode, setImageInputMode] = useState('upload'); // 'upload' or 'url'
     const fileInputRef = useRef(null);
 
     // ดึงหนังสือของ user นี้จาก API
@@ -56,11 +57,28 @@ export default function ProductInStore() {
     const handleSaveEdit = async () => {
         if (!itemToEdit) return;
 
+        if (!editForm.sellingPrice || Number(editForm.sellingPrice) <= 0) {
+            alert('กรุณาระบุราคาขายที่มากกว่า 0');
+            return;
+        }
+        if (Number(editForm.sellingPrice) > 999999) {
+            alert('ราคาขายต้องไม่เกิน 999,999');
+            return;
+        }
+
+        if (editForm.isbn && editForm.isbn.length !== 13) {
+            alert('ISBN ต้องมี 13 หลักพอดี');
+            return;
+        }
+
         setIsSaving(true);
         const bookId = itemToEdit._id || itemToEdit.id;
         const userId = user._id || user.id;
 
-        const result = await updateBookService(bookId, editForm, userId);
+        const result = await updateBookService(bookId, {
+            ...editForm,
+            sellingPrice: Number(editForm.sellingPrice)
+        }, userId);
         console.log('Update result:', result);
 
         if (result.code === 200 || result.code === 201 || result.status === 2001) {
@@ -97,6 +115,11 @@ export default function ProductInStore() {
         const file = e.target.files[0];
         if (!file) return;
 
+        if ((editForm.images || []).length >= 5) {
+            alert("เพิ่มได้ไม่เกิน 5 รูปครับ");
+            return;
+        }
+
         // Check file size (optional, but good practice given 50MB limit)
         if (file.size > 10 * 1024 * 1024) { // 10MB limit for safe Base64
             alert("ไฟล์มีขนาดใหญ่เกินไป (จำกัด 10MB สำหรับการอัปโหลดด่วน)");
@@ -108,11 +131,38 @@ export default function ProductInStore() {
             const base64String = reader.result;
             setEditForm(prev => ({
                 ...prev,
-                images: [base64String, ...(prev.images?.slice(1) || [])]
+                images: [...(prev.images || []), base64String]
             }));
         };
         reader.readAsDataURL(file);
     };
+
+    const handleAddImageUrl = () => {
+        const url = imageUrlInputRef.current?.value;
+        if (!url) return;
+
+        if ((editForm.images || []).length >= 5) {
+            alert("เพิ่มได้ไม่เกิน 5 รูปครับ");
+            return;
+        }
+
+        if (!(editForm.images || []).includes(url)) {
+            setEditForm(prev => ({
+                ...prev,
+                images: [...(prev.images || []), url]
+            }));
+            if (imageUrlInputRef.current) imageUrlInputRef.current.value = '';
+        }
+    };
+
+    const removeImage = (index) => {
+        setEditForm(prev => ({
+            ...prev,
+            images: (prev.images || []).filter((_, i) => i !== index)
+        }));
+    };
+
+    const imageUrlInputRef = useRef(null);
 
     const conditionOptions = ['มือหนึ่ง', 'สภาพ 90%', 'สภาพ 80%', 'สภาพดี', 'มีตำหนิเล็กน้อย'];
 
@@ -264,6 +314,21 @@ export default function ProductInStore() {
                                 </div>
                             </div>
 
+                            {/* ISBN */}
+                            <div className="col-span-1 group">
+                                <label className="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-1.5 block group-focus-within:text-emerald-600 transition-colors">เลข ISBN (13 หลัก)</label>
+                                <input
+                                    type="text"
+                                    value={editForm.isbn}
+                                    onChange={(e) => {
+                                        const val = e.target.value.replace(/[^0-9]/g, '').slice(0, 13);
+                                        setEditForm({ ...editForm, isbn: val });
+                                    }}
+                                    className="w-full px-4 py-3 bg-white/50 border-2 border-emerald-50 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:border-emerald-200 focus:bg-white focus:shadow-md focus:shadow-emerald-100/30 transition-all placeholder:text-gray-200 transform group-focus-within:scale-[1.005]"
+                                    placeholder="ใส่เฉพาะตัวเลข"
+                                />
+                            </div>
+
                             {/* Condition */}
                             <div className="col-span-1 group">
                                 <label className="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-1.5 block group-focus-within:text-emerald-600 transition-colors">สภาพสินค้า</label>
@@ -307,10 +372,12 @@ export default function ProductInStore() {
                                     <DollarSign size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-teal-500" />
                                     <input
                                         type="number"
+                                        min="1"
+                                        max="999999"
                                         value={editForm.sellingPrice}
-                                        onChange={(e) => setEditForm({ ...editForm, sellingPrice: Number(e.target.value) })}
+                                        onChange={(e) => setEditForm({ ...editForm, sellingPrice: e.target.value })}
                                         className="w-full pl-10 pr-4 py-3 bg-teal-50/30 border-2 border-teal-100 rounded-xl text-sm font-black text-teal-600 focus:outline-none focus:border-teal-200 focus:bg-white transition-all shadow-sm"
-                                        placeholder="0"
+                                        placeholder="ราคาขั้นต่ำ 1"
                                     />
                                 </div>
                             </div>
@@ -346,47 +413,106 @@ export default function ProductInStore() {
                             </div>
 
                             {/* Image URL & Preview */}
-                            <div className="col-span-2 md:col-span-3">
-                                <label className="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-1.5 block group-focus-within:text-emerald-600 transition-colors">รูปภาพประกอบ</label>
-                                <div className="flex items-start gap-4">
-                                    <div className="flex-1 group">
-                                        <div className="relative transform transition-all duration-300 group-focus-within:scale-[1.005]">
-                                            <Image size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-emerald-500 transition-colors" />
-                                            <input
-                                                type="text"
-                                                value={editForm.images?.[0] || ''}
-                                                onChange={(e) => setEditForm({ ...editForm, images: [e.target.value, ...(editForm.images?.slice(1) || [])] })}
-                                                className="w-full pl-10 pr-4 py-3 bg-white/50 border-2 border-emerald-50 rounded-xl text-xs font-medium text-gray-500 focus:outline-none focus:border-emerald-200 focus:bg-white"
-                                                placeholder="ชื่อไฟล์ หรือ URL รูปภาพ"
-                                            />
-                                        </div>
+                            <div className="col-span-2 md:col-span-3 pt-2">
+                                <div className="flex items-center justify-between mb-3">
+                                    <label className="text-[9px] font-black text-emerald-400 uppercase tracking-widest block">รูปภาพหนังสือ</label>
+
+                                    {/* Toggle Buttons */}
+                                    <div className="flex bg-emerald-50/50 p-1 rounded-xl border border-emerald-100">
+                                        <button
+                                            type="button"
+                                            onClick={() => setImageInputMode('upload')}
+                                            className={`px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all ${imageInputMode === 'upload'
+                                                ? 'bg-white text-emerald-600 shadow-sm border border-emerald-100'
+                                                : 'text-gray-400 hover:text-gray-600'
+                                                }`}
+                                        >
+                                            อัปโหลด
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setImageInputMode('url')}
+                                            className={`px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all ${imageInputMode === 'url'
+                                                ? 'bg-white text-emerald-600 shadow-sm border border-emerald-100'
+                                                : 'text-gray-400 hover:text-gray-600'
+                                                }`}
+                                        >
+                                            ใส่ URL
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="flex flex-col gap-4">
+                                    <div className="flex items-center gap-4">
+                                        {imageInputMode === 'upload' ? (
+                                            <div className="flex-1 group">
+                                                <button
+                                                    onClick={() => fileInputRef.current?.click()}
+                                                    className="w-full py-3 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 font-bold rounded-xl text-xs transition-all flex items-center justify-center gap-2 border-2 border-emerald-100 border-dashed hover:border-emerald-300"
+                                                >
+                                                    <Upload size={14} />
+                                                    <span>คลิกเลือกไฟล์เพื่ออัปโหลด</span>
+                                                </button>
+                                                <input
+                                                    type="file"
+                                                    ref={fileInputRef}
+                                                    onChange={handleFileUpload}
+                                                    className="hidden"
+                                                    accept="image/*"
+                                                />
+                                            </div>
+                                        ) : (
+                                            <div className="flex-1 group">
+                                                <div className="flex gap-2">
+                                                    <div className="relative flex-1 transform transition-all duration-300 group-focus-within:scale-[1.005]">
+                                                        <Image size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-300 group-focus-within:text-emerald-500 transition-colors" />
+                                                        <input
+                                                            type="text"
+                                                            ref={imageUrlInputRef}
+                                                            className="w-full pl-10 pr-4 py-3 bg-white/50 border-2 border-emerald-50 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:border-emerald-200 focus:bg-white transition-all shadow-inner"
+                                                            placeholder="เช่น https://example.com/image.jpg"
+                                                        />
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={handleAddImageUrl}
+                                                        className="bg-emerald-600 text-white p-3 rounded-xl hover:bg-emerald-700 shadow-md shadow-emerald-200 active:scale-90 transition-all"
+                                                    >
+                                                        <Plus size={18} />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
 
-                                    <input
-                                        type="file"
-                                        ref={fileInputRef}
-                                        onChange={handleFileUpload}
-                                        className="hidden"
-                                        accept="image/*"
-                                    />
-
-                                    <button
-                                        onClick={() => fileInputRef.current?.click()}
-                                        className="py-3 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 font-bold rounded-xl text-xs transition-all flex items-center gap-2 border-2 border-emerald-100"
-                                    >
-                                        <Upload size={14} />
-                                        <span>อัปโหลดรูป</span>
-                                    </button>
-
-                                    {editForm.images?.[0] && (
-                                        <div className="p-1 bg-white rounded-lg border border-emerald-50 shadow-sm shrink-0">
-                                            <img
-                                                src={editForm.images[0].startsWith('data:') ? editForm.images[0] : editForm.images[0]}
-                                                alt="Preview"
-                                                className="h-10 w-auto rounded object-contain"
-                                            />
-                                        </div>
-                                    )}
+                                    {/* Horizontal Preview Scroll */}
+                                    <div className="flex gap-3 overflow-x-auto pb-2 pt-1 custom-scrollbar min-h-[80px]">
+                                        {(editForm.images || []).length === 0 ? (
+                                            <div className="flex-1 h-20 border-2 border-dashed border-emerald-50 rounded-2xl flex flex-col items-center justify-center opacity-40">
+                                                <ImageIcon size={20} className="text-emerald-200" />
+                                                <span className="text-[8px] font-black text-emerald-300 uppercase tracking-widest mt-1">ยังไม่มีรูปภาพ</span>
+                                            </div>
+                                        ) : (
+                                            (editForm.images || []).map((url, index) => (
+                                                <div key={index} className="relative w-20 h-20 flex-shrink-0 rounded-2xl overflow-hidden group border-2 border-white shadow-md">
+                                                    <img src={url} alt="Preview" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeImage(index)}
+                                                        className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-all hover:bg-red-600 shadow-lg scale-75 hover:scale-100"
+                                                    >
+                                                        <X size={12} />
+                                                    </button>
+                                                    {index === 0 && (
+                                                        <div className="absolute bottom-0 inset-x-0 bg-emerald-600/90 backdrop-blur-sm text-[7px] font-black text-white text-center py-0.5 uppercase tracking-widest">
+                                                            ปก
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>

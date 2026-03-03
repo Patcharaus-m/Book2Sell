@@ -22,6 +22,9 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
 
     const [showConditionMenu, setShowConditionMenu] = useState(false);
     const [imageUrlInput, setImageUrlInput] = useState('');
+    const [sellingPriceError, setSellingPriceError] = useState('');
+    const [isbnError, setIsbnError] = useState('');
+    const [imageInputMode, setImageInputMode] = useState('upload'); // 'upload' or 'url'
     const fileInputRef = useRef(null);
 
     // Close condition menu on outside click
@@ -57,11 +60,17 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
                 description: ''
             });
         }
+        setSellingPriceError('');
+        setIsbnError('');
     }, [initialData, isOpen]);
 
     if (!isOpen) return null;
 
     const handleAddImage = () => {
+        if (formData.images.length >= 5) {
+            alert("เพิ่มได้ไม่เกิน 5 รูปครับ");
+            return;
+        }
         if (imageUrlInput && !formData.images.includes(imageUrlInput)) {
             setFormData(prev => ({ ...prev, images: [...prev.images, imageUrlInput] }));
             setImageUrlInput('');
@@ -129,11 +138,23 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!formData.category) {
-            alert("กรุณาเลือกหมวดหมู่");
+            alert('กรุณาเลือกหมวดหมู่');
+            return;
+        }
+        if (!formData.sellingPrice || Number(formData.sellingPrice) <= 0) {
+            setSellingPriceError('กรุณาระบุราคาขายที่มากกว่า 0');
+            return;
+        }
+        if (Number(formData.sellingPrice) > 999999) {
+            setSellingPriceError('ราคาขายต้องไม่เกิน 999,999');
             return;
         }
 
-        // Final payload cleaning to strictly match IBook
+        if (formData.isbn && formData.isbn.length !== 13) {
+            setIsbnError('ISBN ต้องมี 13 หลักพอดี');
+            return;
+        }
+
         const payload = {
             title: formData.title,
             author: formData.author,
@@ -189,55 +210,101 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
                 <form onSubmit={handleSubmit} className="overflow-y-auto p-6 space-y-5 custom-scrollbar bg-slate-50/50">
 
                     {/* Image Section: จัด Layout ใหม่ให้ Compact */}
-                    <div className="space-y-2">
+                    <div className="space-y-4">
                         <div className="flex items-center justify-between">
                             <label className="flex items-center gap-2 text-[11px] font-bold text-gray-400 uppercase tracking-wider">
                                 <ImageIcon size={14} className="text-emerald-500" /> รูปภาพ ({formData.images.length}/5)
                             </label>
+
+                            {/* Toggle Buttons */}
+                            <div className="flex bg-gray-100 p-1 rounded-xl border border-gray-200 shadow-inner">
+                                <button
+                                    type="button"
+                                    onClick={() => setImageInputMode('upload')}
+                                    className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${imageInputMode === 'upload'
+                                        ? 'bg-white text-emerald-600 shadow-sm border border-emerald-100'
+                                        : 'text-gray-400 hover:text-gray-600'
+                                        }`}
+                                >
+                                    อัปโหลดไฟล์
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setImageInputMode('url')}
+                                    className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${imageInputMode === 'url'
+                                        ? 'bg-white text-emerald-600 shadow-sm border border-emerald-100'
+                                        : 'text-gray-400 hover:text-gray-600'
+                                        }`}
+                                >
+                                    ระบุ URL
+                                </button>
+                            </div>
                         </div>
 
-                        {/* Upload Zone & URL Input รวมกันเพื่อให้ประหยัดที่ */}
-                        <div className="flex gap-3 h-24">
-                            {/* Upload Button */}
-                            <div
-                                onClick={() => fileInputRef.current?.click()}
-                                className="w-24 h-full border-2 border-dashed border-emerald-200 rounded-xl hover:border-emerald-400 hover:scale-102   hover:bg-gradient-to-br hover:from-emerald-50 hover:to-teal-50 transition-all duration-300 cursor-pointer flex flex-col items-center justify-center gap-1 bg-white shrink-0 group/upload"
-                            >
-                                <UploadCloud size={20} className="text-emerald-300 group-hover/upload:text-emerald-500 transition-colors duration-300" />
-                                <span className="text-[10px] font-bold text-gray-400 group-hover/upload:text-emerald-600 transition-colors duration-300">เลือกไฟล์</span>
-                                <input type="file" ref={fileInputRef} className="hidden" onChange={handleImageUpload} accept="image/*" multiple />
-                            </div>
-
-                            {/* Preview List (Horizontal Scroll) */}
-                            <div className="flex-1 flex gap-2 overflow-x-auto items-center pr-2 custom-scrollbar">
-                                {formData.images.map((url, index) => (
-                                    <div key={index} className="relative w-20 h-full flex-shrink-0 rounded-xl overflow-hidden group border border-emerald-100 shadow-sm">
-                                        <img src={url} alt="Preview" className="w-full h-full object-cover" />
-                                        <button
-                                            type="button"
-                                            onClick={() => removeImage(index)}
-                                            className="absolute top-1 right-1 p-1 bg-red-500/80 text-white rounded-md opacity-0 group-hover:opacity-100 transition-all"
-                                        >
-                                            <Trash2 size={10} />
-                                        </button>
-                                        {index === 0 && <div className="absolute bottom-0 inset-x-0 bg-emerald-600/80 text-[8px] text-white text-center py-0.5">ปก</div>}
+                        <div className="flex gap-4 h-28">
+                            {/* Conditional Input based on Mode */}
+                            {imageInputMode === 'upload' ? (
+                                <div
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="w-28 h-full border-2 border-dashed border-emerald-200 rounded-2xl hover:border-emerald-400 hover:scale-102 hover:bg-gradient-to-br hover:from-emerald-50 hover:to-teal-50 transition-all duration-300 cursor-pointer flex flex-col items-center justify-center gap-1.5 bg-white shrink-0 group/upload shadow-sm"
+                                >
+                                    <div className="bg-emerald-50 p-2 rounded-xl group-hover/upload:bg-emerald-100 transition-colors">
+                                        <UploadCloud size={24} className="text-emerald-500" />
                                     </div>
-                                ))}
-                                {/* URL Input (ถ้าไม่มีรูป ให้โชว์ช่องนี้ใหญ่หน่อย แต่ถ้ามีรูปแล้วให้ต่อท้าย) */}
-                                <div className="min-w-[120px] flex-1 h-full flex items-center justify-center p-2">
-                                    <div className="w-full flex gap-1">
+                                    <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">เลือกไฟล์</span>
+                                    <input type="file" ref={fileInputRef} className="hidden" onChange={handleImageUpload} accept="image/*" multiple />
+                                </div>
+                            ) : (
+                                <div className="w-48 h-full bg-white border border-emerald-100 rounded-2xl p-4 flex flex-col justify-center gap-3 shrink-0 shadow-sm">
+                                    <div className="flex items-center gap-2 text-[9px] font-black text-emerald-600 uppercase tracking-widest">
+                                        <Plus size={12} /> ใส่ลิงก์รูปภาพ
+                                    </div>
+                                    <div className="flex gap-2">
                                         <input
                                             type="url"
-                                            placeholder="หรือ URL..."
-                                            className="w-full px-3 py-1.5 bg-white border border-emerald-200 rounded-lg text-xs outline-none focus:border-emerald-500"
+                                            placeholder="https://..."
+                                            className="w-full px-3 py-2 bg-slate-50 border border-emerald-100 rounded-xl text-xs outline-none focus:border-emerald-500 focus:bg-white transition-all shadow-inner"
                                             value={imageUrlInput}
                                             onChange={(e) => setImageUrlInput(e.target.value)}
                                         />
-                                        <button type="button" onClick={handleAddImage} className="bg-emerald-100 text-emerald-600 p-1.5 rounded-lg hover:bg-emerald-200">
-                                            <Plus size={14} />
+                                        <button
+                                            type="button"
+                                            onClick={handleAddImage}
+                                            className="bg-emerald-600 text-white p-2 rounded-xl hover:bg-emerald-700 shadow-md shadow-emerald-200 active:scale-90 transition-all"
+                                        >
+                                            <Plus size={16} />
                                         </button>
                                     </div>
                                 </div>
+                            )}
+
+                            {/* Preview List (Horizontal Scroll) */}
+                            <div className="flex-1 flex gap-3 overflow-x-auto items-center pr-3 custom-scrollbar pb-1">
+                                {formData.images.length === 0 ? (
+                                    <div className="w-full h-full border-2 border-dashed border-gray-100 rounded-2xl flex flex-col items-center justify-center opacity-40">
+                                        <ImageIcon size={24} className="text-gray-300 mb-1" />
+                                        <span className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">ยังไม่มีรูปภาพ</span>
+                                    </div>
+                                ) : (
+                                    formData.images.map((url, index) => (
+                                        <div key={index} className="relative w-20 h-full flex-shrink-0 rounded-2xl overflow-hidden group border-2 border-white shadow-xl group/img">
+                                            <img src={url} alt="Preview" className="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-110" />
+                                            <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/20 transition-colors" />
+                                            <button
+                                                type="button"
+                                                onClick={() => removeImage(index)}
+                                                className="absolute top-1.5 right-1.5 p-1.5 bg-red-500 text-white rounded-lg opacity-0 group-hover/img:opacity-100 transition-all hover:bg-red-600 shadow-lg scale-75 hover:scale-100"
+                                            >
+                                                <Trash2 size={12} />
+                                            </button>
+                                            {index === 0 && (
+                                                <div className="absolute bottom-0 inset-x-0 bg-emerald-600/90 backdrop-blur-sm text-[8px] font-black text-white text-center py-1 uppercase tracking-widest">
+                                                    ภาพปก
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))
+                                )}
                             </div>
                         </div>
                     </div>
@@ -270,11 +337,17 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
                             <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider ml-1">ISBN</label>
                             <input
                                 type="text"
-                                className="w-full px-4 py-2.5 bg-white border border-emerald-200 rounded-xl focus:ring-2 focus:ring-emerald-700/15 focus:border-emerald-700 outline-none transition-all text-sm font-semibold text-gray-700"
-                                placeholder="เลข ISBN..."
+                                className={`w-full px-4 py-2.5 bg-white border rounded-xl focus:ring-2 outline-none transition-all text-sm font-semibold text-gray-700 ${isbnError ? 'border-red-400 focus:ring-red-500/10' : 'border-emerald-200 focus:ring-emerald-700/15 focus:border-emerald-700'
+                                    }`}
+                                placeholder="เลข ISBN 13 หลัก..."
                                 value={formData.isbn}
-                                onChange={e => setFormData({ ...formData, isbn: e.target.value })}
+                                onChange={e => {
+                                    setIsbnError('');
+                                    const val = e.target.value.replace(/[^0-9]/g, '').slice(0, 13);
+                                    setFormData({ ...formData, isbn: val });
+                                }}
                             />
+                            {isbnError && <p className="text-[10px] text-red-500 mt-1 ml-1">{isbnError}</p>}
                         </div>
                     </div>
 
@@ -314,13 +387,23 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider ml-1 flex items-center gap-1">ราคาขาย (<i className="bi bi-coin" style={{ fontSize: '8px' }} />) *</label>
                             <input
-                                required
                                 type="number"
-                                className="w-full px-4 py-2.5 bg-white border border-emerald-200 rounded-xl focus:ring-2 focus:ring-emerald-700/15 focus:border-emerald-700 outline-none transition-all text-sm font-bold text-emerald-600"
+                                min="1"
+                                max="999999"
+                                className={`w-full px-4 py-2.5 bg-white border rounded-xl focus:ring-2 outline-none transition-all text-sm font-bold ${sellingPriceError
+                                    ? 'border-red-400 focus:ring-red-500/20 focus:border-red-500 text-red-500'
+                                    : 'border-emerald-200 focus:ring-emerald-700/15 focus:border-emerald-700 text-emerald-600'
+                                    }`}
                                 placeholder="0"
                                 value={formData.sellingPrice}
-                                onChange={e => setFormData({ ...formData, sellingPrice: Number(e.target.value) })}
+                                onChange={e => {
+                                    setSellingPriceError('');
+                                    setFormData({ ...formData, sellingPrice: e.target.value });
+                                }}
                             />
+                            {sellingPriceError && (
+                                <p className="text-xs text-red-500 font-medium ml-1">{sellingPriceError}</p>
+                            )}
                         </div>
                     </div>
 
