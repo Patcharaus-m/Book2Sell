@@ -17,6 +17,7 @@ import Settings from "./Pages/setting";
 import ProductInStore from "./Pages/settingComponent/productInStore";
 import Review from "./Pages/settingComponent/review";
 import AboutUs from "./Pages/settingComponent/aboutUs";
+import HistoryPage from "./Pages/settingComponent/history";
 import MyAccount from "./Pages/myAccount";
 
 // Admin
@@ -161,6 +162,7 @@ function AppContent({ selectedBook, setSelectedBook, isEditing, setIsEditing, ha
             <Route path="/review" element={<Review />} />
             <Route path="/about-us" element={<AboutUs />} />
             <Route path="/product-in-store" element={<ProductInStore />} />
+            <Route path="/history" element={<HistoryPage />} />
           </Route>
         </Route>
 

@@ -4,22 +4,17 @@ import { useCart } from "../../context/CartContext";
 import { useBook } from "../../context/BookContext";
 
 import { createOrderService } from "../../services/orderService";
-import { createReviewService } from "../../services/reviewService";
 import { Link, useNavigate } from "react-router-dom";
 import {
     ShoppingBag,
     Wallet,
     CheckCircle,
     ArrowLeft,
-    ShieldCheck,
-    Tag,
-    Info,
     Star,
-    MessageSquare,
-    Send,
-    X,
-    User,
-    MapPin
+    BookOpen,
+    MapPin,
+    Save,
+    History
 } from "lucide-react";
 
 export default function Checkout() {
@@ -45,12 +40,13 @@ export default function Checkout() {
 
     // Modals State
     const [showConfirmModal, setShowConfirmModal] = useState(false);
-    const [showReviewModal, setShowReviewModal] = useState(false);
-    const [itemsToReview, setItemsToReview] = useState([]);
-    const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
-    const [rating, setRating] = useState(5.00);
-    const [comment, setComment] = useState('');
-    const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+
+    // Default address: load from localStorage
+    const DEFAULT_ADDR_KEY = `defaultAddress_${user?._id || user?.id || 'guest'}`;
+    const [savedAddress, setSavedAddress] = useState(() => {
+        try { return JSON.parse(localStorage.getItem(DEFAULT_ADDR_KEY)); } catch { return null; }
+    });
+    const [saveAddrFeedback, setSaveAddrFeedback] = useState(false);
 
     const handlePlaceOrder = () => {
         if (cart.length === 0) return;
@@ -154,7 +150,6 @@ export default function Checkout() {
             processPayment(totalAmount);
         }
 
-        setItemsToReview(createdOrders);  // ใช้ createdOrders ที่มี orderId แล้ว
         addPurchasedBooks(orderItems.map(item => item.id || item._id));
 
         // รีเฟรชรายการหนังสือให้หนังสือที่ซื้อไปหายจากหน้าร้าน
@@ -162,57 +157,27 @@ export default function Checkout() {
 
         setShowConfirmModal(false);
         setIsOrdered(true);
-        // After success animation, show review modal
+        // After success, redirect to history page
         setTimeout(() => {
-            setShowReviewModal(true);
-        }, 3000);
+            clearCart();
+            navigate('/history');
+        }, 2500);
     };
 
-    const handleReviewSubmit = async (e) => {
-        if (e) e.preventDefault();
-        const currentItem = itemsToReview[currentReviewIndex];
-
-        setIsSubmittingReview(true);
-
-        // Debug: ดูข้อมูลที่จะส่ง
-        console.log('Review Submit - currentItem:', currentItem);
-        console.log('Review Submit - orderId:', currentItem.orderId);
-
-        // เรียก API สร้าง Review
-        if (currentItem.orderId) {
-            const reviewResult = await createReviewService({
-                orderId: currentItem.orderId,
-                userId: user._id || user.id,
-                rating,
-                comment
-            });
-            console.log('Review API Result:', reviewResult);
-        } else {
-            console.log('WARNING: No orderId found, skipping review API call');
-        }
-
-        // Local update สำหรับ UI (ถ้าต้องการ - ปัจจุบันไม่จำเป็น เพราะบันทึกใน DB แล้ว)
-
-        // Move to next item or close
-        setTimeout(() => {
-            setIsSubmittingReview(false);
-            if (currentReviewIndex < itemsToReview.length - 1) {
-                setCurrentReviewIndex(prev => prev + 1);
-                setRating(5.00);
-                setComment('');
-            } else {
-                handleCloseModal();
-            }
-        }, 500);
+    // Save default address to localStorage
+    const handleSaveDefault = () => {
+        localStorage.setItem(DEFAULT_ADDR_KEY, JSON.stringify(address));
+        setSavedAddress(address);
+        setSaveAddrFeedback(true);
+        setTimeout(() => setSaveAddrFeedback(false), 2000);
     };
 
-    const handleCloseModal = () => {
-        setShowReviewModal(false);
-        clearCart();
-        navigate('/');
+    // Load default address
+    const handleLoadDefault = () => {
+        if (savedAddress) setAddress(savedAddress);
     };
 
-    if (isOrdered && !showReviewModal) {
+    if (isOrdered) {
         return (
             <div className="min-h-[80vh] flex items-center justify-center p-4">
                 <div className="relative w-full max-w-md bg-white/80 backdrop-blur-2xl border border-white/50 rounded-[3.5rem] p-12 shadow-3xl animate-in zoom-in-95 spring-bounce-20 duration-500 flex flex-col items-center text-center">
@@ -222,13 +187,15 @@ export default function Checkout() {
                     <h2 className="text-4xl font-black text-gray-900 mb-3 tracking-tight">สั่งซื้อสำเร็จ!</h2>
                     <p className="text-gray-500 font-medium leading-relaxed mb-10">
                         ขอบคุณที่เลือกซื้อหนังสือกับเรา <br />
-                        ความรู้ใหม่กำลังเดินทางไปหาคุณ
+                        กำลังพาคุณไปดูสถานะการสั่งซื้อ...
                     </p>
 
                     <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-gradient-to-r from-emerald-400 to-teal-600 animate-[progress_3s_linear]" />
+                        <div className="h-full bg-gradient-to-r from-emerald-400 to-teal-600 animate-[progress_2.5s_linear]" />
                     </div>
-                    <p className="mt-4 text-[10px] font-black uppercase tracking-widest text-gray-300">เตรียมรับของขวัญพิเศษสักครู่...</p>
+                    <div className="mt-4 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-emerald-400">
+                        <History size={12} /> กำลังพาไปหน้าประวัติ...
+                    </div>
                 </div>
             </div>
         );
@@ -307,12 +274,33 @@ export default function Checkout() {
 
                     {/* Address Card */}
                     <div className="bg-white/60 backdrop-blur-xl border border-white/50 rounded-[3rem] p-8 shadow-xl shadow-gray-200/20 overflow-hidden relative">
-                        <div className="relative flex items-center justify-between mb-8">
+                        <div className="relative flex items-center justify-between mb-8 flex-wrap gap-3">
                             <div className="flex items-center gap-4">
                                 <div className="w-12 h-12 bg-orange-100 rounded-2xl flex items-center justify-center text-orange-600 shadow-inner">
                                     <MapPin size={24} />
                                 </div>
                                 <h2 className="text-2xl font-black text-gray-900 tracking-tight">ที่อยู่จัดส่ง</h2>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                {savedAddress && (
+                                    <button
+                                        type="button"
+                                        onClick={handleLoadDefault}
+                                        className="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 font-black rounded-2xl text-xs border border-emerald-100 hover:bg-emerald-100 transition-all active:scale-95"
+                                    >
+                                        <MapPin size={12} /> ที่อยู่ที่บันทึกไว้
+                                    </button>
+                                )}
+                                <button
+                                    type="button"
+                                    onClick={handleSaveDefault}
+                                    className={`flex items-center gap-2 px-4 py-2 font-black rounded-2xl text-xs border transition-all active:scale-95 ${saveAddrFeedback
+                                            ? 'bg-emerald-600 text-white border-emerald-600'
+                                            : 'bg-white text-gray-500 border-gray-200 hover:border-emerald-300 hover:text-emerald-600'
+                                        }`}
+                                >
+                                    <Save size={12} /> {saveAddrFeedback ? 'บันทึกแล้ว!' : 'บันทึกเป็นที่อยู่หลัก'}
+                                </button>
                             </div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -458,9 +446,8 @@ export default function Checkout() {
                 </div>
             </div>
 
-            {/* Modals Container */}
+            {/* Confirm Modal */}
             <div className="relative z-[100]">
-                {/* Confirmation Modal */}
                 {showConfirmModal && (
                     <div className="fixed inset-0 flex items-center justify-center p-4">
                         <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onClick={() => setShowConfirmModal(false)} />
@@ -487,67 +474,6 @@ export default function Checkout() {
                                         ยกเลิก
                                     </button>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* Review Modal */}
-                {showReviewModal && (
-                    <div className="fixed inset-0 flex items-center justify-center p-4">
-                        <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-md" onClick={handleCloseModal} />
-                        <div className="relative w-full max-w-2xl bg-white/80 backdrop-blur-2xl border border-white/50 rounded-[3.5rem] p-12 shadow-3xl overflow-hidden">
-                            <div className="relative">
-                                <div className="flex flex-col items-center text-center mb-10">
-                                    <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600 mb-4">
-                                        <MessageSquare size={32} />
-                                    </div>
-                                    <h3 className="text-3xl font-black text-gray-900 tracking-tight">Review Your Records</h3>
-                                    <p className="text-sm text-gray-400 font-medium">Item {currentReviewIndex + 1} of {itemsToReview.length}</p>
-                                </div>
-
-                                {itemsToReview.length > 0 && (
-                                    <div className="flex flex-col md:flex-row gap-8 items-start bg-white/40 p-6 rounded-[2.5rem] border border-white mb-8">
-                                        <div className="w-32 h-44 flex-shrink-0 shadow-2xl rounded-2xl overflow-hidden">
-                                            <img
-                                                src={itemsToReview[currentReviewIndex].image || (itemsToReview[currentReviewIndex].images && itemsToReview[currentReviewIndex].images[0]) || itemsToReview[currentReviewIndex].imageUrl}
-                                                alt=""
-                                                className="w-full h-full object-cover"
-                                            />
-                                        </div>
-                                        <div className="flex-1">
-                                            <h4 className="text-2xl font-black text-gray-900">{itemsToReview[currentReviewIndex].title}</h4>
-                                            <div className="mt-4 flex gap-1.5">
-                                                {[1, 2, 3, 4, 5].map((star) => (
-                                                    <button key={star} onClick={() => setRating(star)}>
-                                                        <Star size={28} className={star <= rating ? "text-amber-400 fill-amber-400" : "text-gray-200"} />
-                                                    </button>
-                                                ))}
-                                                <span className="ml-2 text-2xl font-black text-emerald-600">{(rating || 0).toFixed(2)}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                <form onSubmit={handleReviewSubmit} className="space-y-6">
-                                    <textarea
-                                        required
-                                        placeholder="Share your cosmic insights..."
-                                        value={comment || ''}
-                                        onChange={(e) => setComment(e.target.value)}
-                                        className="w-full bg-white border border-white rounded-[2rem] px-8 py-6 h-32 outline-none text-sm font-medium"
-                                    />
-                                    <div className="flex justify-between items-center">
-                                        <button type="button" onClick={handleCloseModal} className="text-xs font-black text-gray-400 uppercase">Skip</button>
-                                        <button
-                                            type="submit"
-                                            disabled={isSubmittingReview || !(comment || '').trim()}
-                                            className="px-10 py-4 bg-gray-900 text-white font-black rounded-2xl hover:bg-emerald-600 transition-all flex items-center gap-2"
-                                        >
-                                            {isSubmittingReview ? "Submitting..." : <><Send size={20} /> Submit</>}
-                                        </button>
-                                    </div>
-                                </form>
                             </div>
                         </div>
                     </div>

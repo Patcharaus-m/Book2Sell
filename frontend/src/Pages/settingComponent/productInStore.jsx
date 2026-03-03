@@ -13,6 +13,7 @@ export default function ProductInStore() {
     const [itemToEdit, setItemToEdit] = useState(null);
     const [editForm, setEditForm] = useState({});
     const [isSaving, setIsSaving] = useState(false);
+    const [statusFilter, setStatusFilter] = useState('all'); // 'all' | 'available' | 'sold' | 'closed'
     const fileInputRef = useRef(null);
 
     // ดึงหนังสือของ user นี้จาก API
@@ -116,15 +117,57 @@ export default function ProductInStore() {
 
     const conditionOptions = ['มือหนึ่ง', 'สภาพ 90%', 'สภาพ 80%', 'สภาพดี', 'มีตำหนิเล็กน้อย'];
 
+    // Status helpers
+    const getStatusInfo = (product) => {
+        const s = product.status || (product.stock > 0 ? 'available' : 'sold');
+        if (s === 'sold') return { label: 'ขายแล้ว', color: 'bg-red-500 text-white', dot: 'bg-red-400' };
+        if (s === 'closed') return { label: 'ปิดการขาย', color: 'bg-gray-400 text-white', dot: 'bg-gray-300' };
+        return { label: 'ขายอยู่', color: 'bg-emerald-500 text-white', dot: 'bg-emerald-400' };
+    };
+
+    const counts = {
+        all: userProducts.length,
+        available: userProducts.filter(p => (p.status || 'available') === 'available').length,
+        sold: userProducts.filter(p => p.status === 'sold').length,
+        closed: userProducts.filter(p => p.status === 'closed').length,
+    };
+
+    const filteredProducts = statusFilter === 'all'
+        ? userProducts
+        : userProducts.filter(p => (p.status || 'available') === statusFilter);
+
     return (
         <div className="relative min-h-screen">
-            <div className="mb-10 animate-in slide-in-from-top-4 duration-700 fade-in">
+            <div className="mb-8 animate-in slide-in-from-top-4 duration-700 fade-in">
                 <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500 tracking-tight mb-2">สินค้าในร้าน</h1>
                 <p className="text-gray-500 italic flex items-center gap-2">
                     <span className="w-8 h-1 bg-gradient-to-r from-emerald-400 to-teal-300 rounded-full"></span>
                     จัดการหนังสือที่คุณลงขาย
                 </p>
+                {!loading && userProducts.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-5">
+                        {[
+                            ['all', 'ทั้งหมด', 'bg-gray-900 text-white'],
+                            ['available', 'ขายอยู่', 'bg-emerald-500 text-white'],
+                            ['sold', 'ขายแล้ว', 'bg-red-500 text-white'],
+                            ['closed', 'ปิดการขาย', 'bg-gray-400 text-white'],
+                        ].map(([key, label, activeClass]) => (
+                            <button key={key}
+                                onClick={() => setStatusFilter(key)}
+                                className={`px-4 py-2 rounded-2xl text-xs font-black transition-all duration-300 flex items-center gap-2 ${statusFilter === key
+                                        ? activeClass + ' shadow-lg scale-105'
+                                        : 'bg-white/60 text-gray-500 border border-gray-100 hover:border-emerald-200 hover:text-emerald-600'
+                                    }`}>
+                                {label}
+                                <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-black ${statusFilter === key ? 'bg-white/25' : 'bg-gray-100'}`}>
+                                    {counts[key]}
+                                </span>
+                            </button>
+                        ))}
+                    </div>
+                )}
             </div>
+
 
             {loading ? (
                 <div className="text-center py-20 animate-pulse">
@@ -133,63 +176,83 @@ export default function ProductInStore() {
                     </div>
                     <p className="text-gray-400 font-medium">กำลังโหลดข้อมูล...</p>
                 </div>
-            ) : userProducts.length > 0 ? (
+            ) : filteredProducts.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                    {userProducts.map((product, idx) => (
-                        <div
-                            key={product._id || product.id}
-                            style={{ animationDelay: `${idx * 100} ms` }}
-                            className="group relative bg-white/40 backdrop-blur-xl border border-white/60 rounded-[2.5rem] p-5 shadow-xl shadow-emerald-100/20 hover:shadow-2xl hover:shadow-emerald-200/50 hover:-translate-y-2 transition-all duration-500 overflow-hidden animate-in fade-in zoom-in-95 fill-mode-backwards"
-                        >
-                            {/* Glass background decoration */}
-                            <div className="absolute -top-20 -right-20 w-40 h-40 bg-emerald-200/30 rounded-full blur-3xl group-hover:bg-emerald-300/40 transition-all duration-700" />
-                            <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-teal-200/30 rounded-full blur-3xl group-hover:bg-teal-300/40 transition-all duration-700" />
+                    {filteredProducts.map((product, idx) => {
+                        const statusInfo = getStatusInfo(product);
+                        const isSold = product.status === 'sold';
+                        const isClosed = product.status === 'closed';
+                        const isDimmed = isSold || isClosed;
+                        return (
+                            <div
+                                key={product._id || product.id}
+                                style={{ animationDelay: `${idx * 100}ms` }}
+                                className={`group relative bg-white/40 backdrop-blur-xl border border-white/60 rounded-[2.5rem] p-5 shadow-xl shadow-emerald-100/20 hover:shadow-2xl hover:shadow-emerald-200/50 hover:-translate-y-2 transition-all duration-500 overflow-hidden animate-in fade-in zoom-in-95 fill-mode-backwards ${isDimmed ? 'opacity-70 saturate-50 hover:opacity-90 hover:saturate-75' : ''
+                                    }`}
+                            >
+                                {/* Glass background decoration */}
+                                <div className="absolute -top-20 -right-20 w-40 h-40 bg-emerald-200/30 rounded-full blur-3xl group-hover:bg-emerald-300/40 transition-all duration-700" />
+                                <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-teal-200/30 rounded-full blur-3xl group-hover:bg-teal-300/40 transition-all duration-700" />
 
-                            <div className="relative z-10">
-                                <div className="aspect-[3/4] overflow-hidden rounded-[2rem] mb-5 bg-gray-50 border border-white/40 shadow-inner group-hover:shadow-lg transition-all duration-500 relative">
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
-                                    <img
-                                        src={product.image || (product.images && product.images[0])}
-                                        alt={product.title}
-                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                    />
-                                    {/* Quick Status Tag */}
-                                    <div className="absolute top-3 left-3 z-20">
-                                        <span className="px-3 py-1 bg-white/90 backdrop-blur-md rounded-full text-[10px] font-black text-emerald-600 uppercase tracking-widest shadow-sm">
-                                            {product.stock > 0 ? 'Available' : 'Out of Stock'}
-                                        </span>
+                                <div className="relative z-10">
+                                    <div className="aspect-[3/4] overflow-hidden rounded-[2rem] mb-5 bg-gray-50 border border-white/40 shadow-inner group-hover:shadow-lg transition-all duration-500 relative">
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
+                                        <img
+                                            src={product.image || (product.images && product.images[0])}
+                                            alt={product.title}
+                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                        />
+                                        {/* Rich Status Badge */}
+                                        <div className="absolute top-3 left-3 z-20">
+                                            <span className={`flex items-center gap-1.5 px-3 py-1.5 ${statusInfo.color} backdrop-blur-md rounded-full text-[10px] font-black uppercase tracking-widest shadow-md`}>
+                                                <span className={`w-1.5 h-1.5 rounded-full ${statusInfo.dot} bg-white/50 animate-pulse`} />
+                                                {statusInfo.label}
+                                            </span>
+                                        </div>
+                                        {/* Stock count - top right */}
+                                        <div className="absolute top-3 right-3 z-20">
+                                            <span className="flex items-center gap-1 px-2.5 py-1 bg-black/40 backdrop-blur-md rounded-full text-[10px] font-black text-white/90">
+                                                <Package size={9} /> {product.stock || 0}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <h3 className="font-black text-gray-900 truncate mb-0.5 text-lg px-2 group-hover:text-emerald-600 transition-colors">{product.title}</h3>
+                                    <p className="text-xs text-gray-400 font-bold px-2 mb-1 truncate">{product.author}</p>
+                                    <p className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500 font-black text-xl mb-4 px-2 flex items-center gap-2">{(product.sellingPrice || 0).toLocaleString()} <i className="bi bi-coin text-emerald-500" /></p>
+
+                                    <div className="flex gap-3">
+                                        <button
+                                            onClick={() => !isDimmed && handleOpenEdit(product)}
+                                            disabled={isDimmed}
+                                            className={`flex-1 py-3 font-bold rounded-2xl border flex items-center justify-center gap-2 relative overflow-hidden transition-all duration-300 ${isDimmed
+                                                ? 'bg-gray-100 text-gray-300 border-gray-100 cursor-not-allowed'
+                                                : 'bg-white/60 backdrop-blur-md text-gray-600 border-white/60 hover:bg-gradient-to-r hover:from-emerald-500 hover:to-teal-500 hover:text-white hover:border-transparent shadow-sm hover:shadow-emerald-200 hover:shadow-lg active:scale-75 hover:scale-95'
+                                                }`}
+                                        >
+                                            <Edit2 size={16} />
+                                            <span>แก้ไข</span>
+                                        </button>
+                                        <button
+                                            onClick={() => setItemToDelete(product)}
+                                            className="w-14 h-14 bg-red-50/50 backdrop-blur-sm text-red-500 font-bold rounded-2xl border border-red-100 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all flex items-center justify-center shadow-sm hover:shadow-red-200 group/btn"
+                                        >
+                                            <Trash2 size={20} className="group-hover/btn:scale-110 group-hover/btn:rotate-12 transition-all duration-300" />
+                                        </button>
                                     </div>
                                 </div>
-                                <h3 className="font-black text-gray-900 truncate mb-1 text-lg px-2 group-hover:text-emerald-600 transition-colors">{product.title}</h3>
-                                <p className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500 font-black text-xl mb-6 px-2 flex items-center gap-2">{(product.sellingPrice || 0).toLocaleString()} <i className="bi bi-coin text-emerald-500" /></p>
-
-                                <div className="flex gap-3">
-                                    <button
-                                        onClick={() => handleOpenEdit(product)}
-                                        className="flex-1 py-3 bg-white/60 backdrop-blur-md text-gray-600 font-bold rounded-2xl border border-white/60 hover:bg-gradient-to-r hover:from-emerald-500 hover:to-teal-500 hover:text-white hover:border-transparent transition-all shadow-sm hover:shadow-emerald-200 hover:shadow-lg flex items-center justify-center gap-2 group/edit relative overflow-hidden
-                                        active:scale-75 hover:scale-95 transition-all duration-300"
-                                    >
-                                        <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-                                        <Edit2 size={16} className="relative z-10 group-hover:text-white transition-colors" />
-                                        <span className="relative z-10">แก้ไข</span>
-                                    </button>
-                                    <button
-                                        onClick={() => setItemToDelete(product)}
-                                        className="w-14 h-14 bg-red-50/50 backdrop-blur-sm text-red-500 font-bold rounded-2xl border border-red-100 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all flex items-center justify-center shadow-sm hover:shadow-red-200 group/btn"
-                                    >
-                                        <Trash2 size={20} className="group-hover/btn:scale-110 group-hover/btn:rotate-12 transition-all duration-300 active:rotate-360" />
-                                    </button>
-                                </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             ) : (
+                // Empty state
                 <div className="text-center py-32 bg-white/40 backdrop-blur-lg rounded-[3rem] border border-white/50 shadow-sm border-dashed border-emerald-100/50 animate-in fade-in zoom-in-95 duration-500">
                     <div className="w-24 h-24 bg-gradient-to-br from-emerald-100 to-teal-50 rounded-full flex items-center justify-center mx-auto mb-6 shadow-emerald-100/50 shadow-lg">
                         <BookOpen size={40} className="text-emerald-300" />
                     </div>
-                    <h3 className="text-2xl font-black text-gray-900 mb-2">ยังไม่มีหนังสือในชั้น</h3>
+                    <h3 className="text-2xl font-black text-gray-900 mb-2">
+                        {statusFilter === 'all' ? 'ยังไม่มีหนังสือในชั้น' : `ไม่มีหนังสือในสถานะ "${statusFilter === 'available' ? 'ขายอยู่' : statusFilter === 'sold' ? 'ขายแล้ว' : 'ปิดการขาย'}"`}
+                    </h3>
                     <p className="text-gray-500 max-w-xs mx-auto mb-8">เริ่มลงขายหนังสือเล่มแรกของคุณและสร้างรายได้!</p>
                 </div>
             )}
