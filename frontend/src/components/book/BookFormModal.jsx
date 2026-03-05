@@ -11,6 +11,7 @@ const BookFormModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
         imageUrl: '',
         condition: 90,
     });
+    const [priceError, setPriceError] = useState('');
 
     useEffect(() => {
         if (initialData) {
@@ -26,12 +27,26 @@ const BookFormModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                 condition: 90,
             });
         }
+        setPriceError('');
     }, [initialData, isOpen]);
 
     if (!isOpen) return null;
 
+    const handlePriceChange = (e) => {
+        const digitsOnly = e.target.value.replace(/[^0-9]/g, '');
+        const cleaned = digitsOnly.replace(/^0+/, '');
+        e.target.value = cleaned;
+        setPriceError('');
+        setFormData(prev => ({ ...prev, price: cleaned }));
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
+        const priceNum = Number(formData.price);
+        if (!formData.price || priceNum <= 0) {
+            setPriceError('กรุณาระบุราคาที่มากกว่า 0');
+            return;
+        }
         onSubmit(formData);
         onClose();
     };
@@ -117,13 +132,20 @@ const BookFormModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                                     <div className="relative">
                                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-emerald-500 uppercase">Credit</span>
                                         <input
-                                            type="number"
+                                            type="text"
+                                            inputMode="numeric"
                                             required
-                                            placeholder="0.00"
-                                            className="w-full pl-8 pr-4 py-2.5 border border-gray-100 bg-gray-50 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
+                                            placeholder="ราคา (ขั้นต่ำ 1)"
+                                            className={`w-full pl-8 pr-4 py-2.5 border bg-gray-50 rounded-xl focus:ring-2 outline-none transition-all ${priceError
+                                                    ? 'border-red-400 focus:ring-red-500/20 focus:border-red-500'
+                                                    : 'border-gray-100 focus:ring-emerald-500/20 focus:border-emerald-500'
+                                                }`}
                                             value={formData.price}
-                                            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                                            onChange={handlePriceChange}
                                         />
+                                        {priceError && (
+                                            <p className="mt-1 text-xs text-red-500 font-medium">{priceError}</p>
+                                        )}
                                     </div>
                                 </div>
                                 <div>
