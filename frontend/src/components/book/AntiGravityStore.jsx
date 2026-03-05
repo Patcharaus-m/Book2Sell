@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Edit, Plus, Tag, X, Save, Trash2, ShoppingBag, ArrowRight, Loader2, Sparkles, BookOpen } from 'lucide-react';
 
 /**
@@ -112,27 +112,13 @@ const BookCard = ({ book, onEdit, onDelete }) => {
 
 // --- Sub-Component: EditModal ---
 const EditModal = ({ isOpen, onClose, onSave, book }) => {
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState(book || {
         title: '',
         originalPrice: '',
         sellingPrice: '',
         category: '',
         image: ''
     });
-
-    useEffect(() => {
-        if (book) {
-            setFormData(book);
-        } else {
-            setFormData({
-                title: '',
-                originalPrice: '',
-                sellingPrice: '',
-                category: '',
-                image: ''
-            });
-        }
-    }, [book, isOpen]);
 
     if (!isOpen) return null;
 
@@ -350,6 +336,7 @@ const AntiGravityStore = () => {
 
             {/* Modals */}
             <EditModal
+                key={editingBook?.id || 'new'}
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSave={handleSave}

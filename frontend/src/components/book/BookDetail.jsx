@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, ShoppingBag, ShieldCheck, Truck, RefreshCcw, Star, MessageSquare, Send, User } from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
-import { useBook } from "../../context/BookContext";
-import { useCart } from "../../context/CartContext";
+import { useAuth } from "../../context/useAuth";
+import { useBook } from "../../context/useBook";
+import { useCart } from "../../context/useCart";
 
 export default function BookDetail() {
     const { id } = useParams();

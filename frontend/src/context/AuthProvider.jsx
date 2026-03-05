@@ -1,9 +1,8 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import loginService from "../services/loginService";
 import registerService from "../services/registerService";
 import { topUpService } from "../services/userService";
-
-const AuthContext = createContext();
+import { AuthContext } from "./AuthContext";
 
 /**
  * AuthProvider - จัดการระบบล็อกอินและการคงสถานะผู้ใช้ (Senior Level Implementation)
@@ -75,21 +74,21 @@ export function AuthProvider({ children }) {
     const updateUser = (updatedUserData) => {
         console.log('=== AuthContext updateUser called ===');
         console.log('Updating with:', updatedUserData);
-        
+
         // ใช้ functional update เพื่อให้ได้ค่า state ล่าสุดเสมอ
         setUser(prevUser => {
             console.log('Previous user state:', prevUser);
             const newUser = { ...prevUser, ...updatedUserData };
             console.log('New user object:', newUser);
             console.log('New creditBalance:', newUser.creditBalance);
-            
+
             // Update localStorage
             localStorage.setItem("auth_user", JSON.stringify(newUser));
-            
+
             // Verify
             const saved = JSON.parse(localStorage.getItem("auth_user"));
             console.log('Verified localStorage creditBalance:', saved.creditBalance);
-            
+
             return newUser;
         });
     };
@@ -109,7 +108,7 @@ export function AuthProvider({ children }) {
             if (result.code === 200 || result.success) {
                 // Backend returns { payload: { creditBalance: ... } }
                 const newBalance = result.payload?.creditBalance;
-                
+
                 if (newBalance !== undefined) {
                     const updatedUser = { ...user, creditBalance: newBalance };
                     setUser(updatedUser);
@@ -172,10 +171,3 @@ export function AuthProvider({ children }) {
     );
 }
 
-export const useAuth = () => {
-    const context = useContext(AuthContext);
-    if (!context) {
-        throw new Error("useAuth must be used within an AuthProvider");
-    }
-    return context;
-};

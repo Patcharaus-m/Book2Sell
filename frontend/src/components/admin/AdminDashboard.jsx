@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useBook } from "../../context/BookContext";
+import { useBook } from "../../context/useBook";
 import { Edit, Trash2, Plus, Package, ExternalLink, Search, Image as ImageIcon, Database } from "lucide-react";
 import AdvancedBookModal from "../book/AdvancedBookModal";
 import DeleteConfirmModal from "../book/DeleteConfirmModal";
@@ -219,6 +219,7 @@ export default function AdminDashboard() {
 
             {/* Modals */}
             <AdvancedBookModal
+                key={selectedBook?.id || 'new'}
                 isOpen={isFormOpen}
                 onClose={() => setIsFormOpen(false)}
                 onSubmit={handleFormSubmit}

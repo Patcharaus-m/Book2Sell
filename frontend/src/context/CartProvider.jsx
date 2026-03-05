@@ -1,8 +1,7 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import cartService from "../services/cartService";
-import { useAuth } from "./AuthContext";
-
-const CartContext = createContext();
+import { useAuth } from "./useAuth";
+import { CartContext } from "./CartContext";
 
 export function CartProvider({ children }) {
     const [cart, setCart] = useState([]);
@@ -19,7 +18,7 @@ export function CartProvider({ children }) {
             return {
                 ...item,
                 // Ensure we have a top-level ID that is the BOOK ID for UI actions
-                id: book?._id || book?.id, 
+                id: book?._id || book?.id,
                 title: book?.title || "Unknown",
                 author: book?.author,
                 imageUrl: book?.images?.[0] || book?.imageUrl,
@@ -48,12 +47,12 @@ export function CartProvider({ children }) {
                 try {
                     const response = await cartService.getCart(user.id);
                     console.log("CartContext: Raw API Response:", response);
-                    
+
                     if (response && response.payload) {
-                         const items = response.payload.items || [];
-                         const normalized = normalizeCart(items);
-                         console.log("CartContext: Normalized Items:", normalized);
-                         setCart(normalized);
+                        const items = response.payload.items || [];
+                        const normalized = normalizeCart(items);
+                        console.log("CartContext: Normalized Items:", normalized);
+                        setCart(normalized);
                     } else {
                         console.warn("CartContext: Invalid response payload", response);
                     }
@@ -71,10 +70,10 @@ export function CartProvider({ children }) {
 
     const addToCart = async (book) => {
         if (!user?.id) return alert("กรุณาเข้าสู่ระบบก่อนซื้อสินค้า");
-        
+
         const bookId = book.id || book._id;
         if (!bookId) {
-             return alert("เกิดข้อผิดพลาด: ไม่พบ ID หนังสือ");
+            return alert("เกิดข้อผิดพลาด: ไม่พบ ID หนังสือ");
         }
 
         try {
@@ -130,7 +129,7 @@ export function CartProvider({ children }) {
     const clearCart = async () => {
         // Clear local state
         setCart([]);
-        
+
         // Clear from database
         if (user?.id) {
             try {
@@ -161,5 +160,3 @@ export function CartProvider({ children }) {
         </CartContext.Provider>
     );
 }
-
-export const useCart = () => useContext(CartContext);

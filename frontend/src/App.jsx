@@ -1,14 +1,15 @@
 import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
-import { BookProvider } from "./context/BookContext";
-import { CartProvider } from "./context/CartContext";
+import { AuthProvider } from "./context/AuthProvider";
+import { BookProvider } from "./context/BookProvider";
+import { CartProvider } from "./context/CartProvider";
 
 // Components
 import Navbar from "./components/layout/Navbar";
 import BookFilterBar from "./components/book/BookFilterBar";
 import BookList from "./components/book/BookList";
 import BookDetail from "./components/book/BookDetail";
-import { useBook } from "./context/BookContext";
+import { useBook } from "./context/useBook";
+import { useAuth } from "./context/useAuth";
 import BookDetailModal from "./components/book/BookDetailModal";
 import { useState } from "react";
 import Settings from "./Pages/setting";
@@ -131,10 +132,21 @@ function App() {
 
 function AppContent({ selectedBook, setSelectedBook, isEditing, setIsEditing, handleBookClick }) {
   const { updateBook } = useBook();
+  const { user } = useAuth();
 
-  const handleEditSubmit = (updatedData) => {
-    if (selectedBook) {
-      updateBook(selectedBook.id, updatedData);
+  const handleEditSubmit = async (updatedData) => {
+    console.log("Submit edit:", updatedData);
+    if (!selectedBook) return;
+
+    const bookId = selectedBook.id || selectedBook._id;
+    const result = await updateBook(bookId, updatedData, user);
+
+    if (result.success) {
+      setSelectedBook(null);
+      setIsEditing(false);
+      alert("แก้ไขข้อมูลเรียบร้อยแล้ว");
+    } else {
+      alert(result.message || "ไม่สามารถแก้ไขข้อมูลได้");
     }
   };
 
@@ -172,6 +184,7 @@ function AppContent({ selectedBook, setSelectedBook, isEditing, setIsEditing, ha
       {/* Modal แสดงรายละเอียดหนังสือที่ถูกเลือก */}
       {!isEditing && (
         <BookDetailModal
+          key={selectedBook?.id || 'detail'}
           isOpen={!!selectedBook}
           onClose={() => setSelectedBook(null)}
           book={selectedBook}
@@ -180,6 +193,7 @@ function AppContent({ selectedBook, setSelectedBook, isEditing, setIsEditing, ha
 
       {/* Modal สำหรับแก้ไขหนังสือ */}
       <AdvancedBookModal
+        key={selectedBook?.id || 'edit'}
         isOpen={isEditing && !!selectedBook}
         onClose={() => {
           setSelectedBook(null);

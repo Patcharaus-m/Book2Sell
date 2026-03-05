@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { BookOpen, Edit2, Trash2, X, AlertOctagon, Save, Image, DollarSign, Package, FileText, Tag, Loader2, Upload, ShoppingCart, Info, CheckCircle, MessageCircle, Star, User } from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
-import { useBook } from "../../context/BookContext";
+import { useAuth } from "../../context/useAuth";
+import { useBook } from "../../context/useBook";
 import { getBooksBySellerId, updateBookService } from "../../services/bookService";
 
 export default function ProductInStore() {
@@ -13,11 +13,8 @@ export default function ProductInStore() {
     const [itemToEdit, setItemToEdit] = useState(null);
     const [editForm, setEditForm] = useState({});
     const [isSaving, setIsSaving] = useState(false);
-<<<<<<< HEAD
     const [statusFilter, setStatusFilter] = useState('all'); // 'all' | 'available' | 'sold' | 'closed'
-=======
     const [imageInputMode, setImageInputMode] = useState('upload'); // 'upload' or 'url'
->>>>>>> jirawat
     const fileInputRef = useRef(null);
 
     // ดึงหนังสือของ user นี้จาก API
@@ -208,8 +205,8 @@ export default function ProductInStore() {
                             <button key={key}
                                 onClick={() => setStatusFilter(key)}
                                 className={`px-4 py-2 rounded-2xl text-xs font-black transition-all duration-300 flex items-center gap-2 ${statusFilter === key
-                                        ? activeClass + ' shadow-lg scale-105'
-                                        : 'bg-white/60 text-gray-500 border border-gray-100 hover:border-emerald-200 hover:text-emerald-600'
+                                    ? activeClass + ' shadow-lg scale-105'
+                                    : 'bg-white/60 text-gray-500 border border-gray-100 hover:border-emerald-200 hover:text-emerald-600'
                                     }`}>
                                 {label}
                                 <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-black ${statusFilter === key ? 'bg-white/25' : 'bg-gray-100'}`}>

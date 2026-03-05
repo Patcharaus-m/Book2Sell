@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { X, Upload, Book, User, DollarSign, Tag, FileText, Save, Plus } from 'lucide-react';
 
 const BookFormModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState(initialData || {
         title: '',
         author: '',
         price: '',
@@ -12,23 +12,6 @@ const BookFormModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
         condition: 90,
     });
     const [priceError, setPriceError] = useState('');
-
-    useEffect(() => {
-        if (initialData) {
-            setFormData(initialData);
-        } else {
-            setFormData({
-                title: '',
-                author: '',
-                price: '',
-                category: 'นิยาย',
-                description: '',
-                imageUrl: '',
-                condition: 90,
-            });
-        }
-        setPriceError('');
-    }, [initialData, isOpen]);
 
     if (!isOpen) return null;
 
@@ -137,8 +120,8 @@ const BookFormModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                                             required
                                             placeholder="ราคา (ขั้นต่ำ 1)"
                                             className={`w-full pl-8 pr-4 py-2.5 border bg-gray-50 rounded-xl focus:ring-2 outline-none transition-all ${priceError
-                                                    ? 'border-red-400 focus:ring-red-500/20 focus:border-red-500'
-                                                    : 'border-gray-100 focus:ring-emerald-500/20 focus:border-emerald-500'
+                                                ? 'border-red-400 focus:ring-red-500/20 focus:border-red-500'
+                                                : 'border-gray-100 focus:ring-emerald-500/20 focus:border-emerald-500'
                                                 }`}
                                             value={formData.price}
                                             onChange={handlePriceChange}

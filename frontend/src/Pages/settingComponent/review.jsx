@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { MessageSquare, Star, User, PenLine } from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../context/useAuth";
 import { getReviewsBySellerService, getReviewsByReviewerService } from "../../services/reviewService";
 
 export default function Review() {

@@ -1,7 +1,7 @@
 import { Search, ShoppingCart, LogOut, ShoppingBag, Plus, X, ChevronDown, Package, Settings, BookOpen, Book, Library, Wallet, User } from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
-import { useBook } from "../../context/BookContext";
-import { useCart } from "../../context/CartContext";
+import { useAuth } from "../../context/useAuth";
+import { useBook } from "../../context/useBook";
+import { useCart } from "../../context/useCart";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import LoginModal from "../auth/LoginModal";

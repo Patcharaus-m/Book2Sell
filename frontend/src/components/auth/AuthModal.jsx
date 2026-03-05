@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, Mail, Lock, User, ArrowRight, Github, ShoppingBag, Phone } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/useAuth';
 
 /**
  * AuthModal - ระบบล็อกอินและสมัครสมาชิก (Unified Auth UI)

@@ -1,8 +1,7 @@
-import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { deleteBookService } from '../services/bookService';
 import { getReviewsBySellerService } from "../services/reviewService";
-
-const BookContext = createContext();
+import { BookContext } from "./BookContext";
 
 /**
  * BookProvider - จัดการข้อมูลสินค้า (Inventory) เริ่มต้นด้วยค่าว่าง และระบบจัดการผู้ขาย (Seller System)
@@ -19,12 +18,7 @@ export const BookProvider = ({ children }) => {
         sortBy: 'newest'
     });
 
-    // โหลดข้อมูลจาก Backend เมื่อเริ่มต้น
-    useEffect(() => {
-        fetchBooks();
-    }, []);
-
-    const fetchBooks = async () => {
+    const fetchBooks = useCallback(async () => {
         try {
             const response = await fetch("https://book2-backend.onrender.com/api/book");
             const data = await response.json();
@@ -52,7 +46,17 @@ export const BookProvider = ({ children }) => {
         } catch (error) {
             console.error("Failed to fetch books:", error);
         }
-    };
+    }, []);
+
+    // โหลดข้อมูลจาก Backend เมื่อเริ่มต้น
+    useEffect(() => {
+        let mounted = true;
+        const load = async () => {
+            if (mounted) await fetchBooks();
+        };
+        load();
+        return () => { mounted = false; };
+    }, [fetchBooks]);
 
     const addBook = async (newBook, currentUser) => {
         try {
@@ -99,6 +103,33 @@ export const BookProvider = ({ children }) => {
             return { success: false, message: data.error?.message || 'Failed to add book' };
         } catch (error) {
             console.error("Failed to add book:", error);
+            return { success: false, message: "เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์" };
+        }
+    };
+
+    const updateBook = async (bookId, updatedData, currentUser) => {
+        try {
+            const userId = currentUser?._id || currentUser?.id;
+            const response = await fetch(`https://book2-backend.onrender.com/api/book/${bookId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ...updatedData, userId })
+            });
+            const data = await response.json();
+            console.log('Update book response:', data);
+
+            if (data.code === 200 || data.code === 201 || data.status === 2001) {
+                const updatedBook = {
+                    ...(data.payload || updatedData),
+                    id: bookId,
+                    _id: bookId
+                };
+                setBooks(prev => prev.map(b => (b.id === bookId || b._id === bookId) ? updatedBook : b));
+                return { success: true };
+            }
+            return { success: false, message: data.message || 'Failed to update book' };
+        } catch (error) {
+            console.error("Failed to update book:", error);
             return { success: false, message: "เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์" };
         }
     };
@@ -154,7 +185,7 @@ export const BookProvider = ({ children }) => {
     const setSearchKeyword = useCallback((keyword) => {
         setFilters(prev => ({ ...prev, keyword }));
         handleRemoteSearch(keyword); // เรียกค้นหาจาก Server
-    }, [handleRemoteSearch]);
+    }, [handleRemoteSearch, fetchBooks]);
 
     const filteredBooks = useMemo(() => {
         return books.filter(book => {
@@ -211,8 +242,8 @@ export const BookProvider = ({ children }) => {
             // Backend returns { code: 201, status: 2001, payload: [...] }
             if (response && (response.code === 201 || response.code === 200 || response.status === 2001)) {
                 // Handle both nested { payload: { payload: [...] } } and direct { payload: [...] }
-                const reviewsData = Array.isArray(response.payload) 
-                    ? response.payload 
+                const reviewsData = Array.isArray(response.payload)
+                    ? response.payload
                     : (response.payload?.payload || []);
                 return reviewsData;
             }
@@ -227,6 +258,7 @@ export const BookProvider = ({ children }) => {
         books,
         filteredBooks,
         addBook,
+        updateBook,
         deleteBook,
         addReview,
         getSellerReviews,
@@ -236,19 +268,11 @@ export const BookProvider = ({ children }) => {
         refreshBooks: fetchBooks  // เพิ่มฟังก์ชัน refresh สำหรับเรียกหลังซื้อ
     };
 
-    
+
 
     return (
         <BookContext.Provider value={value}>
             {children}
         </BookContext.Provider>
     );
-};
-
-export const useBook = () => {
-    const context = useContext(BookContext);
-    if (!context) {
-        throw new Error('useBook must be used within a BookProvider');
-    }
-    return context;
 };

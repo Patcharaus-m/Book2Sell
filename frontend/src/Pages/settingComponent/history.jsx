@@ -3,7 +3,7 @@ import {
     Package, CheckCircle, Truck, Clock, Star, MessageSquare,
     MapPin, BookOpen, X, Send, AlertCircle, ShoppingBag
 } from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../context/useAuth";
 import { getOrderHistoryService } from "../../services/orderService";
 import { createReviewService } from "../../services/reviewService";
 
@@ -24,7 +24,7 @@ const STAGES = [
     { key: "shipped", label: "ได้รับหนังสือแล้ว", icon: Package, color: "teal" },
 ];
 
-const stageIndex = (order) => {
+const stageIndex = (_order) => {
     // Force every buy to be "Got Book" stage immediately as requested
     return 2;
 };

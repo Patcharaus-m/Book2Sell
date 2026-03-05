@@ -1,4 +1,4 @@
-import { useBook } from "../../context/BookContext";
+import { useBook } from "../../context/useBook";
 import BookCard from "./BookCard";
 import { useState } from "react";
 import { Book, ChevronLeft, ChevronRight } from "lucide-react";

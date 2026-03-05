@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCart } from "../../context/CartContext";
+import { useCart } from "../../context/useCart";
 import { ShoppingCart, ImageIcon } from "lucide-react";
 
 export default function BookCard({ book, onBookClick }) {

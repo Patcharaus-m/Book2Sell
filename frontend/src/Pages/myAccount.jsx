@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { User, Mail, Phone, CreditCard, ShoppingBag, History, Shield, LogOut, Edit3, Save, ChevronRight, BookOpen, Star, X, Camera, ShoppingCart, ImageIcon } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { updateUserInfo } from '../services/editInfoService';
 import { getOrderHistoryService } from '../services/orderService';
@@ -101,10 +101,10 @@ const MyAccount = () => {
         }
     };
 
-    const handleLogout = () => {
-        logout();
-        navigate('/');
-    };
+    // const handleLogout = () => {
+    //     logout();
+    //     navigate('/');
+    // };
 
     const handleProfileUpload = (e) => {
         const file = e.target.files[0];

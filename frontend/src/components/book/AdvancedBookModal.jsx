@@ -6,7 +6,14 @@ import { X, Image as ImageIcon, Plus, Trash2, Tag, BookOpen, User, CreditCard, A
  * ปรับลดความหนาของ UI (Padding/Margin) เพื่อให้ดูไม่ล้นหน้าจอ
  */
 const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState(initialData ? {
+        ...initialData,
+        category: initialData.category || (initialData.categories?.[0] || ''),
+        isbn: initialData.isbn || '',
+        coverPrice: initialData.coverPrice || initialData.originalPrice || '',
+        images: initialData.images || (initialData.imageUrl ? [initialData.imageUrl] : []),
+        sellingPrice: initialData.sellingPrice || initialData.price || ''
+    } : {
         title: '',
         author: '',
         category: '',
@@ -34,35 +41,6 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
         window.addEventListener('click', handleClose);
         return () => window.removeEventListener('click', handleClose);
     }, [showConditionMenu]);
-
-    useEffect(() => {
-        if (initialData) {
-            setFormData({
-                ...initialData,
-                category: initialData.category || (initialData.categories?.[0] || ''),
-                isbn: initialData.isbn || '',
-                coverPrice: initialData.coverPrice || initialData.originalPrice || '',
-                images: initialData.images || (initialData.imageUrl ? [initialData.imageUrl] : []),
-                sellingPrice: initialData.sellingPrice || initialData.price || ''
-            });
-        } else {
-            setFormData({
-                title: '',
-                author: '',
-                category: '',
-                isbn: '',
-                sellingPrice: '',
-                coverPrice: '',
-                images: [],
-                condition: 'สภาพ 95%',
-                status: 'available',
-                stock: 1,
-                description: ''
-            });
-        }
-        setSellingPriceError('');
-        setIsbnError('');
-    }, [initialData, isOpen]);
 
     if (!isOpen) return null;
 

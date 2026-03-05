@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SlidersHorizontal, ChevronDown, XCircle, SortAsc, SortDesc, Clock, Flame } from 'lucide-react';
 
 /**

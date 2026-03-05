@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, ShoppingCart, Info, CheckCircle, Package, MessageCircle, Star, User } from 'lucide-react';
-import { useCart } from '../../context/CartContext';
+import { useCart } from '../../context/useCart';
 import { getReviewsBySeller } from '../../services/reviewService';
 
 /**

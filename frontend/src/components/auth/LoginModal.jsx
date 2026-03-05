@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, Lock, User, ArrowRight, Github, ShoppingBag } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/useAuth';
 
 /**
  * LoginModal - Modal สำหรับเข้าสู่ระบบ (แยกจาก Register)
@@ -35,7 +35,8 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
             } else {
                 setError(result.message || 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
             }
-        } catch (err) {
+        } catch (error) {
+            console.error(error);
             setError('เกิดข้อผิดพลาดในการเชื่อมต่อ');
         } finally {
             setIsLoading(false);

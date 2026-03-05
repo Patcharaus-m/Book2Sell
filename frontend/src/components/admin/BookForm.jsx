@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useBook } from "../../context/BookContext";
+import { useBook } from "../../context/useBook";
 import { ArrowLeft, Save, Plus } from "lucide-react";
 
 export default function BookForm() {
@@ -25,13 +25,13 @@ export default function BookForm() {
     });
 
     useEffect(() => {
-        if (isEdit) {
+        if (isEdit && books.length > 0) {
             const book = books.find(b => b.id === id);
-            if (book) {
+            if (book && book.id !== formData.id) {
                 setFormData({ ...book });
             }
         }
-    }, [id, isEdit, books]);
+    }, [id, isEdit, books, formData.id]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
