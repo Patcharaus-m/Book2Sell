@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { X, ShoppingCart, Info, CheckCircle, Package, MessageCircle, Star, User } from 'lucide-react';
+import { X, ShoppingCart, Info, CheckCircle, Package, MessageCircle, Star, User, Store } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
+import { useBook } from '../../context/BookContext';
+import { useNavigate } from 'react-router-dom';
 import { getReviewsBySeller } from '../../services/reviewService';
 
 /**
@@ -9,6 +11,8 @@ import { getReviewsBySeller } from '../../services/reviewService';
  */
 const BookDetailModal = ({ isOpen, onClose, book }) => {
     const { addToCart } = useCart();
+    const { setFilters, setSearchKeyword } = useBook();
+    const navigate = useNavigate();
     const [activeImage, setActiveImage] = useState('');
     const [reviews, setReviews] = useState([]);
     const [loadingReviews, setLoadingReviews] = useState(false);
@@ -75,6 +79,20 @@ const BookDetailModal = ({ isOpen, onClose, book }) => {
 
     const handleAddToCart = () => {
         addToCart(book);
+    };
+
+    const handleVisitStore = () => {
+        const sellerId = book.sellerId?._id || book.sellerId;
+        if (sellerId) {
+            // ตั้งค่า filter เฉพาะคนขายคนนี้ และล้างคำค้นหา
+            setFilters(prev => ({
+                ...prev,
+                sellerId: sellerId,
+                keyword: ''
+            }));
+            onClose();
+            navigate('/');
+        }
     };
 
     const hasDiscount = book.originalPrice > (book.sellingPrice || book.price);
@@ -194,7 +212,7 @@ const BookDetailModal = ({ isOpen, onClose, book }) => {
                     {/* Seller Info - ผู้ที่ลงขายหนังสือ */}
                     <div className="mb-4 p-4 bg-gradient-to-br from-emerald-100/50 to-emerald-50/30 rounded-2xl border border-emerald-200/50">
                         <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 bg-gradient-to-br from-emerald-600 to-emerald-500 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-md overflow-hidden">
+                            <div className="w-12 h-12 bg-gradient-to-br from-emerald-600 to-emerald-500 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-md overflow-hidden shrink-0">
                                 {(book.sellerId?.profileImage) ? (
                                     <img
                                         src={book.sellerId.profileImage}
@@ -202,21 +220,37 @@ const BookDetailModal = ({ isOpen, onClose, book }) => {
                                         className="w-full h-full object-cover"
                                     />
                                 ) : (
-                                    (book.sellerId?.username || book.sellerId?.name || book.sellerName)?.charAt(0)?.toUpperCase() || 'U'
+                                    (book.sellerId?.username || book.sellerId?.name || book.sellerName || 'U')?.charAt(0)?.toUpperCase() || 'U'
                                 )}
                             </div>
-                            <div className="flex-1">
+                            <div className="flex-1 min-w-0">
                                 <p className="text-[9px] font-black text-emerald-600 uppercase tracking-wider">ลงขายโดย</p>
-                                <p className="text-base font-black text-gray-900">
-                                    {book.sellerId?.username || book.sellerId?.name || book.sellerName || 'ไม่ระบุผู้ขาย'}
-                                </p>
+                                <div className="flex items-center gap-2">
+                                    <p className="text-base font-black text-gray-900 truncate">
+                                        {book.sellerId?.username || book.sellerId?.name || book.sellerName || 'ไม่ระบุผู้ขาย'}
+                                    </p>
+                                    {averageRating > 0 && (
+                                        <div className="flex items-center gap-0.5 px-1.5 py-0.5 bg-white/60 rounded-lg text-amber-500 text-[10px] font-black">
+                                            <Star size={10} fill="currentColor" />
+                                            {averageRating}
+                                        </div>
+                                    )}
+                                </div>
                                 {book.sellerId?.email && (
                                     <p className="text-[10px] text-gray-400 truncate">{book.sellerId.email}</p>
                                 )}
                             </div>
-                            <button className="p-2 text-emerald-600 hover:bg-white/80 rounded-xl transition-all" title="ติดต่อผู้ขาย">
-                                <MessageCircle size={20} />
+                        </div>
+                        <div className="flex gap-2 mt-3 pt-3 border-t border-emerald-200/30">
+                            <button
+                                onClick={handleVisitStore}
+                                className="flex-1 py-2 bg-white/60 hover:bg-emerald-600 hover:text-white text-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all border border-emerald-100 shadow-sm flex items-center justify-center gap-2"
+                            >
+                                <Store size={14} /> ดูร้านค้า
                             </button>
+                            {/* <button className="px-3 py-2 bg-emerald-600 text-white hover:bg-emerald-700 rounded-xl transition-all shadow-md shadow-emerald-200" title="ติดต่อผู้ขาย">
+                                <MessageCircle size={14} />
+                            </button> */}
                         </div>
                     </div>
 

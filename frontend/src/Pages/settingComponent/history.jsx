@@ -15,52 +15,54 @@ const formatDate = (dateStr) =>
         })
         : "-";
 
-// Map shippingStatus → frontend stage index
-// Backend stages:  "preparing" | "shipped"
-// We simulate a 3-step journey: paid → preparing(sending) → shipped(received)
 const STAGES = [
-    { key: "paid", label: "ชำระเงินแล้ว", icon: CheckCircle, color: "emerald" },
-    { key: "preparing", label: "กำลังจัดส่ง", icon: Truck, color: "amber" },
-    { key: "shipped", label: "ได้รับหนังสือแล้ว", icon: Package, color: "teal" },
+    { key: "ordered", label: "สั่งซื้อสำเร็จ", icon: ShoppingBag },
+    { key: "paid", label: "ชำระเงินแล้ว", icon: CheckCircle },
+    { key: "processing", label: "กำลังดำเนินการ", icon: Package },
+    { key: "preparing", label: "กำลังจัดส่ง", icon: Truck },
+    { key: "shipped", label: "ได้รับหนังสือแล้ว", icon: CheckCircle },
 ];
 
 const stageIndex = (order) => {
-    // Force every buy to be "Got Book" stage immediately as requested
-    return 2;
+    const status = order.shippingStatus || 'paid';
+    const index = STAGES.findIndex(s => s.key === status);
+    return index !== -1 ? index : 0;
 };
 
 // ---------- sub-components ----------
 function StageBar({ order }) {
     const current = stageIndex(order);
     return (
-        <div className="flex items-center gap-0 mb-6">
-            {STAGES.map((stage, i) => {
-                const Icon = stage.icon;
-                const done = i <= current;
-                const active = i === current;
-                return (
-                    <React.Fragment key={stage.key}>
-                        <div className="flex flex-col items-center gap-1.5 z-10">
-                            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all duration-500 shadow-sm
+        <div className="max-w-4xl mx-auto mb-10 mt-4 px-4">
+            <div className="flex items-center gap-0">
+                {STAGES.map((stage, i) => {
+                    const Icon = stage.icon;
+                    const done = i <= current;
+                    const active = i === current;
+                    return (
+                        <React.Fragment key={stage.key}>
+                            <div className="flex flex-col items-center gap-1.5 z-10">
+                                <div className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all duration-500 shadow-sm
                                 ${done
-                                    ? active
-                                        ? "bg-emerald-600 text-white shadow-emerald-300/50 shadow-lg scale-110"
-                                        : "bg-emerald-100 text-emerald-600"
-                                    : "bg-gray-100 text-gray-300"}`}>
-                                <Icon size={18} />
-                            </div>
-                            <span className={`text-[10px] font-black uppercase tracking-wider whitespace-nowrap
+                                        ? active
+                                            ? "bg-emerald-600 text-white shadow-emerald-300/50 shadow-lg scale-110"
+                                            : "bg-emerald-100 text-emerald-600"
+                                        : "bg-gray-100 text-gray-300"}`}>
+                                    <Icon size={18} />
+                                </div>
+                                <span className={`text-[10px] font-black uppercase tracking-wider whitespace-nowrap
                                 ${done ? "text-emerald-600" : "text-gray-300"}`}>
-                                {stage.label}
-                            </span>
-                        </div>
-                        {i < STAGES.length - 1 && (
-                            <div className={`flex-1 h-1 mx-1 rounded-full transition-all duration-700
+                                    {stage.label}
+                                </span>
+                            </div>
+                            {i < STAGES.length - 1 && (
+                                <div className={`flex-1 h-1 mx-1 rounded-full transition-all duration-700
                                 ${i < current ? "bg-emerald-400" : "bg-gray-100"}`} />
-                        )}
-                    </React.Fragment>
-                );
-            })}
+                            )}
+                        </React.Fragment>
+                    );
+                })}
+            </div>
         </div>
     );
 }
@@ -291,8 +293,11 @@ export default function History() {
 
                                             {/* Payment badge */}
                                             <div className="mt-3">
-                                                <span className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-50 text-emerald-700 text-[10px] font-black rounded-full uppercase tracking-wider border border-emerald-100">
-                                                    <CheckCircle size={10} /> ชำระเงินแล้ว
+                                                <span className={`inline-flex items-center gap-1 px-3 py-1 text-[10px] font-black rounded-full uppercase tracking-wider border ${order.shippingStatus === 'paid' || !order.shippingStatus
+                                                    ? 'bg-purple-50 text-purple-700 border-purple-100'
+                                                    : 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                                                    }`}>
+                                                    <CheckCircle size={10} /> {order.shippingStatus === 'paid' || !order.shippingStatus ? 'รอร้านค้ายืนยัน' : 'ชำระเงินแล้ว'}
                                                 </span>
                                             </div>
                                         </div>
@@ -303,18 +308,24 @@ export default function History() {
 
                                     {/* Shipping status description */}
                                     <div className={`px-5 py-3 rounded-2xl text-sm font-bold mb-6 flex items-center gap-2.5
-                                        ${isShipped
+                                        ${order.shippingStatus === 'shipped'
                                             ? "bg-teal-50 text-teal-700 border border-teal-100"
-                                            : "bg-amber-50 text-amber-700 border border-amber-100"}`}>
-                                        {isShipped ? (
+                                            : order.shippingStatus === 'paid' || !order.shippingStatus
+                                                ? "bg-purple-50 text-purple-700 border border-purple-100"
+                                                : "bg-amber-50 text-amber-700 border border-amber-100"}`}>
+                                        {order.shippingStatus === 'shipped' ? (
                                             <><Package size={16} /> หนังสือถูกจัดส่งถึงคุณแล้ว — ขอบคุณที่ซื้อกับเรา!</>
+                                        ) : order.shippingStatus === 'preparing' ? (
+                                            <><Truck size={16} /> ร้านค้ากำลังเตรียมจัดส่งหนังสือให้คุณ...</>
+                                        ) : order.shippingStatus === 'processing' ? (
+                                            <><Clock size={16} /> ร้านค้ากำลังดำเนินการตรวจสอบออเดอร์...</>
                                         ) : (
-                                            <><Truck size={16} /> กำลังเตรียมจัดส่งหนังสือให้คุณ กรุณารอสักครู่...</>
+                                            <><ShoppingBag size={16} /> สั่งซื้อสำเร็จ! รอร้านค้ายืนยันรับออเดอร์...</>
                                         )}
                                     </div>
 
                                     {/* Review button — only available when shipped and not yet reviewed */}
-                                    {isShipped && !hasReviewed && (
+                                    {order.shippingStatus === 'shipped' && !hasReviewed && (
                                         <button
                                             onClick={() => setReviewTarget(order)}
                                             className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-400 to-orange-400 text-white font-black rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-lg shadow-amber-200/50 text-sm"
