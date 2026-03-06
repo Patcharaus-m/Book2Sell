@@ -51,7 +51,7 @@ export default function BookDetail() {
     return (
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <button
-                onClick={() => navigate(-1)}
+                onClick={() => navigate('/')}
                 className="flex items-center gap-2 text-gray-400 hover:text-gray-900 font-bold mb-8 transition-colors group"
             >
                 <ArrowLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />

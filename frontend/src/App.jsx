@@ -102,6 +102,23 @@ function CleanLayout({ onBookClick }) {
  * App Wiring - ฟังก์ชันหลักที่รวม Logic ทุกอย่างเข้าด้วยกัน
  */
 function App() {
+  return (
+    <Router>
+      <AuthProvider>
+        <BookProvider>
+          <CartProvider>
+            <AppContent />
+          </CartProvider>
+        </BookProvider>
+      </AuthProvider>
+    </Router>
+  );
+}
+
+function AppContent() {
+  const { updateBook } = useBook();
+  const { user } = useAuth();
+
   const [selectedBook, setSelectedBook] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -110,28 +127,10 @@ function App() {
     setIsEditing(edit);
   };
 
-  return (
-    <Router>
-      <AuthProvider>
-        <BookProvider>
-          <CartProvider>
-            <AppContent
-              selectedBook={selectedBook}
-              setSelectedBook={setSelectedBook}
-              isEditing={isEditing}
-              setIsEditing={setIsEditing}
-              handleBookClick={handleBookClick}
-            />
-          </CartProvider>
-        </BookProvider>
-      </AuthProvider>
-    </Router>
-  );
-}
-
-function AppContent({ selectedBook, setSelectedBook, isEditing, setIsEditing, handleBookClick }) {
-  const { updateBook } = useBook();
-  const { user } = useAuth();
+  const handleCloseModal = () => {
+    setSelectedBook(null);
+    setIsEditing(false);
+  };
 
   const handleEditSubmit = async (updatedData) => {
     console.log("Submit edit:", updatedData);
@@ -176,31 +175,28 @@ function AppContent({ selectedBook, setSelectedBook, isEditing, setIsEditing, ha
             <Route path="/history" element={<HistoryPage />} />
           </Route>
         </Route>
-
-
       </Routes>
 
-      {/* Modal แสดงรายละเอียดหนังสือที่ถูกเลือก */}
+      {/* Modal: Book Detail (view only) */}
       {!isEditing && (
         <BookDetailModal
-          key={selectedBook?.id || 'detail'}
+          key={`detail-${selectedBook?._id || selectedBook?.id || 'none'}`}
           isOpen={!!selectedBook}
-          onClose={() => setSelectedBook(null)}
+          onClose={handleCloseModal}
           book={selectedBook}
         />
       )}
 
-      {/* Modal สำหรับแก้ไขหนังสือ */}
-      <AdvancedBookModal
-        key={selectedBook?.id || 'edit'}
-        isOpen={isEditing && !!selectedBook}
-        onClose={() => {
-          setSelectedBook(null);
-          setIsEditing(false);
-        }}
-        onSubmit={handleEditSubmit}
-        initialData={selectedBook}
-      />
+      {/* Modal: Edit Book (seller only) */}
+      {isEditing && (
+        <AdvancedBookModal
+          key={`edit-${selectedBook?._id || selectedBook?.id || 'none'}`}
+          isOpen={!!selectedBook}
+          onClose={handleCloseModal}
+          onSubmit={handleEditSubmit}
+          initialData={selectedBook}
+        />
+      )}
     </>
   );
 }

@@ -154,7 +154,9 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
     return (
         <div
             className="fixed inset-0 z-[100] grid place-items-center h-screen w-screen bg-black/60 backdrop-blur-sm p-4 transition-all duration-300"
-            onClick={onClose}
+            onClick={(e) => {
+                if (e.target === e.currentTarget) onClose();
+            }}
         >
             <div
                 // ปรับ: ลด max-h เป็น 85vh และลดความโค้งมุม (rounded) ลงเล็กน้อยให้ดูทางการขึ้น
@@ -173,7 +175,11 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
                         </div>
                     </div>
                     <button
-                        onClick={onClose}
+                        type="button"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onClose();
+                        }}
                         className="p-2 hover:bg-white/20 rounded-full transition-all duration-750 ease-in-out hover:rotate-180 flex items-center justify-center"
                     >
                         <X size={20} />
