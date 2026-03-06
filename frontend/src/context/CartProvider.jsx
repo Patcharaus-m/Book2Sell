@@ -18,7 +18,8 @@ export function CartProvider({ children }) {
             return {
                 ...item,
                 // Ensure we have a top-level ID that is the BOOK ID for UI actions
-                id: book?._id || book?.id,
+                // Must be a plain string, not a MongoDB ObjectId object
+                id: book?._id?.toString() || book?.id?.toString() || book?._id || book?.id,
                 title: book?.title || "Unknown",
                 author: book?.author,
                 imageUrl: book?.images?.[0] || book?.imageUrl,
@@ -91,23 +92,28 @@ export function CartProvider({ children }) {
     const updateQuantity = async (bookId, delta) => {
         if (!user?.id) return;
 
+        // Ensure bookId is always a plain string
+        const bookIdStr = bookId?.toString ? bookId.toString() : String(bookId);
+
         try {
             let response;
             if (delta > 0) {
-                response = await cartService.increaseQuantity(user.id, bookId);
+                response = await cartService.increaseQuantity(user.id, bookIdStr);
             } else {
-                response = await cartService.decreaseQuantity(user.id, bookId);
+                response = await cartService.decreaseQuantity(user.id, bookIdStr);
             }
 
-            if (response.code === 201) {
-                setCart(normalizeCart(response.payload.items));
+            console.log('updateQuantity response:', response);
+
+            if (response.code === 201 || response.code === 200) {
+                // Backend returns { payload: cartDoc } where cartDoc has .items
+                const items = response.payload?.items || [];
+                setCart(normalizeCart(items));
             } else if (response.error) {
-                // API returned error (e.g., stock limit)
                 alert(response.error.message || "เกิดข้อผิดพลาด");
             }
         } catch (error) {
             console.error("Update quantity error:", error);
-            // Handle axios error response
             const errorMessage = error.response?.data?.error?.message || "เกิดข้อผิดพลาดในการอัพเดทจำนวน";
             alert(errorMessage);
         }
