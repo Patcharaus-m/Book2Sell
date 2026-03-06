@@ -138,11 +138,11 @@ export default function Navbar() {
                                     onClick={() => setIsSellModalOpen(true)}
                                     className={`relative group hidden sm:flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm hover:shadow-xl transition-all duration-250 active:scale-95 overflow-hidden ${isAboutUsPage
                                         ? "bg-white/10 text-white hover:bg-white/20 border border-white/10 hover:shadow-emerald-500/10"
-                                        : "bg-white text-emerald-700 hover:bg-emerald-50 hover:shadow-white/20"
+                                        : "bg-white text-emerald-700 hover:text-white hover:bg-emerald-50 hover:shadow-green/20"
                                         }`}
                                 >
                                     {/* เลเยอร์สี Gradient - Only for default mode or modified for dark mode */}
-                                    <div className={`absolute inset-0 bg-gradient-to-r from-emerald-500 to-emerald-700 transition-opacity duration-250 ${isAboutUsPage ? "opacity-0" : "opacity-0 group-hover:opacity-100"}`} />
+                                    <div className={`absolute inset-0 bg-gradient-to-r from-emerald-400 to-emerald-500 transition-opacity duration-250 ${isAboutUsPage ? "opacity-0" : "opacity-0 group-hover:opacity-100 "}`} />
 
                                     {/* เนื้อหาปุ่มที่อยู่ด้านบน */}
                                     <div className="relative z-10 flex items-center gap-2">

@@ -461,7 +461,7 @@ export default function Checkout() {
                             )}
                             <button
                                 onClick={handlePlaceOrder}
-                                className="w-full py-6 bg-white text-gray-900 font-black text-xl rounded-[2rem] hover:bg-emerald-50 transition-all active:scale-95 shadow-2xl flex items-center justify-center gap-3"
+                                className="w-full py-6 bg-white text-gray-900 font-black text-xl rounded-[2rem] hover:bg-emerald-600 hover:text-white transition-all active:scale-95 shadow-2xl flex items-center justify-center gap-3"
                             >
                                 <span>สั่งซื้อทันที</span>
                                 <ArrowLeft size={18} className="rotate-180" />

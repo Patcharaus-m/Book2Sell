@@ -27,3 +27,31 @@ export const getOrderHistoryService = async (userId) => {
         return { status: false, message: "ไม่สามารถดึงประวัติการสั่งซื้อได้" };
     }
 };
+
+// ดึงออเดอร์ที่มีคนสั่งซื้อหนังสือของ seller คนนี้
+export const getSellerOrdersService = async (sellerId) => {
+    try {
+        const response = await fetch("https://book2-backend.onrender.com/api/order/seller-orders", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ sellerId })
+        });
+        return await response.json();
+    } catch {
+        return { status: false, message: "ไม่สามารถดึงข้อมูลออเดอร์ในร้านได้" };
+    }
+};
+
+// อัปเดตสถานะออเดอร์ (ใช้โดย seller)
+export const updateOrderStatusService = async (orderId, shippingStatus) => {
+    try {
+        const response = await fetch("https://book2-backend.onrender.com/api/order/update-status", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ orderId, shippingStatus })
+        });
+        return await response.json();
+    } catch {
+        return { status: false, message: "ไม่สามารถอัปเดตสถานะออเดอร์ได้" };
+    }
+};

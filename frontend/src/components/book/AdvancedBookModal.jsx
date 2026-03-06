@@ -1,19 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Image as ImageIcon, Plus, Trash2, Tag, BookOpen, User, CreditCard, Award, Package, AlertTriangle, UploadCloud, ChevronDown, Check } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 /**
  * AdvancedBookModal (Compact Version)
  * ปรับลดความหนาของ UI (Padding/Margin) เพื่อให้ดูไม่ล้นหน้าจอ
  */
 const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
-    const [formData, setFormData] = useState(initialData ? {
-        ...initialData,
-        category: initialData.category || (initialData.categories?.[0] || ''),
-        isbn: initialData.isbn || '',
-        coverPrice: initialData.coverPrice || initialData.originalPrice || '',
-        images: initialData.images || (initialData.imageUrl ? [initialData.imageUrl] : []),
-        sellingPrice: initialData.sellingPrice || initialData.price || ''
-    } : {
+    const { user } = useAuth(); // ดึงข้อมูลผู้ใช้เพื่อเอา sellerId
+    const [formData, setFormData] = useState({
         title: '',
         author: '',
         category: '',
@@ -134,6 +129,7 @@ const AdvancedBookModal = ({ isOpen, onClose, onSubmit, initialData = null }) =>
         }
 
         const payload = {
+            sellerId: user?._id || user?.id, // เพิ่ม sellerId จาก context
             title: formData.title,
             author: formData.author,
             category: formData.category,

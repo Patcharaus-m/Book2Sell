@@ -34,13 +34,12 @@ import SettingNavbar from "./Pages/pageComponent/settingNavbar";
  * MainLayout - เลย์เอาต์สำหรับหน้าหลักที่มีระบบค้นหาและกรอง
  */
 function MainLayout({ onBookClick }) {
-  const { setFilters } = useBook();
   return (
     <div className="min-h-screen bg-emerald-50/30">
       <Navbar />
       <CartDrawer />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <BookFilterBar onFilterChange={setFilters} />
+        <BookFilterBar />
         <main className="mt-8">
           <Outlet context={{ onBookClick }} />
         </main>

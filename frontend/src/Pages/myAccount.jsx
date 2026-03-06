@@ -80,6 +80,11 @@ const MyAccount = () => {
                 profileImage: formData.profileImage
             };
 
+            if (formData.phone && formData.phone.length !== 10) {
+                alert("เบอร์โทรศัพท์ต้องมี 10 หลัก");
+                return;
+            }
+
             const result = await updateUserInfo(payload);
 
             if (result.status === 2001 || result.code === 201) {
@@ -123,17 +128,27 @@ const MyAccount = () => {
     };
 
     return (
-        <div className="animate-in fade-in duration-700 max-w-5xl mx-auto pb-20">
+        <div className="animate-in fade-in duration-700 max-w-6xl mx-auto pb-20 px-4 mt-8">
             {/* Header Section */}
-            <div className="mb-10">
-                <h1 className="text-3xl font-black text-gray-900 tracking-tight">บัญชีของฉัน</h1>
-                <p className="text-gray-500 mt-2">จัดการข้อมูลส่วนตัวและความปลอดภัยของบัญชีคุณ</p>
+            <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div>
+                    <h1 className="text-4xl font-black text-gray-900 tracking-tight">แดชบอร์ดของฉัน</h1>
+                    <p className="text-gray-500 mt-2 font-medium">จัดการข้อมูลส่วนตัว เครดิต และร้านค้าของคุณได้ในที่เดียว</p>
+                </div>
+                {/* <div className="flex items-center gap-3">
+                    <button
+                        onClick={handleLogout}
+                        className="px-6 py-3 text-red-500 font-black text-xs bg-red-50 rounded-2xl hover:bg-red-100 transition-all flex items-center gap-2 uppercase tracking-widest"
+                    >
+                        <LogOut size={16} /> ออกจากระบบ
+                    </button>
+                </div> */}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Left Column: Profile Summary */}
-                <div className="lg:col-span-1 space-y-8">
-                    <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-gray-50 flex flex-col items-center text-center">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                {/* Left Column: Profile Card */}
+                <div className="lg:col-span-1">
+                    <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-gray-100 flex flex-col items-center text-center sticky top-24">
                         <div className="relative mb-6 group">
                             <input
                                 type="file"
@@ -144,7 +159,7 @@ const MyAccount = () => {
                             />
                             <div
                                 onClick={() => isEditing && fileInputRef.current?.click()}
-                                className={`w-32 h-32 rounded-3xl overflow-hidden flex items-center justify-center text-3xl font-black transition-all ${isEditing ? 'cursor-pointer hover:ring-4 hover:ring-emerald-100' : ''} ${!formData.profileImage ? 'bg-gradient-to-tr from-emerald-100 to-teal-100 text-emerald-600' : ''}`}
+                                className={`w-36 h-36 rounded-[2.5rem] overflow-hidden flex items-center justify-center text-4xl font-black transition-all shadow-inner ${isEditing ? 'cursor-pointer hover:ring-8 hover:ring-emerald-50 scale-105' : ''} ${!formData.profileImage ? 'bg-gradient-to-tr from-emerald-100 to-teal-100 text-emerald-600' : ''}`}
                             >
                                 {formData.profileImage ? (
                                     <img src={formData.profileImage} alt="Profile" className="w-full h-full object-cover" />
@@ -156,74 +171,75 @@ const MyAccount = () => {
                             {isEditing && (
                                 <div
                                     onClick={() => fileInputRef.current?.click()}
-                                    className="absolute -bottom-2 -right-2 p-3 bg-emerald-600 rounded-2xl shadow-xl text-white cursor-pointer hover:scale-110 active:scale-95 transition-all"
+                                    className="absolute -bottom-2 -right-2 p-4 bg-emerald-600 rounded-2xl shadow-xl text-white cursor-pointer hover:scale-110 active:scale-95 transition-all border-4 border-white"
                                 >
-                                    <Camera size={18} />
+                                    <Camera size={20} />
                                 </div>
                             )}
                         </div>
-                        <h2 className="text-xl font-bold text-gray-900 mb-1">{user.name || user.username}</h2>
-                        <p className="text-sm text-gray-400 mb-6">{user.email}</p>
+                        <h2 className="text-2xl font-black text-gray-900 mb-1">{user.name || user.username}</h2>
+                        <p className="text-sm text-gray-400 font-bold mb-6">{user.email}</p>
 
-                        {/* <div className="w-full pt-6 border-t border-gray-50">
-                            <button
-                                onClick={handleLogout}
-                                className="w-full py-3 text-red-500 font-bold text-sm bg-red-50 rounded-xl hover:bg-red-100 transition-all flex items-center justify-center gap-2"
-                            >
-                                <LogOut size={16} /> ออกจากระบบ
-                            </button>
-                        </div> */}
-                    </div>
-
-                    {/* Credit Card */}
-                    <div className="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-[2rem] p-8 text-white shadow-xl shadow-emerald-100 relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 p-8 opacity-10 -mr-4 -mt-4">
-                            <CreditCard size={80} />
+                        <div className="w-full pt-6 border-t border-gray-50 flex flex-col gap-3">
+                            <div className="flex items-center justify-between px-2">
+                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">สถานะบัญชี</span>
+                                <span className="flex items-center gap-1.5 text-[10px] font-black text-emerald-500 bg-emerald-50 px-3 py-1 rounded-full uppercase">
+                                    <Shield size={10} /> ยืนยันแล้ว
+                                </span>
+                            </div>
                         </div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-emerald-200 mb-2">My Balance</p>
-                        <h3 className="text-4xl font-black mb-6 flex items-center gap-2">{(user.creditBalance || 0).toLocaleString()} <i className="bi bi-coin" style={{ fontSize: '32px' }} /></h3>
-                        <button
-                            onClick={() => setIsTopUpModalOpen(true)}
-                            className="w-full py-3 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
-                        >
-                            <Plus size={16} /> เติมเครดิต
-                        </button>
                     </div>
                 </div>
 
-                {/* Right Column: Details & Forms */}
-                <div className="lg:col-span-2 space-y-8">
-                    {/* Personal Information Form */}
-                    <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-gray-50">
-                        <div className="flex items-center justify-between mb-8">
-                            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                                <Shield size={18} className="text-emerald-600" /> ข้อมูลส่วนตัว
-                            </h3>
+                {/* Right Column: Dashboard Content */}
+                <div className="lg:col-span-3 space-y-8">
+                    {/* Personal Information Card */}
+                    <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-gray-100 overflow-hidden relative">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600">
+                                    <User size={24} />
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-black text-gray-900 uppercase tracking-tighter">ข้อมูลส่วนตัว</h3>
+                                    <p className="text-xs text-gray-400 font-bold">ข้อมูลนี้จะถูกใช้ในการติดต่อและจัดส่ง</p>
+                                </div>
+                            </div>
                             <button
                                 onClick={() => isEditing ? handleSave() : setIsEditing(true)}
-                                className={`text-sm font-bold px-4 py-2 rounded-xl transition-all ${isEditing ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-100' : 'text-emerald-600 bg-emerald-50'}`}
+                                className={`px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all active:scale-95 flex items-center gap-2 ${isEditing ? 'bg-emerald-600 text-white shadow-xl shadow-emerald-100' : 'text-emerald-600 bg-gray-50 hover:bg-emerald-50'}`}
                             >
-                                {isEditing ? <div className="flex items-center gap-2"><Save size={14} /> บันทึก</div> : 'แก้ไขข้อมูล'}
+                                {isEditing ? <><Save size={16} /> บันทึกการเปลี่ยนแปลง</> : <><Edit3 size={16} /> แก้ไขข้อมูล</>}
                             </button>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative">
                             {[
-                                { label: 'ชื่อผู้ใช้', icon: <User size={16} />, value: formData.name, key: 'name' },
-                                { label: 'อีเมล', icon: <Mail size={16} />, value: formData.email, key: 'email' },
-                                { label: 'เบอร์โทรศัพท์', icon: <Phone size={16} />, value: formData.phone, key: 'phone', full: true }
+                                { label: 'ชื่อผู้ใช้ / นามแฝง', icon: <User size={18} />, value: formData.name, key: 'name' },
+                                { label: 'อีเมลที่ลงทะเบียน', icon: <Mail size={18} />, value: formData.email, key: 'email' },
+                                { label: 'เบอร์โทรศัพท์ติดต่อ (10 หลัก)', icon: <Phone size={18} />, value: formData.phone, key: 'phone', full: true }
                             ].map((item) => (
-                                <div key={item.key} className={`space-y-1.5 ${item.full ? 'md:col-span-2' : ''}`}>
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">{item.label}</label>
+                                <div key={item.key} className={`space-y-2.5 ${item.full ? 'md:col-span-2' : ''}`}>
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-2 block">{item.label}</label>
                                     <div className="relative group">
-                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
+                                        <div className={`absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none transition-colors ${isEditing ? 'text-emerald-500' : 'text-gray-300'}`}>
                                             {item.icon}
                                         </div>
                                         <input
                                             disabled={!isEditing}
-                                            className={`w-full pl-11 pr-4 py-3 bg-gray-50/50 border border-transparent rounded-2xl text-sm font-medium transition-all outline-none ${isEditing ? 'bg-white border-emerald-200 ring-4 ring-emerald-50' : ''}`}
+                                            className={`w-full pl-14 pr-6 py-4 bg-gray-50/50 border-2 border-transparent rounded-[1.5rem] text-sm font-black transition-all outline-none ${isEditing ? 'bg-white border-emerald-100 ring-8 ring-emerald-50/50 text-emerald-900' : 'text-gray-500 cursor-not-allowed'}`}
                                             value={item.value}
-                                            onChange={e => setFormData({ ...formData, [item.key]: e.target.value })}
+                                            maxLength={item.key === 'phone' ? 10 : undefined}
+                                            onChange={e => {
+                                                let val = e.target.value;
+                                                if (item.key === 'phone') {
+                                                    val = val.replace(/\D/g, '').slice(0, 10);
+                                                } else if (item.key === 'email') {
+                                                    // Prevent emojis and non-ASCII characters in email
+                                                    val = val.replace(/[^\x00-\x7F]/g, '');
+                                                }
+                                                setFormData({ ...formData, [item.key]: val });
+                                            }}
                                         />
                                     </div>
                                 </div>
@@ -231,40 +247,70 @@ const MyAccount = () => {
                         </div>
                     </div>
 
-                    {/* Quick Access Menu */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div
-                            onClick={() => navigate('/product-in-store')}
-                            className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-50 flex items-center justify-between hover:shadow-md transition-all cursor-pointer group"
-                        >
-                            <div className="flex items-center gap-4">
-                                <div className="p-3 bg-pink-50 rounded-2xl text-pink-500 group-hover:bg-pink-500 group-hover:text-white transition-all">
-                                    <ShoppingBag size={20} />
-                                </div>
-                                <div>
-                                    <h4 className="font-bold text-gray-900 text-sm">จัดการร้านค้า</h4>
-                                    <p className="text-[10px] text-gray-400">สินค้าและออเดอร์ของคุณ</p>
-                                </div>
+                    {/* Top Row: Wallet & Quick Actions */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {/* Wallet Card */}
+                        <div className="bg-gray-900 rounded-[2.5rem] p-8 text-white relative overflow-hidden group shadow-2xl shadow-gray-200">
+                            <div className="absolute top-0 right-0 p-8 opacity-10 -mr-6 -mt-6 rotate-12 group-hover:rotate-0 transition-transform duration-700">
+                                <CreditCard size={120} />
                             </div>
-                            <ChevronRight size={16} className="text-gray-300 group-hover:translate-x-1 transition-transform" />
+                            <div className="relative z-10 h-full flex flex-col justify-between">
+                                <div>
+                                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-400 mb-2">เครดิตคงเหลือ</p>
+                                    <h3 className="text-5xl font-black mb-2 flex items-center gap-3">
+                                        {(user.creditBalance || 0).toLocaleString()}
+                                        <i className="bi bi-coin text-amber-400 drop-shadow-[0_0_15px_rgba(251,191,36,0.5)]" style={{ fontSize: '36px' }} />
+                                    </h3>
+                                    <p className="text-xs text-gray-400 font-bold italic">1 เครดิต = 1 บาท</p>
+                                </div>
+                                <button
+                                    onClick={() => setIsTopUpModalOpen(true)}
+                                    className="mt-8 w-fit px-8 py-4 bg-emerald-600 hover:bg-emerald-500 rounded-2xl font-black text-sm transition-all flex items-center gap-3 shadow-xl shadow-emerald-900/20 active:scale-95"
+                                >
+                                    <CreditCard size={18} /> เติมเครดิต
+                                </button>
+                            </div>
                         </div>
 
-                        <div
-                            onClick={() => setShowHistory(true)}
-                            className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-50 flex items-center justify-between hover:shadow-md transition-all cursor-pointer group"
-                        >
-                            <div className="flex items-center gap-4">
-                                <div className="p-3 bg-indigo-50 rounded-2xl text-indigo-500 group-hover:bg-indigo-900 group-hover:text-white transition-all">
-                                    <History size={20} />
+                        {/* Quick Actions Grid */}
+                        <div className="grid grid-cols-1 gap-4">
+                            <div
+                                onClick={() => navigate('/product-in-store')}
+                                className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group"
+                            >
+                                <div className="flex items-center gap-5">
+                                    <div className="p-4 bg-pink-50 rounded-2xl text-pink-500 group-hover:bg-pink-500 group-hover:text-white transition-all shadow-inner">
+                                        <ShoppingBag size={24} />
+                                    </div>
+                                    <div>
+                                        <h4 className="font-black text-gray-900 text-lg">จัดการร้านค้า</h4>
+                                        <p className="text-xs text-gray-400 font-bold">สินค้าและออเดอร์ที่คุณลงขาย</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h4 className="font-bold text-gray-900 text-sm">ประวัติการสั่งซื้อ</h4>
-                                    <p className="text-[10px] text-gray-400">
-                                        {purchaseHistory.length > 0 ? `${purchaseHistory.length} รายการ` : 'ยังไม่มีรายการ'}
-                                    </p>
+                                <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-pink-50 transition-colors">
+                                    <ChevronRight size={18} className="text-gray-300 group-hover:text-pink-500 group-hover:translate-x-1 transition-all" />
                                 </div>
                             </div>
-                            <ChevronRight size={16} className="text-gray-300 group-hover:translate-x-1 transition-transform" />
+
+                            <div
+                                onClick={() => setShowHistory(true)}
+                                className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group"
+                            >
+                                <div className="flex items-center gap-5">
+                                    <div className="p-4 bg-indigo-50 rounded-2xl text-indigo-500 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-inner">
+                                        <History size={24} />
+                                    </div>
+                                    <div>
+                                        <h4 className="font-black text-gray-900 text-lg">ประวัติการสั่งซื้อ</h4>
+                                        <p className="text-xs text-gray-400 font-bold">
+                                            {purchaseHistory.length > 0 ? `${purchaseHistory.length} รายการที่เคยสั่งซื้อ` : 'ยังไม่มีประวัติการสั่งซื้อ'}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-indigo-50 transition-colors">
+                                    <ChevronRight size={18} className="text-gray-300 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all" />
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -373,7 +419,7 @@ const MyAccount = () => {
                     </div>
                 </div>
             )}
-            {/* Top Up Modal */}
+
             <TopUpModal isOpen={isTopUpModalOpen} onClose={() => setIsTopUpModalOpen(false)} />
         </div>
     );

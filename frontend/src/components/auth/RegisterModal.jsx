@@ -97,14 +97,14 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
             return;
         }
 
-        // Phone: digits only, max 10
+        // Phone: digits only, must be 10
         if (!/^\d+$/.test(formData.phone)) {
             setError('เบอร์โทรศัพท์ต้องเป็นตัวเลขเท่านั้น');
             setIsLoading(false);
             return;
         }
-        if (formData.phone.length > 10) {
-            setError('เบอร์โทรศัพท์ต้องไม่เกิน 10 ตัว');
+        if (formData.phone.length !== 10) {
+            setError('เบอร์โทรศัพท์ต้องมี 10 หลัก');
             setIsLoading(false);
             return;
         }
@@ -265,7 +265,7 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
                                     autoComplete="tel"
                                 />
                             </div>
-                            <p className="text-[10px] text-gray-400 ml-1">ตัวเลขเท่านั้น · ไม่เกิน 10 ตัว</p>
+                            <p className="text-[10px] text-gray-400 ml-1">ตัวเลขเท่านั้น · ต้องมี 10 หลัก</p>
                         </div>
 
                         {/* Password */}

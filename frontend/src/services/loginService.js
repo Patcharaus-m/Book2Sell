@@ -24,7 +24,7 @@ export const loginService = {
 
             // Backend ใช้รูปแบบ { code, status, error, payload }
             const payload = response.data.payload;
-            
+
             // เช็คจาก status code 201 และ payload มีข้อมูล
             if (response.data.code === 201 && payload) {
                 const userData = {
@@ -33,7 +33,8 @@ export const loginService = {
                     email: payload.email,
                     phone: payload.phone,
                     name: payload.username, // ใช้ username เป็น display name
-                    creditBalance: payload.creditBalance || 0
+                    creditBalance: payload.creditBalance || 0,
+                    profileImage: payload.profileImage || ''
                 };
 
                 return {
@@ -50,10 +51,10 @@ export const loginService = {
         } catch (error) {
             // 1. ลองดึง message จาก Data Level Error (แบบ errRes ของ Backend นี้)
             const backendError = error.response?.data?.error;
-            const errorMessage = backendError?.message || 
-                               error.response?.data?.message ||
-                               error.message ||
-                               'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์';
+            const errorMessage = backendError?.message ||
+                error.response?.data?.message ||
+                error.message ||
+                'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์';
 
             return {
                 success: false,

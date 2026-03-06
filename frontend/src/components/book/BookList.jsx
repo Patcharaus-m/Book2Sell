@@ -24,7 +24,15 @@ export default function BookList() {
                 </div>
                 <p className="text-gray-500 font-medium">ไม่พบหนังสือที่คุณกำลังค้นหา</p>
                 <button
-                    onClick={() => setFilters({ keyword: "", category: "", minPrice: 0, maxPrice: 1000, minCondition: 0 })}
+                    onClick={() => setFilters({
+                        keyword: "",
+                        category: "",
+                        minPrice: "",
+                        maxPrice: "",
+                        condition: "",
+                        sortBy: "newest",
+                        sellerId: ""
+                    })}
                     className="mt-4 text-emerald-600 font-bold hover:underline"
                 >
                     ล้างตัวกรองทั้งหมด

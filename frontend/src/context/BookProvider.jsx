@@ -15,7 +15,8 @@ export const BookProvider = ({ children }) => {
         minPrice: '',
         maxPrice: '',
         condition: '',
-        sortBy: 'newest'
+        sortBy: 'newest',
+        sellerId: '' // เพิ่มฟิลเตอร์ sellerId
     });
 
     const fetchBooks = useCallback(async () => {
@@ -74,8 +75,8 @@ export const BookProvider = ({ children }) => {
                 status: newBook.status || 'available',
                 images: newBook.images || [],
                 isDeleted: false,
-                // These are for backend identification, but we match IBook fields too
-                sellerId: currentUser?.id || 'anonymous',
+                // Prioritize sellerId from newBook (passed from Modal), fallback to current user
+                sellerId: newBook.sellerId || currentUser?._id || currentUser?.id || 'anonymous',
                 sellerName: currentUser?.name || 'Unknown Seller'
             };
 
@@ -191,7 +192,9 @@ export const BookProvider = ({ children }) => {
         return books.filter(book => {
             const matchKeyword = !filters.keyword ||
                 (book.title && book.title.toLowerCase().includes(filters.keyword.toLowerCase())) ||
-                (book.author && book.author.toLowerCase().includes(filters.keyword.toLowerCase()));
+                (book.author && book.author.toLowerCase().includes(filters.keyword.toLowerCase())) ||
+                (book.sellerName && book.sellerName.toLowerCase().includes(filters.keyword.toLowerCase())) ||
+                (book.sellerId?.username && book.sellerId.username.toLowerCase().includes(filters.keyword.toLowerCase()));
 
             const matchCategory = !filters.category ||
                 (book.categories && book.categories.includes(filters.category));
@@ -201,7 +204,11 @@ export const BookProvider = ({ children }) => {
 
             const matchCondition = !filters.condition || (book.condition && book.condition.includes(filters.condition));
 
-            return matchKeyword && matchCategory && matchPrice && matchCondition;
+            const matchSeller = !filters.sellerId ||
+                (book.sellerId?._id === filters.sellerId) ||
+                (book.sellerId === filters.sellerId);
+
+            return matchKeyword && matchCategory && matchPrice && matchCondition && matchSeller;
         }).sort((a, b) => {
             const priceA = a.sellingPrice || a.price || 0;
             const priceB = b.sellingPrice || b.price || 0;

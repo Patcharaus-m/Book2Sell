@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { SlidersHorizontal, ChevronDown, XCircle, SortAsc, SortDesc, Clock, Flame } from 'lucide-react';
+import { SlidersHorizontal, ChevronDown, XCircle, SortAsc, SortDesc, Clock, Flame, User } from 'lucide-react';
+import { useBook } from '../../context/BookContext';
 
 /**
  * BookFilterBar (Refactored) - ตัดส่วนค้นหาออก ให้เหลือแค่ตัวกรองหมวดหมู่และราคา
@@ -52,16 +53,29 @@ const CustomDropdown = ({ options, value, onChange, placeholder, icon, className
     );
 };
 
-const BookFilterBar = ({ onFilterChange }) => {
+const BookFilterBar = () => {
+    const { filters: globalFilters, setFilters: setGlobalFilters, books } = useBook();
+
     const [filters, setFilters] = useState({
-        category: '',
-        minPrice: '',
-        maxPrice: '',
-        condition: '',
-        sortBy: 'newest'
+        category: globalFilters.category || '',
+        minPrice: globalFilters.minPrice || '',
+        maxPrice: globalFilters.maxPrice || '',
+        condition: globalFilters.condition || '',
+        sortBy: globalFilters.sortBy || 'newest'
     });
 
     const [activeDropdown, setActiveDropdown] = useState(null);
+
+    // Sync local state when global filters change (e.g. from BookDetailModal)
+    useEffect(() => {
+        setFilters({
+            category: globalFilters.category || '',
+            minPrice: globalFilters.minPrice || '',
+            maxPrice: globalFilters.maxPrice || '',
+            condition: globalFilters.condition || '',
+            sortBy: globalFilters.sortBy || 'newest'
+        });
+    }, [globalFilters]);
 
     // Close dropdown on outside click
     useEffect(() => {
@@ -71,19 +85,30 @@ const BookFilterBar = ({ onFilterChange }) => {
         return () => window.removeEventListener('click', handleClose);
     }, [activeDropdown]);
 
-    useEffect(() => {
-        onFilterChange(filters);
-    }, [filters, onFilterChange]);
+    const updateGlobalFilters = (newLocalFilters) => {
+        setFilters(newLocalFilters);
+        setGlobalFilters(prev => ({ ...prev, ...newLocalFilters }));
+    };
 
     const handleReset = () => {
-        setFilters({
+        const resetFilters = {
             category: '',
             minPrice: '',
             maxPrice: '',
             condition: '',
             sortBy: 'newest'
+        };
+        setFilters(resetFilters);
+        setGlobalFilters({
+            ...resetFilters,
+            keyword: '',
+            sellerId: ''
         });
         setActiveDropdown(null);
+    };
+
+    const clearSellerFilter = () => {
+        setGlobalFilters(prev => ({ ...prev, sellerId: '' }));
     };
 
     const toggleDropdown = (name) => {
@@ -105,11 +130,17 @@ const BookFilterBar = ({ onFilterChange }) => {
     const sortOptions = [
         { label: "มาใหม่ล่าสุด", value: "newest", icon: <Clock size={14} /> },
         { label: "ราคา: ถูกไปแพง", value: "price_asc", icon: <SortAsc size={14} /> },
-        { label: "ราคา: แพงไปถูก", value: "price_desc", icon: <SortDesc size={14} /> },
-        { label: "ยอดนิยม", value: "popularity", icon: <Flame size={14} /> }
+        { label: "ราคา: แพงไปถูก", value: "price_desc", icon: <SortDesc size={14} /> }
+        // { label: "ยอดนิยม", value: "popularity", icon: <Flame size={14} /> }
     ];
 
-    const hasActiveFilters = filters.category || filters.minPrice || filters.maxPrice || filters.condition || filters.sortBy !== 'newest';
+    // Find seller name if sellerId is active
+    const activeSeller = globalFilters.sellerId ?
+        books.find(b => b.sellerId?._id === globalFilters.sellerId || b.sellerId === globalFilters.sellerId)?.sellerId?.username ||
+        books.find(b => b.sellerId?._id === globalFilters.sellerId || b.sellerId === globalFilters.sellerId)?.sellerName ||
+        "ผู้ขาย" : null;
+
+    const hasActiveFilters = filters.category || filters.minPrice || filters.maxPrice || filters.condition || filters.sortBy !== 'newest' || globalFilters.keyword || globalFilters.sellerId;
 
     return (
         <div className="w-full space-y-4 mb-10 animate-in fade-in slide-in-from-top-4 duration-700 relative z-40">
@@ -119,7 +150,7 @@ const BookFilterBar = ({ onFilterChange }) => {
                 <CustomDropdown
                     options={categoryOptions}
                     value={filters.category}
-                    onChange={(val) => setFilters({ ...filters, category: val })}
+                    onChange={(val) => updateGlobalFilters({ ...filters, category: val })}
                     placeholder="เลือกหมวดหมู่"
                     className="flex-1 min-w-[180px]"
                     isOpen={activeDropdown === 'category'}
@@ -138,7 +169,7 @@ const BookFilterBar = ({ onFilterChange }) => {
                             placeholder="ต่ำสุด"
                             className="w-16 bg-transparent outline-none font-bold text-xs text-gray-700 placeholder:text-gray-200 ml-1"
                             value={filters.minPrice}
-                            onChange={(e) => setFilters({ ...filters, minPrice: e.target.value })}
+                            onChange={(e) => updateGlobalFilters({ ...filters, minPrice: e.target.value })}
                         />
                     </div>
                     <span className="text-gray-200">—</span>
@@ -149,7 +180,7 @@ const BookFilterBar = ({ onFilterChange }) => {
                             placeholder="สูงสุด"
                             className="w-16 bg-transparent outline-none font-bold text-xs text-gray-700 placeholder:text-gray-200 ml-1"
                             value={filters.maxPrice}
-                            onChange={(e) => setFilters({ ...filters, maxPrice: e.target.value })}
+                            onChange={(e) => updateGlobalFilters({ ...filters, maxPrice: e.target.value })}
                         />
                     </div>
                 </div>
@@ -160,7 +191,7 @@ const BookFilterBar = ({ onFilterChange }) => {
                 <CustomDropdown
                     options={conditions}
                     value={filters.condition}
-                    onChange={(val) => setFilters({ ...filters, condition: val })}
+                    onChange={(val) => updateGlobalFilters({ ...filters, condition: val })}
                     placeholder="ทุกสภาพสินค้า"
                     className="min-w-[180px]"
                     isOpen={activeDropdown === 'condition'}
@@ -182,7 +213,7 @@ const BookFilterBar = ({ onFilterChange }) => {
                     <CustomDropdown
                         options={sortOptions}
                         value={filters.sortBy}
-                        onChange={(val) => setFilters({ ...filters, sortBy: val })}
+                        onChange={(val) => updateGlobalFilters({ ...filters, sortBy: val })}
                         className="min-w-[180px]"
                         icon={sortOptions.find(o => o.value === filters.sortBy)?.icon}
                         itemClassName="text-[10px]"
@@ -191,6 +222,19 @@ const BookFilterBar = ({ onFilterChange }) => {
                     />
                 </div>
             </div>
+
+            {/* Seller Filter Active Badge */}
+            {globalFilters.sellerId && (
+                <div className="px-6 flex items-center">
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-200 animate-in zoom-in duration-300">
+                        <User size={12} />
+                        <span>ร้านค้า: {activeSeller}</span>
+                        <button onClick={clearSellerFilter} className="ml-1 hover:text-red-200 transition-colors">
+                            <XCircle size={14} />
+                        </button>
+                    </div>
+                </div>
+            )}
 
             <div className="px-6 flex items-center gap-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
                 <div className="flex items-center gap-1.5">

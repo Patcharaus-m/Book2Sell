@@ -54,7 +54,7 @@ export const registerService = {
             // Backend ใช้รูปแบบ { code, status, error, payload }
             // success อยู่ใน payload และ user data อยู่ใน payload ด้วย
             const payload = response.data.payload;
-            
+
             if (payload && (payload.success === true || payload.success === "true")) {
                 // ข้อมูล user อยู่ใน payload โดยตรง
                 const userData = {
@@ -63,9 +63,10 @@ export const registerService = {
                     email: payload.email,
                     phone: payload.phone,
                     name: payload.username, // ใช้ username เป็น display name
-                    creditBalance: payload.creditBalance || 0
+                    creditBalance: payload.creditBalance || 0,
+                    profileImage: payload.profileImage || ''
                 };
-                
+
 
                 return {
                     success: true,
@@ -82,7 +83,8 @@ export const registerService = {
                     email: payload.email,
                     phone: payload.phone,
                     name: payload.username,
-                    creditBalance: payload.creditBalance || 0
+                    creditBalance: payload.creditBalance || 0,
+                    profileImage: payload.profileImage || ''
                 };
 
                 return {
@@ -99,14 +101,14 @@ export const registerService = {
         } catch (error) {
             // 1. ลองดึง message จาก Data Level Error (แบบ errRes ของ Backend นี้)
             const backendError = error.response?.data?.error;
-            let errorMessage = backendError?.message || 
-                               error.response?.data?.message ||
-                               error.message ||
-                               'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์';
+            let errorMessage = backendError?.message ||
+                error.response?.data?.message ||
+                error.message ||
+                'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์';
 
             // ถ้าเป็นกรณี 400 และไม่มี message ที่ชัดเจน
             if (!backendError?.message && error.response?.status === 400) {
-                 errorMessage = 'ชื่อผู้ใช้นี้มีอยู่แล้ว หรือข้อมูลไม่ถูกต้อง';
+                errorMessage = 'ชื่อผู้ใช้นี้มีอยู่แล้ว หรือข้อมูลไม่ถูกต้อง';
             }
 
             return {
