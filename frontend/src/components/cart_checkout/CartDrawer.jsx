@@ -1,10 +1,34 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useCart } from "../../context/CartContext";
 import { Link } from "react-router-dom";
 import { X, Trash2, ShoppingBag, ArrowRight, Minus, Plus } from "lucide-react";
 
 export default function CartDrawer() {
     const { cart, removeFromCart, updateQuantity, isDrawerOpen, setIsDrawerOpen, totalAmount } = useCart();
+    const [inputValues, setInputValues] = useState({});
+
+    const handleInputChange = (itemId, value) => {
+        // Allow only numeric input
+        if (/^\d*$/.test(value)) setInputValues(prev => ({ ...prev, [itemId]: value }));
+    };
+
+    const handleInputCommit = (item) => {
+        const raw = inputValues[item.id];
+        if (raw === undefined || raw === '') {
+            setInputValues(prev => ({ ...prev, [item.id]: undefined }));
+            return;
+        }
+        const target = Math.max(1, Math.min(Number(raw), item.stock || 99));
+        const delta = target - item.quantity;
+        if (delta !== 0) {
+            // Call updateQuantity delta times
+            for (let i = 0; i < Math.abs(delta); i++) {
+                updateQuantity(item.id, delta > 0 ? 1 : -1);
+            }
+        }
+        // Clear local override — context will update
+        setInputValues(prev => ({ ...prev, [item.id]: undefined }));
+    };
 
     if (!isDrawerOpen) return null;
 
@@ -61,21 +85,32 @@ export default function CartDrawer() {
                                             <h4 className="font-bold text-gray-900 line-clamp-1">{item.title}</h4>
                                             <p className="text-sm text-gray-500 mt-1">สภาพ {item.condition}%</p>
                                             <div className="mt-4 flex items-center justify-between">
-                                                <div className="flex items-center bg-gray-50 rounded-xl p-1 border border-gray-100">
+                                                <div className="flex items-center bg-gray-50 rounded-xl border border-gray-100 overflow-hidden">
                                                     <button
                                                         onClick={() => updateQuantity(item.id, -1)}
-                                                        className="p-1.5 hover:bg-white rounded-lg transition-colors text-gray-400 hover:text-emerald-600 disabled:opacity-30"
+                                                        className="w-9 h-9 flex items-center justify-center text-xl font-black text-gray-400 hover:bg-white hover:text-emerald-600 transition-colors disabled:opacity-30"
                                                         disabled={item.quantity <= 1}
                                                     >
-                                                        <Minus size={14} />
+                                                        -
                                                     </button>
-                                                    <span className="w-10 text-center font-black text-base">{item.quantity}</span>
+                                                    <span
+                                                        className="w-10 text-center font-black text-base border-x border-gray-100">
+                                                        <input
+                                                            type="text"
+                                                            inputMode="numeric"
+                                                            value={inputValues[item.id] !== undefined ? inputValues[item.id] : item.quantity}
+                                                            onChange={(e) => handleInputChange(item.id, e.target.value)}
+                                                            onBlur={() => handleInputCommit(item)}
+                                                            onKeyDown={(e) => e.key === 'Enter' && handleInputCommit(item)}
+                                                            className="w-full text-center font-black text-base bg-transparent outline-none py-1"
+                                                        />
+                                                    </span>
                                                     <button
                                                         onClick={() => updateQuantity(item.id, 1)}
-                                                        className="p-1.5 hover:bg-white rounded-lg transition-colors text-gray-400 hover:text-emerald-600 disabled:opacity-30"
+                                                        className="w-9 h-9 flex items-center justify-center text-xl font-black text-gray-400 hover:bg-white hover:text-emerald-600 transition-colors disabled:opacity-30"
                                                         disabled={item.quantity >= (item.stock || 1)}
                                                     >
-                                                        <Plus size={14} />
+                                                        +
                                                     </button>
                                                 </div>
                                                 <div className="flex flex-col items-end">

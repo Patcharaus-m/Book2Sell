@@ -30,6 +30,7 @@ export default function Checkout() {
     const navigate = useNavigate();
     const [isOrdered, setIsOrdered] = useState(false);
     const [error, setError] = useState('');
+    const [addressError, setAddressError] = useState('');
 
     // Address State
     const [address, setAddress] = useState({
@@ -54,6 +55,23 @@ export default function Checkout() {
 
     const handlePlaceOrder = () => {
         if (cart.length === 0) return;
+
+        // Validate required address fields
+        const requiredFields = [
+            { key: 'houseNo', label: 'บ้านเลขที่' },
+            { key: 'subDistrict', label: 'ตำบล/แขวง' },
+            { key: 'district', label: 'อำเภอ/เขต' },
+            { key: 'province', label: 'จังหวัด' },
+            { key: 'postalCode', label: 'รหัสไปรษณีย์' },
+        ];
+        const missing = requiredFields.filter(f => !address[f.key]?.trim());
+        if (missing.length > 0) {
+            setAddressError(`กรุณากรอก: ${missing.map(f => f.label).join(', ')}`);
+            // Scroll to address section
+            document.getElementById('address-section')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+        setAddressError('');
         setShowConfirmModal(true);
     };
 
@@ -306,8 +324,8 @@ export default function Checkout() {
 
 
                     {/* Address Card */}
-                    <div className="bg-white/60 backdrop-blur-xl border border-white/50 rounded-[3rem] p-8 shadow-xl shadow-gray-200/20 overflow-hidden relative">
-                        <div className="relative flex items-center justify-between mb-8">
+                    <div id="address-section" className="bg-white/60 backdrop-blur-xl border border-white/50 rounded-[3rem] p-8 shadow-xl shadow-gray-200/20 overflow-hidden relative">
+                        <div className="relative flex items-center justify-between mb-4">
                             <div className="flex items-center gap-4">
                                 <div className="w-12 h-12 bg-orange-100 rounded-2xl flex items-center justify-center text-orange-600 shadow-inner">
                                     <MapPin size={24} />
@@ -315,15 +333,22 @@ export default function Checkout() {
                                 <h2 className="text-2xl font-black text-gray-900 tracking-tight">ที่อยู่จัดส่ง</h2>
                             </div>
                         </div>
+                        {/* Address validation error */}
+                        {addressError && (
+                            <div className="mb-6 flex items-center gap-3 bg-red-50 border border-red-100 text-red-600 rounded-2xl px-5 py-3">
+                                <Info size={16} className="flex-shrink-0" />
+                                <span className="text-sm font-bold">{addressError}</span>
+                            </div>
+                        )}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* House No */}
                             <div className="md:col-span-2">
-                                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">บ้านเลขที่ / หมู่บ้าน / อาคาร</label>
+                                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">บ้านเลขที่ / หมู่บ้าน / อาคาร <span className="text-red-400">*</span></label>
                                 <input
                                     type="text"
                                     value={address.houseNo}
-                                    onChange={(e) => setAddress({ ...address, houseNo: e.target.value })}
-                                    className="w-full bg-white/50 border border-gray-200 rounded-2xl px-5 py-4 font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                                    onChange={(e) => { setAddress({ ...address, houseNo: e.target.value }); if (addressError) setAddressError(''); }}
+                                    className={`w-full bg-white/50 border rounded-2xl px-5 py-4 font-bold text-gray-700 focus:outline-none focus:ring-2 transition-all ${addressError && !address.houseNo.trim() ? 'border-red-300 focus:ring-red-400/20 focus:border-red-400' : 'border-gray-200 focus:ring-emerald-500/20 focus:border-emerald-500'}`}
                                     placeholder="ระบุบ้านเลขที่..."
                                 />
                             </div>
@@ -352,44 +377,44 @@ export default function Checkout() {
 
                             {/* Sub-district & District */}
                             <div>
-                                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">ตำบล / แขวง</label>
+                                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">ตำบล / แขวง <span className="text-red-400">*</span></label>
                                 <input
                                     type="text"
                                     value={address.subDistrict}
-                                    onChange={(e) => setAddress({ ...address, subDistrict: e.target.value })}
-                                    className="w-full bg-white/50 border border-gray-200 rounded-2xl px-5 py-4 font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                                    onChange={(e) => { setAddress({ ...address, subDistrict: e.target.value }); if (addressError) setAddressError(''); }}
+                                    className={`w-full bg-white/50 border rounded-2xl px-5 py-4 font-bold text-gray-700 focus:outline-none focus:ring-2 transition-all ${addressError && !address.subDistrict.trim() ? 'border-red-300 focus:ring-red-400/20 focus:border-red-400' : 'border-gray-200 focus:ring-emerald-500/20 focus:border-emerald-500'}`}
                                     placeholder="ตำบล/แขวง..."
                                 />
                             </div>
                             <div>
-                                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">อำเภอ / เขต</label>
+                                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">อำเภอ / เขต <span className="text-red-400">*</span></label>
                                 <input
                                     type="text"
                                     value={address.district}
-                                    onChange={(e) => setAddress({ ...address, district: e.target.value })}
-                                    className="w-full bg-white/50 border border-gray-200 rounded-2xl px-5 py-4 font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                                    onChange={(e) => { setAddress({ ...address, district: e.target.value }); if (addressError) setAddressError(''); }}
+                                    className={`w-full bg-white/50 border rounded-2xl px-5 py-4 font-bold text-gray-700 focus:outline-none focus:ring-2 transition-all ${addressError && !address.district.trim() ? 'border-red-300 focus:ring-red-400/20 focus:border-red-400' : 'border-gray-200 focus:ring-emerald-500/20 focus:border-emerald-500'}`}
                                     placeholder="อำเภอ/เขต..."
                                 />
                             </div>
 
                             {/* Province & Postal Code */}
                             <div>
-                                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">จังหวัด</label>
+                                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">จังหวัด <span className="text-red-400">*</span></label>
                                 <input
                                     type="text"
                                     value={address.province}
-                                    onChange={(e) => setAddress({ ...address, province: e.target.value })}
-                                    className="w-full bg-white/50 border border-gray-200 rounded-2xl px-5 py-4 font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                                    onChange={(e) => { setAddress({ ...address, province: e.target.value }); if (addressError) setAddressError(''); }}
+                                    className={`w-full bg-white/50 border rounded-2xl px-5 py-4 font-bold text-gray-700 focus:outline-none focus:ring-2 transition-all ${addressError && !address.province.trim() ? 'border-red-300 focus:ring-red-400/20 focus:border-red-400' : 'border-gray-200 focus:ring-emerald-500/20 focus:border-emerald-500'}`}
                                     placeholder="จังหวัด..."
                                 />
                             </div>
                             <div>
-                                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">รหัสไปรษณีย์</label>
+                                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">รหัสไปรษณีย์ <span className="text-red-400">*</span></label>
                                 <input
                                     type="text"
                                     value={address.postalCode}
-                                    onChange={(e) => setAddress({ ...address, postalCode: e.target.value })}
-                                    className="w-full bg-white/50 border border-gray-200 rounded-2xl px-5 py-4 font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                                    onChange={(e) => { setAddress({ ...address, postalCode: e.target.value }); if (addressError) setAddressError(''); }}
+                                    className={`w-full bg-white/50 border rounded-2xl px-5 py-4 font-bold text-gray-700 focus:outline-none focus:ring-2 transition-all ${addressError && !address.postalCode.trim() ? 'border-red-300 focus:ring-red-400/20 focus:border-red-400' : 'border-gray-200 focus:ring-emerald-500/20 focus:border-emerald-500'}`}
                                     placeholder="รหัสไปรษณีย์..."
                                 />
                             </div>

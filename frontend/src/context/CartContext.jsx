@@ -19,7 +19,8 @@ export function CartProvider({ children }) {
             return {
                 ...item,
                 // Ensure we have a top-level ID that is the BOOK ID for UI actions
-                id: book?._id || book?.id, 
+                // Must be a plain string, not a MongoDB ObjectId object
+                id: book?._id?.toString() || book?.id?.toString() || book?._id || book?.id,
                 title: book?.title || "Unknown",
                 author: book?.author,
                 imageUrl: book?.images?.[0] || book?.imageUrl,
@@ -48,12 +49,12 @@ export function CartProvider({ children }) {
                 try {
                     const response = await cartService.getCart(user.id);
                     console.log("CartContext: Raw API Response:", response);
-                    
+
                     if (response && response.payload) {
-                         const items = response.payload.items || [];
-                         const normalized = normalizeCart(items);
-                         console.log("CartContext: Normalized Items:", normalized);
-                         setCart(normalized);
+                        const items = response.payload.items || [];
+                        const normalized = normalizeCart(items);
+                        console.log("CartContext: Normalized Items:", normalized);
+                        setCart(normalized);
                     } else {
                         console.warn("CartContext: Invalid response payload", response);
                     }
@@ -71,10 +72,10 @@ export function CartProvider({ children }) {
 
     const addToCart = async (book) => {
         if (!user?.id) return alert("กรุณาเข้าสู่ระบบก่อนซื้อสินค้า");
-        
+
         const bookId = book.id || book._id;
         if (!bookId) {
-             return alert("เกิดข้อผิดพลาด: ไม่พบ ID หนังสือ");
+            return alert("เกิดข้อผิดพลาด: ไม่พบ ID หนังสือ");
         }
 
         try {
@@ -92,23 +93,28 @@ export function CartProvider({ children }) {
     const updateQuantity = async (bookId, delta) => {
         if (!user?.id) return;
 
+        // Ensure bookId is always a plain string
+        const bookIdStr = bookId?.toString ? bookId.toString() : String(bookId);
+
         try {
             let response;
             if (delta > 0) {
-                response = await cartService.increaseQuantity(user.id, bookId);
+                response = await cartService.increaseQuantity(user.id, bookIdStr);
             } else {
-                response = await cartService.decreaseQuantity(user.id, bookId);
+                response = await cartService.decreaseQuantity(user.id, bookIdStr);
             }
 
-            if (response.code === 201) {
-                setCart(normalizeCart(response.payload.items));
+            console.log('updateQuantity response:', response);
+
+            if (response.code === 201 || response.code === 200) {
+                // Backend returns { payload: cartDoc } where cartDoc has .items
+                const items = response.payload?.items || [];
+                setCart(normalizeCart(items));
             } else if (response.error) {
-                // API returned error (e.g., stock limit)
                 alert(response.error.message || "เกิดข้อผิดพลาด");
             }
         } catch (error) {
             console.error("Update quantity error:", error);
-            // Handle axios error response
             const errorMessage = error.response?.data?.error?.message || "เกิดข้อผิดพลาดในการอัพเดทจำนวน";
             alert(errorMessage);
         }
@@ -130,7 +136,7 @@ export function CartProvider({ children }) {
     const clearCart = async () => {
         // Clear local state
         setCart([]);
-        
+
         // Clear from database
         if (user?.id) {
             try {

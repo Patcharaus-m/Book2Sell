@@ -156,7 +156,7 @@ const TopUpModal = ({ isOpen, onClose }) => {
                                     <span className="text-[10px] font-bold uppercase tracking-widest opacity-60">สรุปยอดชำระ</span>
                                     <span className="text-xl font-black">{fmt(selectedAmount || 0)} THB</span>
                                 </div>
-                                <ArrowRight className={`transition-transform duration-500 ${selectedAmount ? 'translate-x-0 opacity-100' : '-translate-x-4 opacity-0'}`} />
+                                <ArrowRight size={18} className={`transition-transform duration-500 ${selectedAmount ? 'translate-x-0 opacity-100' : '-translate-x-4 opacity-0'}`} />
                                 <div className="text-right flex flex-col">
                                     <span className="text-[10px] font-bold uppercase tracking-widest opacity-60">เครดิตที่จะได้รับ</span>
                                     <span className="text-xl font-black text-emerald-400 flex items-center justify-end gap-1">
