@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { BookOpen, Edit2, Trash2, X, AlertOctagon, Save, Image, DollarSign, Package, FileText, Tag, Loader2, Upload, ShoppingCart, Info, CheckCircle, MessageCircle, Star, User, ChevronRight, Clock, MapPin, Truck } from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
-import { useBook } from "../../context/BookContext";
+import { useAuth } from "../../context/useAuth";
+import { useBook } from "../../context/useBook";
 import { getBooksBySellerId, updateBookService } from "../../services/bookService";
 import { getSellerOrdersService, updateOrderStatusService } from "../../services/orderService";
 

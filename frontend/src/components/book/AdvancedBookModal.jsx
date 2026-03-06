@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Image as ImageIcon, Plus, Trash2, Tag, BookOpen, User, CreditCard, Award, Package, AlertTriangle, UploadCloud, ChevronDown, Check } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/useAuth';
 
 /**
  * AdvancedBookModal (Compact Version)

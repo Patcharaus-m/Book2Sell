@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SlidersHorizontal, ChevronDown, XCircle, SortAsc, SortDesc, Clock, Flame, User } from 'lucide-react';
-import { useBook } from '../../context/BookContext';
+import { useBook } from '../../context/useBook';
 
 /**
  * BookFilterBar (Refactored) - ตัดส่วนค้นหาออก ให้เหลือแค่ตัวกรองหมวดหมู่และราคา

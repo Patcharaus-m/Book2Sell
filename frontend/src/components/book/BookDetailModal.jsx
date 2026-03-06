@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { X, ShoppingCart, Info, CheckCircle, Package, MessageCircle, Star, User } from 'lucide-react';
+import { X, ShoppingCart, Info, CheckCircle, Package, MessageCircle, Star, User, Store } from 'lucide-react';
 import { useCart } from '../../context/useCart';
+import { useBook } from '../../context/useBook';
+import { useNavigate } from 'react-router-dom';
 import { getReviewsBySeller } from '../../services/reviewService';
 
 /**

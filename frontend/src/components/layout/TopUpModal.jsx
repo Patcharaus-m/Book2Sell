@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, Wallet, CreditCard, CheckCircle, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/useAuth';
 import { topUpService } from '../../services/userService';
 
 // Helper: format number with commas

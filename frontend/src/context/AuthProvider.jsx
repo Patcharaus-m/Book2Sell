@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import loginService from "../services/loginService";
 import registerService from "../services/registerService";
 import { topUpService } from "../services/userService";
-import { AuthContext } from "./AuthContext";
+import { AuthContext } from './AuthContext';
 
 /**
  * AuthProvider - จัดการระบบล็อกอินและการคงสถานะผู้ใช้ (Senior Level Implementation)
