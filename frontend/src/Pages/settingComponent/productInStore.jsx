@@ -134,7 +134,7 @@ export default function ProductInStore() {
 
     const getOrderStageInfo = (status) => {
         switch (status) {
-            case 'pending': return { label: 'รอยืนยัน', color: 'text-amber-600 bg-amber-50', next: 'ยืนยันออเดอร์' };
+            case 'pending': case 'preparing': return { label: 'รอยืนยัน', color: 'text-amber-600 bg-amber-50', next: 'ยืนยันออเดอร์' };
             case 'confirmed': return { label: 'ยืนยันแล้ว', color: 'text-blue-600 bg-blue-50', next: 'แจ้งจัดส่ง' };
             case 'shipped': return { label: 'จัดส่งแล้ว', color: 'text-purple-600 bg-purple-50', next: 'ยืนยันจัดส่งสำเร็จ' };
             case 'delivered': return { label: 'จัดส่งสำเร็จ', color: 'text-emerald-600 bg-emerald-50', next: null };
@@ -285,7 +285,7 @@ export default function ProductInStore() {
                                                     </div>
 
                                                 {/* Action Area */}
-                                                    {(order.shippingStatus || 'pending') === 'pending' ? (
+                                                    {(['pending', 'preparing'].includes(order.shippingStatus) || !order.shippingStatus) ? (
                                                         /* ยังไม่ยืนยัน → ปุ่มยืนยัน */
                                                         <button
                                                             disabled={updatingStatus === order._id}

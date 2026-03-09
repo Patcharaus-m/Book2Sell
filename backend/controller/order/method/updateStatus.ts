@@ -4,6 +4,7 @@ import { successRes, errRes } from "../../main";
 
 const VALID_TRANSITIONS: Record<string, string[]> = {
   pending: ["confirmed"],
+  preparing: ["confirmed"],  // legacy status ← backward compat
   confirmed: ["shipped", "delivered"],
   shipped: ["delivered"],
 };

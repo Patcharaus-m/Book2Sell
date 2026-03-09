@@ -12,7 +12,7 @@ const OrderSchema = new mongoose.Schema(
     },
     shippingStatus: { 
       type: String, 
-      enum: ["pending", "confirmed", "shipped", "delivered"],
+      enum: ["pending", "confirmed", "shipped", "delivered", "preparing"],
       default: "pending" 
     },
     trackingNumber: { type: String }, // เลข Tracking [cite: 15]
