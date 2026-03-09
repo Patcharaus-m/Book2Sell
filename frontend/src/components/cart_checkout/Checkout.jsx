@@ -14,7 +14,8 @@ import {
     BookOpen,
     MapPin,
     Save,
-    History
+    History,
+    Info
 } from "lucide-react";
 
 export default function Checkout() {
