@@ -17,16 +17,16 @@ const formatDate = (dateStr) =>
 
 const STAGES = [
     { key: "ordered", label: "สั่งซื้อสำเร็จ", icon: ShoppingBag },
-    { key: "paid", label: "ชำระเงินแล้ว", icon: CheckCircle },
-    { key: "processing", label: "กำลังดำเนินการ", icon: Package },
-    { key: "preparing", label: "กำลังจัดส่ง", icon: Truck },
-    { key: "shipped", label: "ได้รับหนังสือแล้ว", icon: CheckCircle },
+    { key: "confirmed", label: "ร้านค้ายืนยัน", icon: CheckCircle },
+    { key: "shipped", label: "จัดส่งแล้ว", icon: Truck },
+    { key: "delivered", label: "ได้รับหนังสือแล้ว", icon: CheckCircle },
 ];
 
 const stageIndex = (order) => {
-    const status = order.shippingStatus || 'paid';
-    const index = STAGES.findIndex(s => s.key === status);
-    return index !== -1 ? index : 0;
+    const status = order.shippingStatus || 'pending';
+    // "ordered" is always done (order exists), so map status to stage
+    const statusToStage = { pending: 0, confirmed: 1, shipped: 2, delivered: 3 };
+    return statusToStage[status] ?? 0;
 };
 
 // ---------- sub-components ----------
@@ -235,7 +235,7 @@ export default function History() {
                     {orders.map((order, idx) => {
                         const book = order.bookId; // populated
                         const orderId = order._id || order.id;
-                        const isShipped = true; // Force true to allow review immediately
+                        const isDelivered = order.shippingStatus === 'delivered';
                         const hasReviewed = reviewedIds.includes(orderId);
 
                         return (
@@ -297,7 +297,7 @@ export default function History() {
                                                     ? 'bg-purple-50 text-purple-700 border-purple-100'
                                                     : 'bg-emerald-50 text-emerald-700 border-emerald-100'
                                                     }`}>
-                                                    <CheckCircle size={10} /> {order.shippingStatus === 'paid' || !order.shippingStatus ? 'รอร้านค้ายืนยัน' : 'ชำระเงินแล้ว'}
+                                                    <CheckCircle size={10} /> {!order.shippingStatus || order.shippingStatus === 'pending' ? 'รอร้านค้ายืนยัน' : 'ชำระเงินแล้ว'}
                                                 </span>
                                             </div>
                                         </div>
@@ -308,24 +308,24 @@ export default function History() {
 
                                     {/* Shipping status description */}
                                     <div className={`px-5 py-3 rounded-2xl text-sm font-bold mb-6 flex items-center gap-2.5
-                                        ${order.shippingStatus === 'shipped'
+                                        ${order.shippingStatus === 'delivered'
                                             ? "bg-teal-50 text-teal-700 border border-teal-100"
-                                            : order.shippingStatus === 'paid' || !order.shippingStatus
+                                            : order.shippingStatus === 'pending' || !order.shippingStatus
                                                 ? "bg-purple-50 text-purple-700 border border-purple-100"
                                                 : "bg-amber-50 text-amber-700 border border-amber-100"}`}>
-                                        {order.shippingStatus === 'shipped' ? (
+                                        {order.shippingStatus === 'delivered' ? (
                                             <><Package size={16} /> หนังสือถูกจัดส่งถึงคุณแล้ว — ขอบคุณที่ซื้อกับเรา!</>
-                                        ) : order.shippingStatus === 'preparing' ? (
-                                            <><Truck size={16} /> ร้านค้ากำลังเตรียมจัดส่งหนังสือให้คุณ...</>
-                                        ) : order.shippingStatus === 'processing' ? (
-                                            <><Clock size={16} /> ร้านค้ากำลังดำเนินการตรวจสอบออเดอร์...</>
+                                        ) : order.shippingStatus === 'shipped' ? (
+                                            <><Truck size={16} /> ร้านค้าจัดส่งหนังสือให้คุณแล้ว...</>
+                                        ) : order.shippingStatus === 'confirmed' ? (
+                                            <><Clock size={16} /> ร้านค้ายืนยันออเดอร์แล้ว กำลังเตรียมจัดส่ง...</>
                                         ) : (
                                             <><ShoppingBag size={16} /> สั่งซื้อสำเร็จ! รอร้านค้ายืนยันรับออเดอร์...</>
                                         )}
                                     </div>
 
                                     {/* Review button — only available when shipped and not yet reviewed */}
-                                    {order.shippingStatus === 'shipped' && !hasReviewed && (
+                                    {order.shippingStatus === 'delivered' && !hasReviewed && (
                                         <button
                                             onClick={() => setReviewTarget(order)}
                                             className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-400 to-orange-400 text-white font-black rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-lg shadow-amber-200/50 text-sm"
@@ -335,7 +335,7 @@ export default function History() {
                                         </button>
                                     )}
 
-                                    {isShipped && hasReviewed && (
+                                    {isDelivered && hasReviewed && (
                                         <div className="flex items-center gap-2 text-sm font-bold text-gray-400">
                                             <CheckCircle size={14} className="text-emerald-400" />
                                             คุณรีวิวหนังสือเล่มนี้แล้ว

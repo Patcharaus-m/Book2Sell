@@ -3,35 +3,43 @@ import controller from "@/controller/order/method";
 import { errRes } from "../../controller/main";
 
 async function createOrder(req: Request, res: Response) {
-    // รับค่าจาก Frontend
     const { bookId, userId, shippingAddress } = req.body;
-    
-    // Debug: ดูข้อมูลที่ได้รับ
-    console.log('=== ORDER CREATE API ===');
-    console.log('Received body:', req.body);
-    console.log('bookId:', bookId);
-    console.log('userId:', userId);
-    console.log('shippingAddress:', shippingAddress);
 
     if (!bookId || !shippingAddress) {
-        console.log('VALIDATION FAILED: Missing bookId or shippingAddress');
         return res.status(400).json(errRes.BAD_REQUEST({ message: "กรุณาระบุที่อยู่จัดส่ง" }));
     }
 
-    // เรียก Controller
-    console.log('Calling controller.create...');
     const data = await controller.create({ bookId, buyerId: userId, shippingAddress });
-    console.log('Controller response:', data);
     return res.status(data.code).json(data);
 }
 
 async function getMyOrders(req: Request, res: Response) {
-    const { userId } = req.body; // หรือดึงจาก req.user.id
+    const { userId } = req.body;
     const data = await controller.getHistory(userId);
+    return res.status(data.code).json(data);
+}
+
+async function getSellerOrders(req: Request, res: Response) {
+    const { sellerId } = req.body;
+    if (!sellerId) {
+        return res.status(400).json(errRes.BAD_REQUEST({ message: "กรุณาระบุ sellerId" }));
+    }
+    const data = await controller.getSellerOrders(sellerId);
+    return res.status(data.code).json(data);
+}
+
+async function updateStatus(req: Request, res: Response) {
+    const { orderId, shippingStatus } = req.body;
+    if (!orderId || !shippingStatus) {
+        return res.status(400).json(errRes.BAD_REQUEST({ message: "กรุณาระบุ orderId และ shippingStatus" }));
+    }
+    const data = await controller.updateStatus({ orderId, shippingStatus });
     return res.status(data.code).json(data);
 }
 
 export default {
     createOrder,
-    getMyOrders
+    getMyOrders,
+    getSellerOrders,
+    updateStatus
 };

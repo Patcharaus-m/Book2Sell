@@ -112,18 +112,16 @@ export default function ProductInStore() {
 
     // --- Orders Handlers ---
     const handleUpdateStatus = async (orderId, currentStatus) => {
-        let nextStatus = '';
-        if (currentStatus === 'paid' || !currentStatus) nextStatus = 'processing';
-        else if (currentStatus === 'processing') nextStatus = 'preparing';
-        else if (currentStatus === 'preparing') nextStatus = 'shipped';
-        else return;
+        const FLOW = { pending: 'confirmed', confirmed: 'shipped', shipped: 'delivered' };
+        const nextStatus = FLOW[currentStatus];
+        if (!nextStatus) return;
 
         setUpdatingStatus(orderId);
         const result = await updateOrderStatusService(orderId, nextStatus);
-        if (result.status || result.code === 200) {
-            await fetchSellerOrders(); // Refresh list
+        if (!result.error && result.code < 400) {
+            await fetchSellerOrders();
         } else {
-            alert(result.message || "ไม่สามารถอัปเดตสถานะได้");
+            alert(result.error?.message || result.message || "ไม่สามารถอัปเดตสถานะได้");
         }
         setUpdatingStatus(null);
     };
@@ -138,11 +136,11 @@ export default function ProductInStore() {
 
     const getOrderStageInfo = (status) => {
         switch (status) {
-            case 'paid': return { label: 'ลูกค้ารอคุณยืนยัน', color: 'text-amber-600 bg-amber-50', next: 'ยืนยันออเดอร์ (Success)' };
-            case 'processing': return { label: 'ยืนยันออเดอร์แล้ว', color: 'text-blue-600 bg-blue-50', next: 'แพ็กสินค้าเสร็จแล้ว' };
-            case 'preparing': return { label: 'เตรียมจัดส่ง', color: 'text-purple-600 bg-purple-50', next: 'แจ้งจัดส่งสำเร็จ' };
-            case 'shipped': return { label: 'ส่งแล้ว', color: 'text-emerald-600 bg-emerald-50', next: null };
-            default: return { label: 'ลูกค้ารอคุณยืนยัน', color: 'text-amber-600 bg-amber-50', next: 'ยืนยันออเดอร์ (Success)' };
+            case 'pending': return { label: 'รอยืนยัน', color: 'text-amber-600 bg-amber-50', next: 'ยืนยันออเดอร์' };
+            case 'confirmed': return { label: 'ยืนยันแล้ว', color: 'text-blue-600 bg-blue-50', next: 'แจ้งจัดส่ง' };
+            case 'shipped': return { label: 'จัดส่งแล้ว', color: 'text-purple-600 bg-purple-50', next: 'ยืนยันจัดส่งสำเร็จ' };
+            case 'delivered': return { label: 'จัดส่งสำเร็จ', color: 'text-emerald-600 bg-emerald-50', next: null };
+            default: return { label: 'รอยืนยัน', color: 'text-amber-600 bg-amber-50', next: 'ยืนยันออเดอร์' };
         }
     };
 
@@ -249,7 +247,7 @@ export default function ProductInStore() {
                             <div className="space-y-6">
                                 {sellerOrders.map((order, idx) => {
                                     const book = order.bookId;
-                                    const stage = getOrderStageInfo(order.shippingStatus || 'paid');
+                                    const stage = getOrderStageInfo(order.shippingStatus || 'pending');
                                     return (
                                         <div key={order._id || idx} className="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-gray-200/50 flex flex-col md:flex-row gap-8 items-center group hover:shadow-2xl transition-all duration-500 border border-transparent hover:border-emerald-50">
                                             {/* Book Section */}
@@ -271,7 +269,7 @@ export default function ProductInStore() {
                                                 <h3 className="text-2xl font-black text-gray-900 mb-1 tracking-tight">{book?.title || 'Unknown Book'}</h3>
                                                 <div className="flex flex-wrap items-center gap-6 justify-center md:justify-start mb-4">
                                                     <div className="flex items-center gap-2 text-xs font-bold text-gray-500">
-                                                        <User size={14} className="text-emerald-400" /> {order.userId?.name || 'Customer'}
+                                                        <User size={14} className="text-emerald-400" /> {order.buyerId?.name || order.buyerId?.username || 'Customer'}
                                                     </div>
                                                     <div className="flex items-center gap-2 text-xs font-bold text-gray-500">
                                                         <Clock size={14} className="text-emerald-400" /> {new Date(order.createdAt).toLocaleDateString('th-TH')}
@@ -291,7 +289,7 @@ export default function ProductInStore() {
                                                     {stage.next && (
                                                         <button
                                                             disabled={updatingStatus === order._id}
-                                                            onClick={() => handleUpdateStatus(order._id || order.id, order.shippingStatus || 'paid')}
+                                                            onClick={() => handleUpdateStatus(order._id || order.id, order.shippingStatus || 'pending')}
                                                             className="px-6 py-3 bg-gray-900 hover:bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg active:scale-95 disabled:opacity-50 flex items-center gap-3"
                                                         >
                                                             {updatingStatus === order._id ? <Loader2 size={14} className="animate-spin" /> : <Truck size={14} />}

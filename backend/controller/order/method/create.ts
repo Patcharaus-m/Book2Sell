@@ -48,8 +48,8 @@ export default async function create(data: { bookId: string, buyerId: string, sh
       bookId,
       buyerId,
       shippingAddress,
-      paymentStatus: "paid", // ตัดเครดิตแล้วถือว่าจ่ายเลย
-      shippingStatus: "preparing"
+      paymentStatus: "paid",
+      shippingStatus: "pending"
     });
 
     return successRes({ 

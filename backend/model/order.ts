@@ -12,8 +12,8 @@ const OrderSchema = new mongoose.Schema(
     },
     shippingStatus: { 
       type: String, 
-      enum: ["preparing", "shipped"], // รอชำระเงิน -> กำลังเตรียมส่ง -> ส่งแล้ว [cite: 14]
-      default: "preparing" 
+      enum: ["pending", "confirmed", "shipped", "delivered"],
+      default: "pending" 
     },
     trackingNumber: { type: String }, // เลข Tracking [cite: 15]
   },

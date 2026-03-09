@@ -27,6 +27,7 @@ export default function Checkout() {
     const [isOrdered, setIsOrdered] = useState(false);
     const [error, setError] = useState('');
     const [addressError, setAddressError] = useState('');
+    const [isProcessing, setIsProcessing] = useState(false);
 
     // Address State
     const [address, setAddress] = useState({
@@ -73,10 +74,15 @@ export default function Checkout() {
     };
 
     const handleConfirmPayment = async () => {
+        // ป้องกันการกดซ้ำ
+        if (isProcessing) return;
+        setIsProcessing(true);
+
         // ตรวจสอบเครดิตก่อน
         if ((user?.creditBalance || 0) < totalAmount) {
             setError("ยอดเงินคงเหลือไม่พอ กรุณาเติมเครดิต");
             setShowConfirmModal(false);
+            setIsProcessing(false);
             return;
         }
 
@@ -149,6 +155,7 @@ export default function Checkout() {
         if (!allSuccess) {
             setError(lastError);
             setShowConfirmModal(false);
+            setIsProcessing(false);
             return;
         }
 
@@ -489,9 +496,10 @@ export default function Checkout() {
                                 <div className="w-full space-y-4">
                                     <button
                                         onClick={handleConfirmPayment}
-                                        className="w-full py-5 bg-gray-900 text-white font-black rounded-2xl hover:bg-emerald-600 transition-all"
+                                        disabled={isProcessing}
+                                        className={`w-full py-5 font-black rounded-2xl transition-all ${isProcessing ? 'bg-gray-400 text-gray-200 cursor-not-allowed' : 'bg-gray-900 text-white hover:bg-emerald-600'}`}
                                     >
-                                        ยืนยันและสั่งซื้อ
+                                        {isProcessing ? 'กำลังดำเนินการ...' : 'ยืนยันและสั่งซื้อ'}
                                     </button>
                                     <button
                                         onClick={() => setShowConfirmModal(false)}
