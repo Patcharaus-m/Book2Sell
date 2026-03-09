@@ -111,13 +111,11 @@ export default function ProductInStore() {
     };
 
     // --- Orders Handlers ---
-    const handleUpdateStatus = async (orderId, currentStatus) => {
-        const FLOW = { pending: 'confirmed', confirmed: 'shipped', shipped: 'delivered' };
-        const nextStatus = FLOW[currentStatus];
-        if (!nextStatus) return;
+    const handleUpdateStatus = async (orderId, newStatus) => {
+        if (!newStatus) return;
 
         setUpdatingStatus(orderId);
-        const result = await updateOrderStatusService(orderId, nextStatus);
+        const result = await updateOrderStatusService(orderId, newStatus);
         if (!result.error && result.code < 400) {
             await fetchSellerOrders();
         } else {
@@ -286,16 +284,45 @@ export default function ProductInStore() {
                                                         <p className="text-xl font-black text-emerald-600">{(book?.sellingPrice || 0).toLocaleString()} <i className="bi bi-coin" /></p>
                                                     </div>
 
-                                                    {stage.next && (
+                                                {/* Action Area */}
+                                                    {(order.shippingStatus || 'pending') === 'pending' ? (
+                                                        /* ยังไม่ยืนยัน → ปุ่มยืนยัน */
                                                         <button
                                                             disabled={updatingStatus === order._id}
-                                                            onClick={() => handleUpdateStatus(order._id || order.id, order.shippingStatus || 'pending')}
+                                                            onClick={() => handleUpdateStatus(order._id || order.id, 'confirmed')}
                                                             className="px-6 py-3 bg-gray-900 hover:bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg active:scale-95 disabled:opacity-50 flex items-center gap-3"
                                                         >
-                                                            {updatingStatus === order._id ? <Loader2 size={14} className="animate-spin" /> : <Truck size={14} />}
-                                                            {stage.next}
+                                                            {updatingStatus === order._id ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle size={14} />}
+                                                            ยืนยันออเดอร์
                                                             <ChevronRight size={14} className="ml-1" />
                                                         </button>
+                                                    ) : (order.shippingStatus || 'pending') === 'delivered' ? (
+                                                        /* จัดส่งสำเร็จ → แสดง badge */
+                                                        <span className="px-5 py-3 bg-emerald-50 text-emerald-600 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                                                            <CheckCircle size={14} /> จัดส่งสำเร็จ
+                                                        </span>
+                                                    ) : (
+                                                        /* ยืนยันแล้ว → dropdown เลือกสถานะ */
+                                                        <div className="flex items-center gap-3">
+                                                            <select
+                                                                disabled={updatingStatus === order._id}
+                                                                defaultValue=""
+                                                                onChange={(e) => {
+                                                                    if (e.target.value) handleUpdateStatus(order._id || order.id, e.target.value);
+                                                                    e.target.value = '';
+                                                                }}
+                                                                className="px-4 py-3 bg-white border-2 border-gray-200 hover:border-emerald-400 rounded-xl text-xs font-black text-gray-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all disabled:opacity-50"
+                                                            >
+                                                                <option value="" disabled>เปลี่ยนสถานะ...</option>
+                                                                {order.shippingStatus === 'confirmed' && (
+                                                                    <option value="shipped">📦 จัดส่งแล้ว</option>
+                                                                )}
+                                                                {(order.shippingStatus === 'confirmed' || order.shippingStatus === 'shipped') && (
+                                                                    <option value="delivered">✅ จัดส่งสำเร็จ</option>
+                                                                )}
+                                                            </select>
+                                                            {updatingStatus === order._id && <Loader2 size={16} className="animate-spin text-emerald-500" />}
+                                                        </div>
                                                     )}
                                                 </div>
                                             </div>

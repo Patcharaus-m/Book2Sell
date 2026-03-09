@@ -2,10 +2,10 @@ import Order from "@/model/order";
 import Book from "@/model/book";
 import { successRes, errRes } from "../../main";
 
-const VALID_TRANSITIONS: Record<string, string> = {
-  pending: "confirmed",
-  confirmed: "shipped",
-  shipped: "delivered",
+const VALID_TRANSITIONS: Record<string, string[]> = {
+  pending: ["confirmed"],
+  confirmed: ["shipped", "delivered"],
+  shipped: ["delivered"],
 };
 
 export default async function updateStatus(data: { orderId: string; shippingStatus: string; sellerId?: string }) {
@@ -19,7 +19,7 @@ export default async function updateStatus(data: { orderId: string; shippingStat
     const currentStatus = order.shippingStatus || "pending";
     const expectedNext = VALID_TRANSITIONS[currentStatus];
 
-    if (shippingStatus !== expectedNext) {
+    if (!expectedNext || !expectedNext.includes(shippingStatus)) {
       return errRes.BAD_REQUEST({
         message: `ไม่สามารถเปลี่ยนสถานะจาก "${currentStatus}" เป็น "${shippingStatus}" ได้`,
       });
